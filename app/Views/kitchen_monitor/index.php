@@ -329,6 +329,104 @@
         color: #fff;
     }
 
+
+    .kds-card.kds-new-attention {
+        border: 2px solid #2563eb;
+        background: #eff6ff;
+        animation: kdsPulseBlue 1.25s infinite;
+    }
+
+    .kds-card.kds-warning-flash {
+        animation: kdsPulseOrange 1.35s infinite;
+    }
+
+    .kds-card.kds-danger-flash {
+        animation: kdsPulseRed 1s infinite;
+    }
+
+    .kds-attention-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 10px 0 6px;
+    }
+
+    .kds-attention-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: .1px;
+    }
+
+    .kds-attention-chip-new {
+        background: #dbeafe;
+        color: #1d4ed8;
+        border: 1px solid #93c5fd;
+    }
+
+    .kds-attention-chip-do {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #f59e0b;
+    }
+
+    .kds-attention-chip-serve {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #22c55e;
+    }
+
+    .kds-attention-chip-warn {
+        background: #ffedd5;
+        color: #c2410c;
+        border: 1px solid #fb923c;
+    }
+
+    .kds-attention-chip-danger {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #ef4444;
+    }
+
+    .kds-help-line {
+        margin-top: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #6b7280;
+    }
+
+    .kitchen-cancel-btn {
+        width: 100%;
+        min-height: 50px;
+        font-size: 18px;
+        font-weight: 800;
+        border-radius: 12px;
+        margin-top: 10px !important;
+    }
+
+    @keyframes kdsPulseBlue {
+        0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45); }
+        70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    }
+
+    @keyframes kdsPulseOrange {
+        0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.40); }
+        70% { box-shadow: 0 0 0 12px rgba(249, 115, 22, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+    }
+
+    @keyframes kdsPulseRed {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45); }
+        70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
     .kds-col-wrap.is-hidden {
         display: none !important;
     }
@@ -367,21 +465,6 @@
         font-weight: 800;
         border-radius: 12px;
         margin-top: 12px !important;
-    }
-
-    .kitchen-action-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 10px;
-        margin-top: 12px;
-    }
-
-    .kitchen-cancel-btn {
-        width: 100%;
-        min-height: 50px;
-        font-size: 18px;
-        font-weight: 800;
-        border-radius: 12px;
     }
 
     .kds-col-count {
@@ -545,6 +628,9 @@
     let quickFilter = 'all';
     let focusMode = false;
 
+    const locale = '<?= esc(service('request')->getLocale()) ?>';
+    const isThaiLocale = locale === 'th';
+
     const i18n = {
 		kitchen: '<?= esc(lang('app.kitchen')) ?>',
 		table: '<?= esc(lang('app.table')) ?>',
@@ -564,11 +650,25 @@
 		actionServed: '<?= esc(lang('app.kitchen_action_served')) ?>',
 		movedTable: '<?= esc(lang('app.moved_table')) ?>',
 		moveNote: '<?= esc(lang('app.move_note')) ?>',
-		mergedBill: 'รวมบิลแล้ว',
-		serveToTable: 'เสิร์ฟที่โต๊ะ',
-		mergedFromTable: 'จากโต๊ะ',
-		mergedTargetOrder: 'บิลปลายทาง',
-		mergeReason: 'เหตุผลรวมบิล'
+		mergedBill: isThaiLocale ? 'รวมบิลแล้ว' : 'Merged bill',
+		serveToTable: isThaiLocale ? 'เสิร์ฟที่โต๊ะ' : 'Serve to table',
+		mergedFromTable: isThaiLocale ? 'จากโต๊ะ' : 'From table',
+		mergedTargetOrder: isThaiLocale ? 'บิลปลายทาง' : 'Target bill',
+		mergeReason: isThaiLocale ? 'เหตุผลรวมบิล' : 'Merge reason',
+		cancelAction: isThaiLocale ? 'ยกเลิก' : 'Cancel',
+		cancelConfirm: isThaiLocale ? 'ยืนยันการยกเลิกรายการนี้ใช่หรือไม่?' : 'Are you sure you want to cancel this item?',
+		newItem: isThaiLocale ? 'มาใหม่' : 'New item',
+		waitingLong: isThaiLocale ? 'รอนาน' : 'Waiting long',
+		veryLate: isThaiLocale ? 'เร่งด่วนมาก' : 'Urgent now',
+		doNow: isThaiLocale ? 'ต้องเริ่มทำ' : 'Start now',
+		rushNow: isThaiLocale ? 'ควรเร่งทำ' : 'Rush now',
+		serveNow: isThaiLocale ? 'พร้อมเสิร์ฟ' : 'Serve now',
+		doneState: isThaiLocale ? 'เสร็จแล้ว' : 'Done',
+		waitingHint: isThaiLocale ? 'รายการนี้รอมานานแล้ว' : 'This item has been waiting a long time',
+		newHint: isThaiLocale ? 'รายการนี้เพิ่งเข้ามาใหม่' : 'This item just arrived',
+		readyHint: isThaiLocale ? 'รายการนี้พร้อมส่งออกแล้ว' : 'This item is ready to go',
+		servedHint: isThaiLocale ? 'ปิดงานรายการนี้แล้ว' : 'This item is completed',
+		preparingHint: isThaiLocale ? 'รายการนี้กำลังทำอยู่' : 'This item is being prepared'
 	};
 
     const csrfName = <?= json_encode(csrf_token()) ?>;
@@ -710,23 +810,64 @@
         return null;
     }
 
-    function canCancelFromBoard(boardStatus) {
-        return ['new', 'preparing', 'ready'].includes(String(boardStatus || '').toLowerCase().trim());
+    function getAttentionMeta(item, boardStatus) {
+        const ageMinutes = getAgeMinutes(item.sent_at || item.created_at || '');
+        const meta = {
+            cardClass: '',
+            chips: [],
+            hint: ''
+        };
+
+        if (boardStatus === 'new') {
+            meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-do">🍳 ${escapeHtml(i18n.doNow)}</span>`);
+            meta.hint = i18n.newHint;
+
+            if (ageMinutes <= 2) {
+                meta.cardClass += ' kds-new-attention';
+                meta.chips.unshift(`<span class="kds-attention-chip kds-attention-chip-new">✨ ${escapeHtml(i18n.newItem)}</span>`);
+            }
+        } else if (boardStatus === 'preparing') {
+            meta.hint = i18n.preparingHint;
+        } else if (boardStatus === 'ready') {
+            meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-serve">🛎 ${escapeHtml(i18n.serveNow)}</span>`);
+            meta.hint = i18n.readyHint;
+        } else if (boardStatus === 'served') {
+            meta.hint = i18n.servedHint;
+        }
+
+        if (ageMinutes >= 16) {
+            meta.cardClass += ' kds-danger-flash';
+            meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-danger">⏰ ${escapeHtml(i18n.veryLate)}</span>`);
+            meta.hint = i18n.waitingHint;
+        } else if (ageMinutes >= 6) {
+            meta.cardClass += ' kds-warning-flash';
+            meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-warn">⏳ ${escapeHtml(i18n.waitingLong)}</span>`);
+            if (boardStatus === 'preparing') {
+                meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-do">🔥 ${escapeHtml(i18n.rushNow)}</span>`);
+            }
+            meta.hint = i18n.waitingHint;
+        }
+
+        if (boardStatus === 'served') {
+            meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-serve">✅ ${escapeHtml(i18n.doneState)}</span>`);
+        }
+
+        return meta;
     }
 
     function renderActionButtons(item) {
         const boardStatus = normalizeBoardStatus(item);
         const action = getActionConfig(boardStatus);
-        const itemId = Number(item.order_item_id || item.item_id || 0);
 
+        const itemId = Number(item.order_item_id || item.item_id || 0);
         if (!itemId) {
             return '';
         }
 
-        const buttons = [];
+        let html = '';
 
         if (action) {
-            buttons.push(`
+            html += `
                 <button
                     type="button"
                     class="btn ${action.className} kitchen-status-btn"
@@ -734,26 +875,22 @@
                     data-status="${escapeHtml(action.nextStatus)}">
                     ${escapeHtml(action.label)}
                 </button>
-            `);
+            `;
         }
 
-        if (canCancelFromBoard(boardStatus)) {
-            buttons.push(`
+        if (boardStatus !== 'served') {
+            html += `
                 <button
                     type="button"
                     class="btn btn-danger kitchen-cancel-btn"
                     data-item-id="${itemId}"
                     data-status="cancel">
-                    ❌ ${escapeHtml(i18n.actionCancel)}
+                    ❌ ${escapeHtml(i18n.cancelAction)}
                 </button>
-            `);
+            `;
         }
 
-        if (!buttons.length) {
-            return '';
-        }
-
-        return `<div class="kitchen-action-grid">${buttons.join('')}</div>`;
+        return html;
     }
 
     function searchableText(item) {
@@ -775,7 +912,6 @@
 	}
 
     function renderCard(item, indexInColumn) {
-        const locale = '<?= esc(service('request')->getLocale()) ?>';
         const boardStatus = normalizeBoardStatus(item);
 
         let stationName = item.station_display_name || item.station_name || i18n.kitchen;
@@ -798,6 +934,7 @@
         const actions = renderActionButtons(item);
         const searchText = searchableText(item);
         const queueNo = Number(indexInColumn || 0) + 1;
+        const attentionMeta = getAttentionMeta(item, boardStatus);
 
         const movedFrom = item.moved_from_table_name || '';
 		const movedTo = item.moved_to_table_name || '';
@@ -851,7 +988,7 @@
 
         return `
             <div
-                class="kds-card ${urgencyClass} p-3 mb-3"
+                class="kds-card ${urgencyClass}${attentionMeta.cardClass} p-3 mb-3"
                 data-board-status="${escapeHtml(boardStatus)}"
                 data-search="${escapeHtml(searchText)}">
                 <div class="d-flex justify-content-between align-items-start mb-2">
@@ -878,6 +1015,9 @@
                     <span class="badge bg-dark kds-queue-badge">${escapeHtml(i18n.itemCountLabel)} x ${escapeHtml(item.qty || 1)}</span>
                     ${ageText ? `<span class="badge ${ageClass} kds-queue-badge">${escapeHtml(ageText)}</span>` : ''}
                 </div>
+
+                ${attentionMeta.chips.length ? `<div class="kds-attention-strip">${attentionMeta.chips.join('')}</div>` : ''}
+                ${attentionMeta.hint ? `<div class="kds-help-line">${escapeHtml(attentionMeta.hint)}</div>` : ''}
 
                 <div class="kds-meta text-muted mt-3">
                     <div>${escapeHtml(i18n.sentLabel)}: ${escapeHtml(sentAt)}</div>
@@ -929,26 +1069,42 @@
             }
 
             const ctx = new AudioContextClass();
+            const compressor = ctx.createDynamicsCompressor();
+            const masterGain = ctx.createGain();
 
-            const tone1 = ctx.createOscillator();
-            const gain1 = ctx.createGain();
-            tone1.type = 'sine';
-            tone1.frequency.setValueAtTime(880, ctx.currentTime);
-            gain1.gain.setValueAtTime(0.08, ctx.currentTime);
-            tone1.connect(gain1);
-            gain1.connect(ctx.destination);
-            tone1.start();
-            tone1.stop(ctx.currentTime + 0.20);
+            compressor.threshold.setValueAtTime(-18, ctx.currentTime);
+            compressor.knee.setValueAtTime(18, ctx.currentTime);
+            compressor.ratio.setValueAtTime(10, ctx.currentTime);
+            compressor.attack.setValueAtTime(0.003, ctx.currentTime);
+            compressor.release.setValueAtTime(0.25, ctx.currentTime);
 
-            const tone2 = ctx.createOscillator();
-            const gain2 = ctx.createGain();
-            tone2.type = 'sine';
-            tone2.frequency.setValueAtTime(988, ctx.currentTime + 0.24);
-            gain2.gain.setValueAtTime(0.08, ctx.currentTime + 0.24);
-            tone2.connect(gain2);
-            gain2.connect(ctx.destination);
-            tone2.start(ctx.currentTime + 0.24);
-            tone2.stop(ctx.currentTime + 0.52);
+            masterGain.gain.setValueAtTime(0.9, ctx.currentTime);
+            compressor.connect(masterGain);
+            masterGain.connect(ctx.destination);
+
+            const tones = [
+                { freq: 1046, start: 0.00, end: 0.22, gain: 0.22 },
+                { freq: 1318, start: 0.26, end: 0.48, gain: 0.22 },
+                { freq: 1567, start: 0.52, end: 0.82, gain: 0.24 }
+            ];
+
+            tones.forEach(function (toneCfg) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(toneCfg.freq, ctx.currentTime + toneCfg.start);
+
+                gain.gain.setValueAtTime(0.0001, ctx.currentTime + toneCfg.start);
+                gain.gain.exponentialRampToValueAtTime(toneCfg.gain, ctx.currentTime + toneCfg.start + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + toneCfg.end);
+
+                osc.connect(gain);
+                gain.connect(compressor);
+
+                osc.start(ctx.currentTime + toneCfg.start);
+                osc.stop(ctx.currentTime + toneCfg.end + 0.02);
+            });
         } catch (e) {
             console.error('Kitchen alert sound error:', e);
         }
@@ -1029,8 +1185,9 @@
             return;
         }
 
-        if (String(status).toLowerCase().trim() === 'cancel') {
-            if (!window.confirm(i18n.confirmCancel)) {
+        if (String(status).toLowerCase() === 'cancel') {
+            const ok = window.confirm(i18n.cancelConfirm);
+            if (!ok) {
                 return;
             }
         }
@@ -1156,7 +1313,7 @@
     });
 
     document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.kitchen-status-btn[data-item-id][data-status]');
+        const btn = e.target.closest('.kitchen-status-btn[data-item-id][data-status], .kitchen-cancel-btn[data-item-id][data-status]');
         if (btn) {
             updateStatus(btn.getAttribute('data-item-id'), btn.getAttribute('data-status'), btn);
             return;
