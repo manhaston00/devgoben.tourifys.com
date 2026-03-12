@@ -210,6 +210,116 @@ class KitchenMonitorController extends BaseController
         return $row;
     }
 
+
+    protected function normalizeBillableItemStatus(?string $status): string
+    {
+        $status = strtolower(trim((string) $status));
+
+        $map = [
+            ''           => 'pending',
+            'new'        => 'pending',
+            'open'       => 'pending',
+            'pending'    => 'pending',
+            'sent'       => 'sent',
+            'preparing'  => 'preparing',
+            'cooking'    => 'preparing',
+            'ready'      => 'ready',
+            'served'     => 'served',
+            'cancel'     => 'cancelled',
+            'cancelled'  => 'cancelled',
+            'canceled'   => 'cancelled',
+        ];
+
+        return $map[$status] ?? $status;
+    }
+
+    protected function isNonBillableItemStatus(?string $status): bool
+    {
+        $status = $this->normalizeBillableItemStatus($status);
+
+        return in_array($status, ['pending', 'cancelled'], true);
+    }
+
+    protected function recalculateOrderTotals(int $orderId): void
+    {
+        if ($orderId <= 0) {
+            return;
+        }
+
+        $tenantId = $this->currentTenantId();
+        $branchId = $this->currentBranchId();
+        $db       = \Config\Database::connect();
+
+        $orderBuilder = $this->orderModel
+            ->where('id', $orderId)
+            ->where('tenant_id', $tenantId);
+
+        if ($branchId > 0 && $db->fieldExists('branch_id', 'orders')) {
+            $orderBuilder->where('branch_id', $branchId);
+        }
+
+        $order = $orderBuilder->first();
+
+        if (! $order) {
+            return;
+        }
+
+        $itemBuilder = $this->orderItemModel->where('order_id', $orderId);
+
+        if ($db->fieldExists('tenant_id', 'order_items')) {
+            $itemBuilder->groupStart()
+                ->where('tenant_id', $tenantId)
+                ->orWhere('tenant_id', null)
+                ->orWhere('tenant_id', 0)
+                ->groupEnd();
+        }
+
+        if ($branchId > 0 && $db->fieldExists('branch_id', 'order_items')) {
+            $itemBuilder->groupStart()
+                ->where('branch_id', $branchId)
+                ->orWhere('branch_id', null)
+                ->orWhere('branch_id', 0)
+                ->groupEnd();
+        }
+
+        $items = $itemBuilder->findAll();
+        $subtotal = 0.0;
+        $now = date('Y-m-d H:i:s');
+
+        foreach ($items as $row) {
+            $qty       = (int) ($row['qty'] ?? 0);
+            $unitPrice = (float) ($row['price'] ?? 0);
+            $lineTotal = $this->isNonBillableItemStatus($row['status'] ?? '')
+                ? 0.0
+                : ($qty * $unitPrice);
+
+            $this->orderItemModel->update((int) ($row['id'] ?? 0), [
+                'line_total' => $lineTotal,
+                'updated_at' => $now,
+            ]);
+
+            $subtotal += $lineTotal;
+        }
+
+        $discount = (float) ($order['discount_amount'] ?? 0);
+        $service  = (float) ($order['service_charge'] ?? 0);
+        $vat      = (float) ($order['vat_amount'] ?? 0);
+        $total    = $subtotal - $discount + $service + $vat;
+
+        if ($total < 0) {
+            $total = 0;
+        }
+
+        $this->orderModel->update($orderId, [
+            'subtotal'        => $subtotal,
+            'discount_amount' => $discount,
+            'service_charge'  => $service,
+            'vat_amount'      => $vat,
+            'total_price'     => $total,
+            'updated_at'      => $now,
+        ]);
+    }
+
     public function index()
     {
         $stationId = (int) ($this->request->getGet('station_id') ?? 0);
@@ -298,6 +408,12 @@ class KitchenMonitorController extends BaseController
             'updated_at' => $now,
         ];
 
+        if ($this->isNonBillableItemStatus($status)) {
+            $data['line_total'] = 0;
+        } else {
+            $data['line_total'] = ((float) ($item['price'] ?? 0)) * (int) ($item['qty'] ?? 0);
+        }
+
         if ($status === 'sent' && empty($item['sent_at'])) {
             $data['sent_at'] = $now;
         }
@@ -345,6 +461,8 @@ class KitchenMonitorController extends BaseController
         if ($ticketId > 0) {
             $this->kitchenTicketModel->refreshStatusByTicketId($this->currentTenantId(), $ticketId);
         }
+
+        $this->recalculateOrderTotals((int) ($item['order_id'] ?? 0));
 
         return $this->response->setJSON([
             'status'  => 'success',
