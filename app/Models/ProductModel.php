@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\TenantScopedModel;
-
 class ProductModel extends TenantScopedModel
 {
     protected $table            = 'products';
@@ -13,6 +11,9 @@ class ProductModel extends TenantScopedModel
     protected $useTimestamps    = true;
     protected $useSoftDeletes   = true;
     protected $deletedField     = 'deleted_at';
+
+    protected $beforeInsert = ['beforeInsertTenant'];
+    protected $beforeUpdate = ['beforeUpdateTenant'];
 
     protected $allowedFields = [
         'tenant_id',
@@ -35,52 +36,84 @@ class ProductModel extends TenantScopedModel
     ];
 
     public function findTenantProduct(int $tenantId, int $id): ?array
-	{
-		if ($tenantId <= 0 || $id <= 0) {
-			return null;
-		}
+    {
+        if ($tenantId <= 0 || $id <= 0) {
+            return null;
+        }
 
-		$row = $this->builder()
-			->select('products.*')
-			->where('products.tenant_id', $tenantId)
-			->where('products.id', $id)
-			->where('products.deleted_at IS NULL', null, false)
-			->get()
-			->getRowArray();
+        return $this->builder()
+            ->select('products.*')
+            ->where('products.tenant_id', $tenantId)
+            ->where('products.id', $id)
+            ->where('products.deleted_at IS NULL', null, false)
+            ->get()
+            ->getRowArray() ?: null;
+    }
 
-		return is_array($row) ? $row : null;
-	}
+    public function findCurrentTenantProduct(int $id): ?array
+    {
+        if ($id <= 0) {
+            return null;
+        }
+
+        return $this->findScoped($id);
+    }
 
     public function getTenantProducts(int $tenantId): array
-	{
-		if ($tenantId <= 0) {
-			return [];
-		}
+    {
+        if ($tenantId <= 0) {
+            return [];
+        }
 
-		return $this->builder()
-			->select('products.*')
-			->where('products.tenant_id', $tenantId)
-			->where('products.deleted_at IS NULL', null, false)
-			->orderBy('products.sort_order', 'ASC')
-			->orderBy('products.id', 'DESC')
-			->get()
-			->getResultArray();
-	}
+        return $this->builder()
+            ->select('products.*')
+            ->where('products.tenant_id', $tenantId)
+            ->where('products.deleted_at IS NULL', null, false)
+            ->orderBy('products.sort_order', 'ASC')
+            ->orderBy('products.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
 
-	public function getProductsByCategory(int $tenantId, int $categoryId): array
-	{
-		if ($tenantId <= 0 || $categoryId <= 0) {
-			return [];
-		}
+    public function getCurrentTenantProducts(): array
+    {
+        return $this->scopedBuilder()
+            ->where('products.deleted_at IS NULL', null, false)
+            ->orderBy('products.sort_order', 'ASC')
+            ->orderBy('products.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
 
-		return $this->builder()
-			->select('products.*')
-			->where('products.tenant_id', $tenantId)
-			->where('products.category_id', $categoryId)
-			->where('products.deleted_at IS NULL', null, false)
-			->orderBy('products.sort_order', 'ASC')
-			->orderBy('products.id', 'DESC')
-			->get()
-			->getResultArray();
-	}
+    public function getProductsByCategory(int $tenantId, int $categoryId): array
+    {
+        if ($tenantId <= 0 || $categoryId <= 0) {
+            return [];
+        }
+
+        return $this->builder()
+            ->select('products.*')
+            ->where('products.tenant_id', $tenantId)
+            ->where('products.category_id', $categoryId)
+            ->where('products.deleted_at IS NULL', null, false)
+            ->orderBy('products.sort_order', 'ASC')
+            ->orderBy('products.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function getCurrentTenantProductsByCategory(int $categoryId): array
+    {
+        if ($categoryId <= 0) {
+            return [];
+        }
+
+        return $this->scopedBuilder()
+            ->where('products.category_id', $categoryId)
+            ->where('products.deleted_at IS NULL', null, false)
+            ->orderBy('products.sort_order', 'ASC')
+            ->orderBy('products.id', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
 }

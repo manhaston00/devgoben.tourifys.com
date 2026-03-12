@@ -130,48 +130,68 @@ class UserModel extends TenantScopedModel
     }
 
     protected function usersWithRoleBuilder(?int $tenantId = null, ?int $branchId = null)
-    {
-        $builder = $this->builder();
+	{
+		$builder = $this->builder();
 
-        $builder->select("
-            users.*,
-            roles.role_name,
-            roles.role_name_th,
-            roles.role_name_en,
-            roles.tenant_id AS role_tenant_id,
-            branches.branch_code,
-            branches.branch_name,
-            branches.branch_name_th,
-            branches.branch_name_en,
-            tenants.tenant_code,
-            COALESCE(tenants.login_prefix, tenants.tenant_code) AS login_prefix
-        ");
+		$builder->select("
+			users.*,
+			roles.role_name,
+			roles.role_name_th,
+			roles.role_name_en,
+			roles.tenant_id AS role_tenant_id,
+			branches.branch_code,
+			branches.branch_name,
+			branches.branch_name_th,
+			branches.branch_name_en,
+			branches.tenant_id AS branch_tenant_id,
+			tenants.tenant_code,
+			COALESCE(tenants.login_prefix, tenants.tenant_code) AS login_prefix
+		");
 
-        $builder->join('roles', 'roles.id = users.role_id AND roles.deleted_at IS NULL', 'left');
-        $builder->join('branches', 'branches.id = users.branch_id AND branches.deleted_at IS NULL', 'left');
-        $builder->join('tenants', 'tenants.id = users.tenant_id AND tenants.deleted_at IS NULL', 'left');
-        $builder->where('users.deleted_at', null);
+		$builder->join(
+			'roles',
+			'roles.id = users.role_id
+			 AND roles.deleted_at IS NULL
+			 AND (roles.tenant_id = users.tenant_id OR roles.tenant_id IS NULL)',
+			'left'
+		);
 
-        if (! empty($tenantId)) {
-            $builder->where('users.tenant_id', (int) $tenantId);
-            $builder->where('roles.tenant_id', (int) $tenantId);
-        }
+		$builder->join(
+			'branches',
+			'branches.id = users.branch_id
+			 AND branches.deleted_at IS NULL
+			 AND branches.tenant_id = users.tenant_id',
+			'left'
+		);
 
-        if (! empty($branchId)) {
-            $builder->where('users.branch_id', (int) $branchId);
-        }
+		$builder->join(
+			'tenants',
+			'tenants.id = users.tenant_id
+			 AND tenants.deleted_at IS NULL',
+			'left'
+		);
 
-        if (!(function_exists('is_super_admin') && is_super_admin())) {
-            $builder->where('users.tenant_id >', 0);
-            $builder->groupStart()
-                ->where('LOWER(COALESCE(roles.role_name, "")) !=', 'super_admin')
-                ->where('LOWER(COALESCE(roles.role_name_en, "")) !=', 'super_admin')
-                ->where('LOWER(COALESCE(roles.role_name_th, "")) !=', 'super_admin')
-            ->groupEnd();
-        }
+		$builder->where('users.deleted_at', null);
 
-        return $builder;
-    }
+		if (! empty($tenantId)) {
+			$builder->where('users.tenant_id', (int) $tenantId);
+		}
+
+		if (! empty($branchId)) {
+			$builder->where('users.branch_id', (int) $branchId);
+		}
+
+		if (!(function_exists('is_super_admin') && is_super_admin())) {
+			$builder->where('users.tenant_id >', 0);
+			$builder->groupStart()
+				->where('LOWER(COALESCE(roles.role_name, "")) !=', 'super_admin')
+				->where('LOWER(COALESCE(roles.role_name_en, "")) !=', 'super_admin')
+				->where('LOWER(COALESCE(roles.role_name_th, "")) !=', 'super_admin')
+				->groupEnd();
+		}
+
+		return $builder;
+	}
 
     public function getUsersWithRole(?int $tenantId = null, ?int $branchId = null): array
     {
@@ -285,35 +305,56 @@ class UserModel extends TenantScopedModel
     }
 
     public function findActiveLoginUser(string $username): ?array
-    {
-        $username = strtolower(trim($username));
+	{
+		$username = strtolower(trim($username));
 
-        $row = $this->select('
-                users.*,
-                roles.role_name,
-                roles.role_name_th,
-                roles.role_name_en,
-                roles.tenant_id AS role_tenant_id,
-                branches.tenant_id AS branch_tenant_id,
-                branches.branch_code,
-                branches.branch_name,
-                branches.branch_name_th,
-                branches.branch_name_en,
-                branches.default_locale,
-                branches.status AS branch_status,
-                tenants.tenant_code,
-                COALESCE(tenants.login_prefix, tenants.tenant_code) AS login_prefix
-            ')
-            ->join('roles', 'roles.id = users.role_id AND roles.deleted_at IS NULL', 'left')
-            ->join('branches', 'branches.id = users.branch_id AND branches.deleted_at IS NULL', 'left')
-            ->join('tenants', 'tenants.id = users.tenant_id AND tenants.deleted_at IS NULL', 'left')
-            ->where('LOWER(users.username)', $username)
-            ->where('users.status', 1)
-            ->where('users.deleted_at', null)
-            ->first();
+		if ($username === '') {
+			return null;
+		}
 
-        return $row ?: null;
-    }
+		$row = $this->select('
+				users.*,
+				roles.role_name,
+				roles.role_name_th,
+				roles.role_name_en,
+				roles.tenant_id AS role_tenant_id,
+				branches.tenant_id AS branch_tenant_id,
+				branches.branch_code,
+				branches.branch_name,
+				branches.branch_name_th,
+				branches.branch_name_en,
+				branches.default_locale,
+				branches.status AS branch_status,
+				tenants.tenant_code,
+				COALESCE(tenants.login_prefix, tenants.tenant_code) AS login_prefix
+			')
+			->join(
+				'roles',
+				'roles.id = users.role_id
+				 AND roles.deleted_at IS NULL
+				 AND (roles.tenant_id = users.tenant_id OR roles.tenant_id IS NULL)',
+				'left'
+			)
+			->join(
+				'branches',
+				'branches.id = users.branch_id
+				 AND branches.deleted_at IS NULL
+				 AND branches.tenant_id = users.tenant_id',
+				'left'
+			)
+			->join(
+				'tenants',
+				'tenants.id = users.tenant_id
+				 AND tenants.deleted_at IS NULL',
+				'left'
+			)
+			->where('LOWER(users.username)', $username)
+			->where('users.status', 1)
+			->where('users.deleted_at', null)
+			->first();
+
+		return $row ?: null;
+	}
 	
 	public function findTenantUser(int $tenantId, int $id): ?array
 	{
