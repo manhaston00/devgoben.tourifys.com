@@ -722,6 +722,46 @@ class POSController extends BaseController
         ];
     }
 
+    protected function hasNewerOrderActivityAfterMerge(int $tableId, array $merge): bool
+    {
+        if ($tableId <= 0) {
+            return false;
+        }
+
+        $tenantId      = $this->currentTenantId();
+        $branchId      = $this->getCurrentBranchId();
+        $sourceOrderId = (int) ($merge['source_order_id'] ?? 0);
+        $mergeId       = (int) ($merge['id'] ?? 0);
+        $mergeCreatedAt = trim((string) ($merge['created_at'] ?? ''));
+
+        $builder = $this->orderModel
+            ->where('tenant_id', $tenantId)
+            ->where('table_id', $tableId);
+
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'orders')) {
+            $builder->where('branch_id', $branchId);
+        }
+
+        if ($sourceOrderId > 0) {
+            $builder->where('id !=', $sourceOrderId);
+        }
+
+        if ($mergeCreatedAt !== '') {
+            $builder->groupStart()
+                ->where('created_at >=', $mergeCreatedAt)
+                ->orWhere('opened_at >=', $mergeCreatedAt)
+                ->groupEnd();
+        } elseif ($mergeId > 0) {
+            $builder->where('id >', $sourceOrderId > 0 ? $sourceOrderId : $mergeId);
+        }
+
+        $newerOrder = $builder
+            ->orderBy('id', 'DESC')
+            ->first();
+
+        return ! empty($newerOrder);
+    }
+
     protected function getLatestMergedNoticeByTable(int $tableId): ?array
     {
         if ($tableId <= 0 || ! $this->db->tableExists('order_merges')) {
@@ -744,6 +784,10 @@ class POSController extends BaseController
         $merge = $builder->orderBy('id', 'DESC')->first();
 
         if (! $merge) {
+            return null;
+        }
+
+        if ($this->hasNewerOrderActivityAfterMerge($tableId, $merge)) {
             return null;
         }
 

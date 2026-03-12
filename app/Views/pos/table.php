@@ -480,7 +480,11 @@ $(function () {
         mergeBill: <?= json_encode(lang('app.merge_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         mergeBillFailed: <?= json_encode(lang('app.merge_bill_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         mergeBillSuccess: <?= json_encode(lang('app.merge_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        selectTargetBill: <?= json_encode(lang('app.select_target_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+        selectTargetBill: <?= json_encode(lang('app.select_target_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        ready: <?= json_encode(lang('app.status_ready'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        cancelAction: <?= json_encode(lang('app.cancel'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        cancelItemConfirm: <?= json_encode('ยืนยันยกเลิกรายการนี้ ?', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        cancelItemFailed: <?= json_encode('ยกเลิกรายการไม่สำเร็จ', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
     };
 
     const productOptionModalEl = document.getElementById('productOptionModal');
@@ -561,8 +565,9 @@ $(function () {
         if (status === 'pending') return 'secondary';
         if (status === 'sent') return 'primary';
         if (status === 'cooking') return 'warning';
+        if (status === 'ready') return 'info';
         if (status === 'served') return 'success';
-        if (status === 'cancel') return 'danger';
+        if (status === 'cancel' || status === 'cancelled') return 'danger';
         return 'secondary';
     }
 
@@ -570,8 +575,9 @@ $(function () {
         if (status === 'pending') return TXT.pending;
         if (status === 'sent') return TXT.sentKitchen;
         if (status === 'cooking') return TXT.cooking;
+        if (status === 'ready') return TXT.ready;
         if (status === 'served') return TXT.served;
-        if (status === 'cancel') return TXT.canceled;
+        if (status === 'cancel' || status === 'cancelled') return TXT.canceled;
         return TXT.unknownStatus;
     }
 
@@ -858,6 +864,11 @@ $(function () {
         return !status || status === 'pending' || status === 'open' || status === 'new';
     }
 
+    function canCancelItem(status) {
+        status = String(status || '').toLowerCase().trim();
+        return ['pending', 'open', 'new', 'sent', 'cooking', 'ready'].includes(status);
+    }
+
     function renderItems(order, items) {
         let html = '';
 
@@ -866,6 +877,7 @@ $(function () {
         } else {
             items.forEach(function (item) {
                 const editable = canEditItem(item.status);
+                const cancellable = canCancelItem(item.status);
 
                 html += `
                     <div class="border rounded-4 p-2 mb-2" data-item-status="${escapeHtml(item.status ?? 'pending')}">
@@ -896,6 +908,7 @@ $(function () {
                                     ${editable ? '' : 'disabled'}
                                 >${TXT.edit}</button>
                                 <button type="button" class="btn btn-outline-danger btn-remove" data-id="${item.id}" ${editable ? '' : 'disabled'}>${TXT.remove}</button>
+                                <button type="button" class="btn btn-danger btn-cancel-item" data-id="${item.id}" data-status="${escapeHtml(item.status ?? '')}" ${cancellable ? '' : 'disabled'}>${TXT.cancelAction}</button>
                             </div>
                         </div>
                     </div>
@@ -1237,6 +1250,36 @@ $(function () {
         .fail(function (xhr) {
             console.error('removeItem error:', xhr.responseText);
             alert(TXT.removeItemFailed);
+        });
+    });
+
+    $(document).on('click', '.btn-cancel-item', function () {
+        const itemId = $(this).data('id');
+        const status = String($(this).data('status') || '').toLowerCase().trim();
+
+        if (!canCancelItem(status)) {
+            alert(TXT.cancelItemFailed);
+            return;
+        }
+
+        if (!confirm(TXT.cancelItemConfirm)) {
+            return;
+        }
+
+        $.post("<?= site_url('pos/update-item-status') ?>", {
+            item_id: itemId,
+            status: 'cancel'
+        })
+        .done(function (res) {
+            if (res && res.status === 'error') {
+                alert(res.message || TXT.cancelItemFailed);
+                return;
+            }
+            loadOrder();
+        })
+        .fail(function (xhr) {
+            console.error('cancelItem error:', xhr.responseText);
+            alert(TXT.cancelItemFailed);
         });
     });
 

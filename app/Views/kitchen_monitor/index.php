@@ -369,6 +369,21 @@
         margin-top: 12px !important;
     }
 
+    .kitchen-action-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .kitchen-cancel-btn {
+        width: 100%;
+        min-height: 50px;
+        font-size: 18px;
+        font-weight: 800;
+        border-radius: 12px;
+    }
+
     .kds-col-count {
         min-width: 28px;
         text-align: center;
@@ -695,28 +710,50 @@
         return null;
     }
 
+    function canCancelFromBoard(boardStatus) {
+        return ['new', 'preparing', 'ready'].includes(String(boardStatus || '').toLowerCase().trim());
+    }
+
     function renderActionButtons(item) {
         const boardStatus = normalizeBoardStatus(item);
         const action = getActionConfig(boardStatus);
-
-        if (!action) {
-            return '';
-        }
-
         const itemId = Number(item.order_item_id || item.item_id || 0);
+
         if (!itemId) {
             return '';
         }
 
-        return `
-            <button
-                type="button"
-                class="btn ${action.className} kitchen-status-btn"
-                data-item-id="${itemId}"
-                data-status="${escapeHtml(action.nextStatus)}">
-                ${escapeHtml(action.label)}
-            </button>
-        `;
+        const buttons = [];
+
+        if (action) {
+            buttons.push(`
+                <button
+                    type="button"
+                    class="btn ${action.className} kitchen-status-btn"
+                    data-item-id="${itemId}"
+                    data-status="${escapeHtml(action.nextStatus)}">
+                    ${escapeHtml(action.label)}
+                </button>
+            `);
+        }
+
+        if (canCancelFromBoard(boardStatus)) {
+            buttons.push(`
+                <button
+                    type="button"
+                    class="btn btn-danger kitchen-cancel-btn"
+                    data-item-id="${itemId}"
+                    data-status="cancel">
+                    ❌ ${escapeHtml(i18n.actionCancel)}
+                </button>
+            `);
+        }
+
+        if (!buttons.length) {
+            return '';
+        }
+
+        return `<div class="kitchen-action-grid">${buttons.join('')}</div>`;
     }
 
     function searchableText(item) {
@@ -990,6 +1027,12 @@
     async function updateStatus(itemId, status, buttonEl) {
         if (!itemId || !status) {
             return;
+        }
+
+        if (String(status).toLowerCase().trim() === 'cancel') {
+            if (!window.confirm(i18n.confirmCancel)) {
+                return;
+            }
         }
 
         const body = new URLSearchParams();
