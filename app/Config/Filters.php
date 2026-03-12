@@ -11,22 +11,26 @@ use CodeIgniter\Filters\SecureHeaders;
 
 class Filters extends BaseConfig
 {
-    public array $aliases = [
+    public $aliases = [
         'csrf'                => CSRF::class,
         'toolbar'             => DebugToolbar::class,
         'honeypot'            => Honeypot::class,
         'invalidchars'        => InvalidChars::class,
         'secureheaders'       => SecureHeaders::class,
 
+        // Primary filters
         'auth'                => \App\Filters\AuthFilter::class,
+        'auth_subscription'   => \App\Filters\AuthSubscriptionFilter::class,
         'permission'          => \App\Filters\PermissionFilter::class,
-        'subscription_active' => \App\Filters\SubscriptionActiveFilter::class,
         'feature_gate'        => \App\Filters\FeatureGateFilter::class,
-        'subscription_guard'  => \App\Filters\SubscriptionGuard::class,
         'demo_write'          => \App\Filters\DemoWriteGuard::class,
         'super_admin'         => \App\Filters\SuperAdminFilter::class,
-        'auth_subscription'   => \App\Filters\AuthSubscriptionFilter::class,
+
+        // Legacy / backward compatibility
+        'subscription_active' => \App\Filters\SubscriptionActiveFilter::class,
+        'subscription_guard'  => \App\Filters\SubscriptionGuard::class,
         'tenantAccess'        => \App\Filters\TenantAccessFilter::class,
+        'role'                => \App\Filters\RoleFilter::class,
     ];
 
     public $globals = [
