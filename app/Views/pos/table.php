@@ -162,6 +162,7 @@
                     <h5 class="mb-0"><?= esc(lang('app.current_bill')) ?></h5>
                     <span class="small text-muted" id="orderNoLabel">-</span>
 					<div id="mergedNoticeBox" class="mt-2"></div>
+                    <div id="billRequestAlertBox" class="mt-2"></div>
                 </div>
 
                 <div id="orderBox">
@@ -481,10 +482,14 @@ $(function () {
         mergeBillFailed: <?= json_encode(lang('app.merge_bill_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         mergeBillSuccess: <?= json_encode(lang('app.merge_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         selectTargetBill: <?= json_encode(lang('app.select_target_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        ready: <?= json_encode(lang('app.status_ready'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        cancelAction: <?= json_encode(lang('app.cancel'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        cancelItemConfirm: <?= json_encode('ยืนยันยกเลิกรายการนี้ ?', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        cancelItemFailed: <?= json_encode('ยกเลิกรายการไม่สำเร็จ', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+        cancelRequestPending: <?= json_encode(service('request')->getLocale() === 'th' ? 'รออนุมัติยกเลิก' : 'Waiting for cancel approval', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        cancelRequestRejected: <?= json_encode(service('request')->getLocale() === 'th' ? 'ครัวปฏิเสธการยกเลิก' : 'Kitchen rejected cancellation', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        cancelRequestApproved: <?= json_encode(service('request')->getLocale() === 'th' ? 'ครัวอนุมัติยกเลิกแล้ว' : 'Cancellation approved by kitchen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        itemStillBillable: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการนี้ยังต้องคิดเงินตามปกติ' : 'This item is still billable', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        retryCancelRequest: <?= json_encode(service('request')->getLocale() === 'th' ? 'ขอยกเลิกอีกครั้ง' : 'Request cancel again', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        acknowledge: <?= json_encode(service('request')->getLocale() === 'th' ? 'รับทราบ' : 'Acknowledge', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        billHasPendingCancelRequest: <?= json_encode(service('request')->getLocale() === 'th' ? 'มีรายการรออนุมัติยกเลิก' : 'There are items waiting for cancel approval', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        billHasRejectedCancelRequest: <?= json_encode(service('request')->getLocale() === 'th' ? 'มีรายการถูกปฏิเสธการยกเลิก' : 'There are items with rejected cancel requests', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
     };
 
     const productOptionModalEl = document.getElementById('productOptionModal');
@@ -565,9 +570,8 @@ $(function () {
         if (status === 'pending') return 'secondary';
         if (status === 'sent') return 'primary';
         if (status === 'cooking') return 'warning';
-        if (status === 'ready') return 'info';
         if (status === 'served') return 'success';
-        if (status === 'cancel' || status === 'cancelled') return 'danger';
+        if (status === 'cancel') return 'danger';
         return 'secondary';
     }
 
@@ -575,9 +579,8 @@ $(function () {
         if (status === 'pending') return TXT.pending;
         if (status === 'sent') return TXT.sentKitchen;
         if (status === 'cooking') return TXT.cooking;
-        if (status === 'ready') return TXT.ready;
         if (status === 'served') return TXT.served;
-        if (status === 'cancel' || status === 'cancelled') return TXT.canceled;
+        if (status === 'cancel') return TXT.canceled;
         return TXT.unknownStatus;
     }
 
@@ -864,9 +867,76 @@ $(function () {
         return !status || status === 'pending' || status === 'open' || status === 'new';
     }
 
-    function canCancelItem(status) {
-        status = String(status || '').toLowerCase().trim();
-        return ['pending', 'open', 'new', 'sent', 'cooking', 'ready'].includes(status);
+    function getCancelRequestStatus(item) {
+        return String(item.cancel_request_status || item.request_cancel_status || item.cancel_status || '').toLowerCase().trim();
+    }
+
+    function getRequestStateMeta(item) {
+        const requestStatus = getCancelRequestStatus(item);
+
+        if (requestStatus === 'pending' || requestStatus === 'requested' || requestStatus === 'waiting') {
+            return {
+                key: 'pending',
+                badgeClass: 'warning text-dark',
+                title: TXT.cancelRequestPending,
+                hint: '',
+            };
+        }
+
+        if (requestStatus === 'rejected' || requestStatus === 'deny' || requestStatus === 'declined') {
+            return {
+                key: 'rejected',
+                badgeClass: 'danger',
+                title: TXT.cancelRequestRejected,
+                hint: TXT.itemStillBillable,
+            };
+        }
+
+        if (requestStatus === 'approved' || requestStatus === 'accepted') {
+            return {
+                key: 'approved',
+                badgeClass: 'success',
+                title: TXT.cancelRequestApproved,
+                hint: '',
+            };
+        }
+
+        return null;
+    }
+
+    function renderBillRequestAlerts(items) {
+        const list = Array.isArray(items) ? items : [];
+        const pendingCount = list.filter(function (item) {
+            const state = getRequestStateMeta(item);
+            return state && state.key === 'pending';
+        }).length;
+
+        const rejectedCount = list.filter(function (item) {
+            const state = getRequestStateMeta(item);
+            return state && state.key === 'rejected';
+        }).length;
+
+        let html = '';
+
+        if (pendingCount > 0) {
+            html += `
+                <div class="alert alert-warning border-0 rounded-4 py-2 px-3 mb-2">
+                    <div class="fw-semibold">${escapeHtml(TXT.billHasPendingCancelRequest)}</div>
+                    <div class="small">${pendingCount}</div>
+                </div>
+            `;
+        }
+
+        if (rejectedCount > 0) {
+            html += `
+                <div class="alert alert-danger border-0 rounded-4 py-2 px-3 mb-2">
+                    <div class="fw-semibold">${escapeHtml(TXT.billHasRejectedCancelRequest)}</div>
+                    <div class="small">${rejectedCount}</div>
+                </div>
+            `;
+        }
+
+        $('#billRequestAlertBox').html(html);
     }
 
     function renderItems(order, items) {
@@ -874,13 +944,37 @@ $(function () {
 
         if (!items || items.length === 0) {
             html = '<div class="text-muted">' + TXT.noItemsYet + '</div>';
+            $('#billRequestAlertBox').html('');
         } else {
             items.forEach(function (item) {
                 const editable = canEditItem(item.status);
-                const cancellable = canCancelItem(item.status);
+                const requestState = getRequestStateMeta(item);
+
+                let requestHtml = '';
+                let retryButtons = '';
+
+                if (requestState) {
+                    requestHtml = `
+                        <div class="mt-2">
+                            <div class="alert alert-${requestState.key === 'pending' ? 'warning' : requestState.key === 'rejected' ? 'danger' : 'success'} border-0 rounded-4 py-2 px-3 mb-2">
+                                <div class="fw-semibold small">${escapeHtml(requestState.title)}</div>
+                                ${requestState.hint ? `<div class="small mt-1">${escapeHtml(requestState.hint)}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+
+                    if (requestState.key === 'rejected') {
+                        retryButtons = `
+                            <div class="d-flex gap-2 flex-wrap mt-2">
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-retry-cancel-request" data-id="${item.id}">${escapeHtml(TXT.retryCancelRequest)}</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm btn-ack-cancel-request" data-id="${item.id}">${escapeHtml(TXT.acknowledge)}</button>
+                            </div>
+                        `;
+                    }
+                }
 
                 html += `
-                    <div class="border rounded-4 p-2 mb-2" data-item-status="${escapeHtml(item.status ?? 'pending')}">
+                    <div class="border rounded-4 p-2 mb-2" data-item-status="${escapeHtml(item.status ?? 'pending')}" data-cancel-request-status="${escapeHtml(getCancelRequestStatus(item))}">
                         <div class="d-flex justify-content-between align-items-start mb-1 gap-2">
                             <div class="fw-bold">${escapeHtml(item.product_name ?? '')}</div>
                             <span class="badge bg-${itemStatusBadge(item.status)}">${escapeHtml(itemStatusText(item.status ?? 'pending'))}</span>
@@ -889,6 +983,7 @@ $(function () {
                         ${item.item_detail ? `<div class="small text-dark">${TXT.detailLabel}: ${escapeHtml(item.item_detail)}</div>` : ''}
                         ${item.option_summary ? `<div class="small text-primary">${TXT.optionLabel}: ${escapeHtml(item.option_summary)}</div>` : ''}
                         ${item.note ? `<div class="small text-muted mb-2">${TXT.noteLabel}: ${escapeHtml(item.note)}</div>` : ''}
+                        ${requestHtml}
 
                         <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
                             <div>${money(item.price)} x ${item.qty}</div>
@@ -908,12 +1003,14 @@ $(function () {
                                     ${editable ? '' : 'disabled'}
                                 >${TXT.edit}</button>
                                 <button type="button" class="btn btn-outline-danger btn-remove" data-id="${item.id}" ${editable ? '' : 'disabled'}>${TXT.remove}</button>
-                                <button type="button" class="btn btn-danger btn-cancel-item" data-id="${item.id}" data-status="${escapeHtml(item.status ?? '')}" ${cancellable ? '' : 'disabled'}>${TXT.cancelAction}</button>
                             </div>
                         </div>
+
+                        ${retryButtons}
                     </div>
                 `;
             });
+            renderBillRequestAlerts(items);
         }
 
         $('#orderBox').html(html);
@@ -1253,34 +1350,34 @@ $(function () {
         });
     });
 
-    $(document).on('click', '.btn-cancel-item', function () {
-        const itemId = $(this).data('id');
-        const status = String($(this).data('status') || '').toLowerCase().trim();
-
-        if (!canCancelItem(status)) {
-            alert(TXT.cancelItemFailed);
-            return;
-        }
-
-        if (!confirm(TXT.cancelItemConfirm)) {
-            return;
-        }
-
+    $(document).on('click', '.btn-retry-cancel-request', function () {
         $.post("<?= site_url('pos/update-item-status') ?>", {
-            item_id: itemId,
-            status: 'cancel'
+            item_id: $(this).data('id'),
+            status: 'cancel_requested'
         })
         .done(function (res) {
             if (res && res.status === 'error') {
-                alert(res.message || TXT.cancelItemFailed);
+                alert(res.message || TXT.updateItemFailed);
                 return;
             }
             loadOrder();
         })
         .fail(function (xhr) {
-            console.error('cancelItem error:', xhr.responseText);
-            alert(TXT.cancelItemFailed);
+            console.error('retryCancelRequest error:', xhr.responseText);
+            alert(TXT.updateItemFailed);
         });
+    });
+
+    $(document).on('click', '.btn-ack-cancel-request', function () {
+        const $wrap = $(this).closest('[data-cancel-request-status]');
+        $wrap.attr('data-cancel-request-status', 'acknowledged');
+        $wrap.find('.alert.alert-danger').remove();
+        $(this).closest('.d-flex').remove();
+        renderBillRequestAlerts($('#orderBox [data-item-status]').map(function () {
+            return {
+                cancel_request_status: $(this).attr('data-cancel-request-status') || ''
+            };
+        }).get());
     });
 
     let SEND_KITCHEN_BUSY = false;
@@ -1360,6 +1457,12 @@ $(function () {
 
 		if (CURRENT_ORDER_STATUS !== 'open' && CURRENT_ORDER_STATUS !== 'billing') {
 			alert(TXT.billCannotPay);
+			return;
+		}
+
+		const hasPending = $('#orderBox [data-item-status="pending"]').length > 0;
+		if (hasPending) {
+			alert('<?= esc(lang('app.pending_items_must_send_first')) ?>');
 			return;
 		}
 

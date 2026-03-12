@@ -668,7 +668,13 @@
 		newHint: isThaiLocale ? 'รายการนี้เพิ่งเข้ามาใหม่' : 'This item just arrived',
 		readyHint: isThaiLocale ? 'รายการนี้พร้อมส่งออกแล้ว' : 'This item is ready to go',
 		servedHint: isThaiLocale ? 'ปิดงานรายการนี้แล้ว' : 'This item is completed',
-		preparingHint: isThaiLocale ? 'รายการนี้กำลังทำอยู่' : 'This item is being prepared'
+		preparingHint: isThaiLocale ? 'รายการนี้กำลังทำอยู่' : 'This item is being prepared',
+		cancelRequestLabel: isThaiLocale ? 'รออนุมัติยกเลิก' : 'Cancel request',
+		approveCancel: isThaiLocale ? 'อนุมัติยกเลิก' : 'Approve cancel',
+		rejectCancel: isThaiLocale ? 'ปฏิเสธการยกเลิก' : 'Reject cancel',
+		cancelRequestHint: isThaiLocale ? 'มีคำขอยกเลิกรายการนี้จาก POS' : 'A cancel request was sent from POS',
+		cancelApproveConfirm: isThaiLocale ? 'ยืนยันอนุมัติยกเลิกรายการนี้ใช่หรือไม่?' : 'Approve this cancel request?',
+		cancelRejectConfirm: isThaiLocale ? 'ยืนยันปฏิเสธการยกเลิกรายการนี้ใช่หรือไม่?' : 'Reject this cancel request?'
 	};
 
     const csrfName = <?= json_encode(csrf_token()) ?>;
@@ -848,6 +854,12 @@
             meta.hint = i18n.waitingHint;
         }
 
+        if (String(item.cancel_request_status || '').toLowerCase().trim() === 'pending') {
+            meta.cardClass += ' kds-attention-alert';
+            meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-alert">❗ ${escapeHtml(i18n.cancelRequestLabel)}</span>`);
+            meta.hint = i18n.cancelRequestHint;
+        }
+
         if (boardStatus === 'served') {
             meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-serve">✅ ${escapeHtml(i18n.doneState)}</span>`);
         }
@@ -858,6 +870,7 @@
     function renderActionButtons(item) {
         const boardStatus = normalizeBoardStatus(item);
         const action = getActionConfig(boardStatus);
+        const requestStatus = String(item.cancel_request_status || '').toLowerCase().trim();
 
         const itemId = Number(item.order_item_id || item.item_id || 0);
         if (!itemId) {
@@ -865,6 +878,27 @@
         }
 
         let html = '';
+
+        if (requestStatus === 'pending') {
+            html += `
+                <button
+                    type="button"
+                    class="btn btn-danger kitchen-status-btn"
+                    data-item-id="${itemId}"
+                    data-status="cancel_approved">
+                    ❌ ${escapeHtml(i18n.approveCancel)}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary kitchen-status-btn"
+                    data-item-id="${itemId}"
+                    data-status="cancel_rejected">
+                    ↩ ${escapeHtml(i18n.rejectCancel)}
+                </button>
+            `;
+
+            return html;
+        }
 
         if (action) {
             html += `
@@ -907,7 +941,9 @@
 			item.merged_from_table_name || '',
 			item.merged_to_table_name || '',
 			item.merged_target_order_number || '',
-			item.merged_reason || ''
+			item.merged_reason || '',
+			item.cancel_request_note || '',
+			item.cancel_request_status || ''
 		].join(' ').toLowerCase();
 	}
 
@@ -945,6 +981,10 @@
 		const mergedTargetOrderNo = item.merged_target_order_number || '';
 		const mergedReason = item.merged_reason || '';
 		const isMerged = Number(item.is_merged || 0) === 1 || (!!mergedFrom && !!mergedTo && mergedFrom !== mergedTo);
+        const requestStatus = String(item.cancel_request_status || '').toLowerCase().trim();
+        const cancelRequestHtml = requestStatus === 'pending'
+            ? `<div class="kds-merge-box"><div class="fw-semibold text-danger">${escapeHtml(i18n.cancelRequestLabel)}</div><div class="small">${escapeHtml(i18n.cancelRequestHint)}</div>${item.cancel_request_note ? `<div class="small text-muted mt-1">${escapeHtml(item.cancel_request_note)}</div>` : ''}</div>`
+            : '';
 
 		const moveInfoHtml = (movedFrom && movedTo && movedFrom !== movedTo) ? `
 			<div class="kds-move-box">
@@ -1185,8 +1225,23 @@
             return;
         }
 
-        if (String(status).toLowerCase() === 'cancel') {
+        const normalizedStatus = String(status).toLowerCase();
+        if (normalizedStatus === 'cancel') {
             const ok = window.confirm(i18n.cancelConfirm);
+            if (!ok) {
+                return;
+            }
+        }
+
+        if (normalizedStatus === 'cancel_approved') {
+            const ok = window.confirm(i18n.cancelApproveConfirm);
+            if (!ok) {
+                return;
+            }
+        }
+
+        if (normalizedStatus === 'cancel_rejected') {
+            const ok = window.confirm(i18n.cancelRejectConfirm);
             if (!ok) {
                 return;
             }

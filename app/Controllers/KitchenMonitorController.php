@@ -19,6 +19,7 @@ class KitchenMonitorController extends BaseController
     protected $orderMergeModel;
     protected $tableModel;
     protected $orderModel;
+    protected $db;
 
     public function __construct()
     {
@@ -29,6 +30,7 @@ class KitchenMonitorController extends BaseController
         $this->orderMergeModel     = new OrderMergeModel();
         $this->tableModel          = new TableModel();
         $this->orderModel          = new OrderModel();
+        $this->db                  = \Config\Database::connect();
     }
 
     protected function currentTenantId(): int
@@ -100,7 +102,6 @@ class KitchenMonitorController extends BaseController
         }
     }
 
-
     protected function normalizeBillableStatus(?string $status): string
     {
         $status = strtolower(trim((string) $status));
@@ -151,7 +152,7 @@ class KitchenMonitorController extends BaseController
             $status    = (string) ($row['status'] ?? 'pending');
             $lineTotal = $this->isNonBillableStatus($status) ? 0.0 : ($unitPrice * $qty);
 
-            $this->orderItemModel->update((int) ($row['id'] ?? 0), [
+            $this->directUpdateOrderItem((int) ($row['id'] ?? 0), [
                 'line_total' => $lineTotal,
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
@@ -165,6 +166,87 @@ class KitchenMonitorController extends BaseController
         ]);
     }
 
+    protected function orderItemsFieldExists(string $field): bool
+    {
+        return $this->db->fieldExists($field, 'order_items');
+    }
+
+    protected function isCancelRequestFlowEnabled(): bool
+    {
+        return $this->orderItemsFieldExists('cancel_request_status');
+    }
+
+    protected function flowText(string $th, string $en): string
+    {
+        return $this->currentLocale() === 'th' ? $th : $en;
+    }
+
+    protected function getScopedItemFull(int $itemId): ?array
+    {
+        if ($itemId <= 0) {
+            return null;
+        }
+
+        return method_exists($this->orderItemModel, 'findScoped')
+            ? $this->orderItemModel->findScoped($itemId)
+            : $this->orderItemModel->find($itemId);
+    }
+
+    protected function directUpdateOrderItem(int $itemId, array $data): bool
+    {
+        if ($itemId <= 0 || empty($data)) {
+            return false;
+        }
+
+        $builder = $this->db->table('order_items')->where('id', $itemId);
+
+        $tenantId = $this->currentTenantId();
+        if ($tenantId > 0 && $this->orderItemsFieldExists('tenant_id')) {
+            $builder->where('tenant_id', $tenantId);
+        }
+
+        return (bool) $builder->update($data);
+    }
+
+    protected function attachCancelRequestInfoToRow(array $row): array
+    {
+        if (! $this->isCancelRequestFlowEnabled()) {
+            $row['cancel_request_status'] = $row['cancel_request_status'] ?? null;
+            return $row;
+        }
+
+        $itemId = (int) ($row['order_item_id'] ?? $row['item_id'] ?? 0);
+        if ($itemId <= 0) {
+            $row['cancel_request_status'] = $row['cancel_request_status'] ?? null;
+            return $row;
+        }
+
+        $item = $this->getScopedItemFull($itemId);
+        if (! $item) {
+            $row['cancel_request_status'] = $row['cancel_request_status'] ?? null;
+            return $row;
+        }
+
+        foreach ([
+            'cancel_request_status',
+            'cancel_request_note',
+            'cancel_request_reason',
+            'cancel_requested_at',
+            'cancel_requested_by',
+            'cancel_request_prev_status',
+            'cancel_decided_at',
+            'cancel_decided_by',
+            'cancel_rejected_note',
+            'cancel_rejected_reason',
+        ] as $field) {
+            if (array_key_exists($field, $item)) {
+                $row[$field] = $item[$field];
+            }
+        }
+
+        return $row;
+    }
+
     protected function resolveBoardStatus(array $row): string
     {
         $displayStatus = strtolower((string) ($row['display_status'] ?? ''));
@@ -172,7 +254,7 @@ class KitchenMonitorController extends BaseController
             return $displayStatus;
         }
 
-        $itemStatus = strtolower((string) ($row['item_status'] ?? ''));
+        $itemStatus = strtolower((string) ($row['item_status'] ?? $row['status'] ?? ''));
         $ticketStatus = strtolower((string) ($row['ticket_status'] ?? ''));
 
         if ($itemStatus === 'served') {
@@ -236,9 +318,7 @@ class KitchenMonitorController extends BaseController
                 ->groupEnd();
         }
 
-        $merge = $mergeBuilder
-            ->orderBy('id', 'DESC')
-            ->first();
+        $merge = $mergeBuilder->orderBy('id', 'DESC')->first();
 
         if (! $merge) {
             return $row;
@@ -314,6 +394,7 @@ class KitchenMonitorController extends BaseController
 
         foreach ($rows as $row) {
             $row = $this->attachMergeInfoToRow($row);
+            $row = $this->attachCancelRequestInfoToRow($row);
 
             $boardStatus = $this->resolveBoardStatus($row);
             $row['board_status'] = $boardStatus;
@@ -334,19 +415,16 @@ class KitchenMonitorController extends BaseController
     public function updateStatus()
     {
         $itemId = (int) ($this->request->getPost('item_id') ?? 0);
-        $requestedStatus = (string) ($this->request->getPost('status') ?? '');
-        $status = $this->normalizeRequestedStatus($requestedStatus);
+        $requestedStatus = strtolower(trim((string) ($this->request->getPost('status') ?? '')));
 
-        if ($itemId <= 0 || $status === '') {
+        if ($itemId <= 0 || $requestedStatus === '') {
             return $this->response->setJSON([
                 'status'  => 'error',
                 'message' => lang('app.invalid_request'),
             ]);
         }
 
-        $item = method_exists($this->orderItemModel, 'findScoped')
-            ? $this->orderItemModel->findScoped($itemId)
-            : $this->orderItemModel->find($itemId);
+        $item = $this->getScopedItemFull($itemId);
 
         if (! $item) {
             return $this->response->setJSON([
@@ -357,32 +435,191 @@ class KitchenMonitorController extends BaseController
 
         $fromStatus = (string) ($item['status'] ?? '');
         $now = date('Y-m-d H:i:s');
+        $userId = (int) (session('user_id') ?? 0);
+
+        if ($requestedStatus === 'cancel_approved') {
+            $data = [
+                'status'     => 'cancel',
+                'line_total' => 0,
+            ];
+
+            if ($this->orderItemsFieldExists('updated_at')) {
+                $data['updated_at'] = $now;
+            }
+            if ($this->orderItemsFieldExists('cancelled_at')) {
+                $data['cancelled_at'] = $now;
+            }
+            if ($this->orderItemsFieldExists('cancelled_by')) {
+                $data['cancelled_by'] = $userId;
+            }
+
+            if ($this->isCancelRequestFlowEnabled()) {
+                foreach ([
+                    'cancel_request_status' => 'approved',
+                    'cancel_decided_at'     => $now,
+                    'cancel_decided_by'     => $userId,
+                ] as $field => $value) {
+                    if ($this->orderItemsFieldExists($field)) {
+                        $data[$field] = $value;
+                    }
+                }
+            }
+
+            if (! $this->directUpdateOrderItem($itemId, $data)) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.save_failed'),
+                ]);
+            }
+
+            try {
+                $this->kitchenLogModel->addLog(
+                    $itemId,
+                    'cancel',
+                    $this->flowText('ครัวอนุมัติการยกเลิกรายการ', 'Kitchen approved the cancel request'),
+                    [
+                        'branch_id'     => $this->currentBranchId(),
+                        'order_id'      => (int) ($item['order_id'] ?? 0),
+                        'ticket_id'     => (int) ($item['kitchen_ticket_id'] ?? 0),
+                        'from_status'   => $fromStatus,
+                        'to_status'     => 'cancel',
+                        'action_by'     => $userId,
+                        'action_source' => 'kitchen.monitor.cancel_approved',
+                    ]
+                );
+            } catch (\Throwable $e) {
+                log_message('error', 'Kitchen cancel approve log error: ' . $e->getMessage());
+            }
+
+            $ticketId = (int) ($item['kitchen_ticket_id'] ?? 0);
+            if ($ticketId > 0) {
+                $this->kitchenTicketModel->refreshStatusByTicketId($this->currentTenantId(), $ticketId);
+            }
+
+            $orderId = (int) ($item['order_id'] ?? 0);
+            if ($orderId > 0) {
+                $this->recalculateOrderTotal($orderId);
+            }
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => $this->flowText('อนุมัติยกเลิกรายการแล้ว', 'Cancel request approved.'),
+                'token'   => csrf_hash(),
+            ]);
+        }
+
+        if ($requestedStatus === 'cancel_rejected') {
+            if (! $this->isCancelRequestFlowEnabled()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.invalid_request'),
+                ]);
+            }
+
+            $data = [];
+            if ($this->orderItemsFieldExists('updated_at')) {
+                $data['updated_at'] = $now;
+            }
+
+            foreach ([
+                'cancel_request_status' => 'rejected',
+                'cancel_decided_at'     => $now,
+                'cancel_decided_by'     => $userId,
+            ] as $field => $value) {
+                if ($this->orderItemsFieldExists($field)) {
+                    $data[$field] = $value;
+                }
+            }
+
+            if (empty($data)) {
+                $data['status'] = $fromStatus;
+            }
+
+            if (! $this->directUpdateOrderItem($itemId, $data)) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.save_failed'),
+                ]);
+            }
+
+            try {
+                $this->kitchenLogModel->addLog(
+                    $itemId,
+                    'cancel',
+                    $this->flowText('ครัวปฏิเสธการยกเลิกรายการ', 'Kitchen rejected the cancel request'),
+                    [
+                        'branch_id'     => $this->currentBranchId(),
+                        'order_id'      => (int) ($item['order_id'] ?? 0),
+                        'ticket_id'     => (int) ($item['kitchen_ticket_id'] ?? 0),
+                        'from_status'   => $fromStatus,
+                        'to_status'     => $fromStatus,
+                        'action_by'     => $userId,
+                        'action_source' => 'kitchen.monitor.cancel_rejected',
+                    ]
+                );
+            } catch (\Throwable $e) {
+                log_message('error', 'Kitchen cancel reject log error: ' . $e->getMessage());
+            }
+
+            $orderId = (int) ($item['order_id'] ?? 0);
+            if ($orderId > 0) {
+                $this->recalculateOrderTotal($orderId);
+            }
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => $this->flowText('ปฏิเสธการยกเลิกรายการแล้ว', 'Cancel request rejected.'),
+                'token'   => csrf_hash(),
+            ]);
+        }
+
+        $status = $this->normalizeRequestedStatus($requestedStatus);
+
+        if ($status === '') {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.invalid_request'),
+            ]);
+        }
 
         $data = [
-            'status'     => $status,
-            'updated_at' => $now,
+            'status' => $status,
         ];
 
-        if ($status === 'sent' && empty($item['sent_at'])) {
+        if ($this->orderItemsFieldExists('updated_at')) {
+            $data['updated_at'] = $now;
+        }
+        if ($status === 'sent' && empty($item['sent_at']) && $this->orderItemsFieldExists('sent_at')) {
             $data['sent_at'] = $now;
         }
-
-        if ($status === 'served') {
+        if ($status === 'served' && $this->orderItemsFieldExists('served_at')) {
             $data['served_at'] = $now;
         }
-
         if ($status === 'cancel') {
-            $data['cancelled_at'] = $now;
-            $data['cancelled_by'] = (int) (session('user_id') ?? 0);
+            if ($this->orderItemsFieldExists('cancelled_at')) {
+                $data['cancelled_at'] = $now;
+            }
+            if ($this->orderItemsFieldExists('cancelled_by')) {
+                $data['cancelled_by'] = $userId;
+            }
+            if ($this->isCancelRequestFlowEnabled()) {
+                foreach ([
+                    'cancel_request_status' => (($item['cancel_request_status'] ?? '') === 'pending') ? 'approved' : ($item['cancel_request_status'] ?? null),
+                    'cancel_decided_at'     => (($item['cancel_request_status'] ?? '') === 'pending') ? $now : ($item['cancel_decided_at'] ?? null),
+                    'cancel_decided_by'     => (($item['cancel_request_status'] ?? '') === 'pending') ? $userId : ($item['cancel_decided_by'] ?? null),
+                ] as $field => $value) {
+                    if ($value !== null && $this->orderItemsFieldExists($field)) {
+                        $data[$field] = $value;
+                    }
+                }
+            }
         }
 
-        if ($this->isNonBillableStatus($status)) {
-            $data['line_total'] = 0;
-        } else {
-            $data['line_total'] = ((float) ($item['price'] ?? 0)) * (int) ($item['qty'] ?? 0);
-        }
+        $data['line_total'] = $this->isNonBillableStatus($status)
+            ? 0
+            : ((float) ($item['price'] ?? 0) * (int) ($item['qty'] ?? 0));
 
-        if (! $this->orderItemModel->update($itemId, $data)) {
+        if (! $this->directUpdateOrderItem($itemId, $data)) {
             return $this->response->setJSON([
                 'status'  => 'error',
                 'message' => lang('app.save_failed'),
@@ -403,7 +640,7 @@ class KitchenMonitorController extends BaseController
                         'ticket_id'     => (int) ($item['kitchen_ticket_id'] ?? 0),
                         'from_status'   => $fromStatus,
                         'to_status'     => $status,
-                        'action_by'     => (int) (session('user_id') ?? 0),
+                        'action_by'     => $userId,
                         'action_source' => 'kitchen.monitor',
                     ]
                 );

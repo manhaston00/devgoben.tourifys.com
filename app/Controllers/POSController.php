@@ -722,46 +722,6 @@ class POSController extends BaseController
         ];
     }
 
-    protected function hasNewerOrderActivityAfterMerge(int $tableId, array $merge): bool
-    {
-        if ($tableId <= 0) {
-            return false;
-        }
-
-        $tenantId      = $this->currentTenantId();
-        $branchId      = $this->getCurrentBranchId();
-        $sourceOrderId = (int) ($merge['source_order_id'] ?? 0);
-        $mergeId       = (int) ($merge['id'] ?? 0);
-        $mergeCreatedAt = trim((string) ($merge['created_at'] ?? ''));
-
-        $builder = $this->orderModel
-            ->where('tenant_id', $tenantId)
-            ->where('table_id', $tableId);
-
-        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'orders')) {
-            $builder->where('branch_id', $branchId);
-        }
-
-        if ($sourceOrderId > 0) {
-            $builder->where('id !=', $sourceOrderId);
-        }
-
-        if ($mergeCreatedAt !== '') {
-            $builder->groupStart()
-                ->where('created_at >=', $mergeCreatedAt)
-                ->orWhere('opened_at >=', $mergeCreatedAt)
-                ->groupEnd();
-        } elseif ($mergeId > 0) {
-            $builder->where('id >', $sourceOrderId > 0 ? $sourceOrderId : $mergeId);
-        }
-
-        $newerOrder = $builder
-            ->orderBy('id', 'DESC')
-            ->first();
-
-        return ! empty($newerOrder);
-    }
-
     protected function getLatestMergedNoticeByTable(int $tableId): ?array
     {
         if ($tableId <= 0 || ! $this->db->tableExists('order_merges')) {
@@ -784,10 +744,6 @@ class POSController extends BaseController
         $merge = $builder->orderBy('id', 'DESC')->first();
 
         if (! $merge) {
-            return null;
-        }
-
-        if ($this->hasNewerOrderActivityAfterMerge($tableId, $merge)) {
             return null;
         }
 
@@ -1389,6 +1345,118 @@ class POSController extends BaseController
         $this->recalculateOrderTotal((int) $orderId);
     }
 
+    protected function orderItemsFieldExists(string $field): bool
+    {
+        try {
+            return $this->db->fieldExists($field, 'order_items');
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    protected function isCancelRequestFlowEnabled(): bool
+    {
+        return $this->orderItemsFieldExists('cancel_request_status');
+    }
+
+    protected function buildCancelRequestPayload(string $requestStatus, ?string $note = null, ?string $prevStatus = null): array
+    {
+        $now    = date('Y-m-d H:i:s');
+        $userId = $this->currentUserId() ?: null;
+        $data   = [];
+
+        if ($this->orderItemsFieldExists('cancel_request_status')) {
+            $data['cancel_request_status'] = $requestStatus;
+        }
+
+        if ($this->orderItemsFieldExists('updated_at')) {
+            $data['updated_at'] = $now;
+        }
+
+        if ($requestStatus === 'pending') {
+            if ($this->orderItemsFieldExists('cancel_requested_at')) {
+                $data['cancel_requested_at'] = $now;
+            }
+            if ($this->orderItemsFieldExists('cancel_requested_by')) {
+                $data['cancel_requested_by'] = $userId;
+            }
+            if ($this->orderItemsFieldExists('cancel_request_prev_status')) {
+                $data['cancel_request_prev_status'] = $prevStatus ?: 'sent';
+            }
+            if ($note !== null && $note !== '') {
+                if ($this->orderItemsFieldExists('cancel_request_note')) {
+                    $data['cancel_request_note'] = $note;
+                } elseif ($this->orderItemsFieldExists('cancel_request_reason')) {
+                    $data['cancel_request_reason'] = $note;
+                }
+            }
+            foreach ([
+                'cancel_decided_at',
+                'cancel_decided_by',
+                'cancel_rejected_at',
+                'cancel_rejected_by',
+                'cancel_rejected_note',
+                'cancel_rejected_reason',
+            ] as $field) {
+                if ($this->orderItemsFieldExists($field)) {
+                    $data[$field] = null;
+                }
+            }
+        } elseif ($requestStatus === 'rejected') {
+            if ($this->orderItemsFieldExists('cancel_decided_at')) {
+                $data['cancel_decided_at'] = $now;
+            }
+            if ($this->orderItemsFieldExists('cancel_decided_by')) {
+                $data['cancel_decided_by'] = $userId;
+            }
+            if ($note !== null && $note !== '') {
+                if ($this->orderItemsFieldExists('cancel_rejected_note')) {
+                    $data['cancel_rejected_note'] = $note;
+                } elseif ($this->orderItemsFieldExists('cancel_rejected_reason')) {
+                    $data['cancel_rejected_reason'] = $note;
+                }
+            }
+        } elseif ($requestStatus === 'approved') {
+            if ($this->orderItemsFieldExists('cancel_decided_at')) {
+                $data['cancel_decided_at'] = $now;
+            }
+            if ($this->orderItemsFieldExists('cancel_decided_by')) {
+                $data['cancel_decided_by'] = $userId;
+            }
+        }
+
+        return $data;
+    }
+
+    protected function buildCancelRequestClearPayload(): array
+    {
+        $data = [];
+        foreach ([
+            'cancel_request_status',
+            'cancel_requested_at',
+            'cancel_requested_by',
+            'cancel_request_note',
+            'cancel_request_reason',
+            'cancel_request_prev_status',
+            'cancel_decided_at',
+            'cancel_decided_by',
+            'cancel_rejected_at',
+            'cancel_rejected_by',
+            'cancel_rejected_note',
+            'cancel_rejected_reason',
+        ] as $field) {
+            if ($this->orderItemsFieldExists($field)) {
+                $data[$field] = null;
+            }
+        }
+
+        if ($this->orderItemsFieldExists('updated_at')) {
+            $data['updated_at'] = date('Y-m-d H:i:s');
+        }
+
+        return $data;
+    }
+
     public function updateItemStatus()
     {
         if ($response = $this->jsonPosWriteDenied()) {
@@ -1397,8 +1465,9 @@ class POSController extends BaseController
 
         $itemId = (int) ($this->request->getPost('item_id') ?? 0);
         $status = strtolower(trim((string) ($this->request->getPost('status') ?? '')));
+        $note   = trim((string) ($this->request->getPost('note') ?? ''));
 
-        $allowedStatuses = ['pending', 'sent', 'preparing', 'cooking', 'ready', 'served', 'cancelled', 'cancel'];
+        $allowedStatuses = ['pending', 'sent', 'preparing', 'cooking', 'ready', 'served', 'cancelled', 'cancel', 'cancel_requested'];
 
         if ($itemId <= 0 || ! in_array($status, $allowedStatuses, true)) {
             return $this->response->setJSON([
@@ -1418,6 +1487,72 @@ class POSController extends BaseController
             ]);
         }
 
+        $currentStatus = $this->normalizeOrderItemStatus($item['status'] ?? 'pending');
+
+        if ($status === 'cancel_requested') {
+            if ($currentStatus === 'pending') {
+                $status = 'cancel';
+            } elseif ($this->isCancelRequestFlowEnabled()) {
+                $requestData = $this->buildCancelRequestPayload('pending', $note, (string) ($item['status'] ?? 'sent'));
+
+                if (empty($requestData)) {
+                    return $this->response->setJSON([
+                        'status'  => 'error',
+                        'message' => lang('app.save_failed'),
+                    ]);
+                }
+
+                $builder = $this->db->table('order_items')->where('id', $itemId);
+
+                if ($this->orderItemsFieldExists('tenant_id')) {
+                    $builder->where('tenant_id', (int) ($item['tenant_id'] ?? $this->currentTenantId()));
+                }
+
+                if ($this->orderItemsFieldExists('branch_id') && array_key_exists('branch_id', $item)) {
+                    $branchId = (int) ($item['branch_id'] ?? 0);
+                    if ($branchId > 0) {
+                        $builder->where('branch_id', $branchId);
+                    }
+                }
+
+                if (! $builder->update($requestData)) {
+                    return $this->response->setJSON([
+                        'status'  => 'error',
+                        'message' => lang('app.save_failed'),
+                    ]);
+                }
+
+                try {
+                    if (method_exists($this->kitchenLogModel, 'addLog')) {
+                        $this->kitchenLogModel->addLog(
+                            $itemId,
+                            'cancel',
+                            lang('app.kitchen_status_updated'),
+                            [
+                                'branch_id'     => $this->getCurrentBranchId(),
+                                'order_id'      => (int) ($item['order_id'] ?? 0),
+                                'ticket_id'     => (int) ($item['kitchen_ticket_id'] ?? 0),
+                                'from_status'   => (string) ($item['status'] ?? ''),
+                                'to_status'     => 'cancel_requested',
+                                'action_by'     => (int) (session('user_id') ?? 0),
+                                'action_source' => 'pos.cancel_request',
+                            ]
+                        );
+                    }
+                } catch (\Throwable $e) {
+                    log_message('error', 'updateItemStatus cancel request log error: ' . $e->getMessage());
+                }
+
+                return $this->response->setJSON([
+                    'status'  => 'success',
+                    'message' => lang('app.save_success'),
+                    'mode'    => 'cancel_requested',
+                ]);
+            } else {
+                $status = 'cancel';
+            }
+        }
+
         $storedStatus = $status;
         if ($storedStatus === 'cooking') {
             $storedStatus = 'preparing';
@@ -1431,15 +1566,15 @@ class POSController extends BaseController
             'updated_at' => date('Y-m-d H:i:s'),
         ];
 
-        if ($storedStatus === 'preparing') {
+        if ($storedStatus === 'preparing' && $this->db->fieldExists('started_at', 'order_items')) {
             $data['started_at'] = date('Y-m-d H:i:s');
         }
 
-        if ($storedStatus === 'ready') {
+        if ($storedStatus === 'ready' && $this->db->fieldExists('ready_at', 'order_items')) {
             $data['ready_at'] = date('Y-m-d H:i:s');
         }
 
-        if ($storedStatus === 'served') {
+        if ($storedStatus === 'served' && $this->db->fieldExists('served_at', 'order_items')) {
             $data['served_at'] = date('Y-m-d H:i:s');
         }
 
@@ -1456,6 +1591,10 @@ class POSController extends BaseController
             $data['line_total'] = 0;
         } else {
             $data['line_total'] = ((float) ($item['price'] ?? 0)) * (int) ($item['qty'] ?? 0);
+        }
+
+        if ($this->isCancelRequestFlowEnabled()) {
+            $data = array_merge($data, $this->buildCancelRequestClearPayload());
         }
 
         if (! $this->orderItemModel->update($itemId, $data)) {
@@ -1503,6 +1642,7 @@ class POSController extends BaseController
             'message' => lang('app.save_success'),
         ]);
     }
+
 
     public function requestBill()
     {
