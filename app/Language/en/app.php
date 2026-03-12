@@ -998,4 +998,13 @@ return [
 'served' => 'Served',
 'kitchen_fullscreen' => 'Fullscreen',
 'kitchen_exit_fullscreen' => 'Exit Fullscreen',
+'move_table' => 'Move Table',
+'move_table_success' => 'Table moved successfully.',
+'move_table_failed' => 'Failed to move table.',
+'select_new_table' => 'Select new table',
+'destination_table_has_open_bill' => 'The destination table already has an open bill.',
+'confirm' => 'Confirm',
+'moved_table' => 'Moved Table',
+'moved_from_to' => 'Moved from {0} to {1}',
+'move_note' => 'Move note',
 ];

@@ -410,6 +410,14 @@
         height: 74vh;
     }
 
+    .kds-move-box {
+        border: 1px dashed rgba(255, 193, 7, 0.55);
+        background: rgba(255, 193, 7, 0.08);
+        border-radius: 10px;
+        padding: 8px 10px;
+        margin-top: 10px;
+    }
+
     @media (max-width: 1200px) {
         .kds-search-group {
             min-width: 260px;
@@ -427,73 +435,74 @@
             height: 56vh;
         }
     }
-	.kds-grid {
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 12px;
-	}
 
-	.kds-column {
-		min-width: 0;
-		display: flex;
-		flex-direction: column;
-		height: calc(100vh - 180px);
-	}
+    .kds-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+    }
 
-	.kds-column-body {
-		overflow-y: auto;
-		padding-right: 4px;
-	}
+    .kds-column {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 180px);
+    }
 
-	.kds-card {
-		border-radius: 14px;
-		padding: 10px;
-		margin-bottom: 10px;
-		font-size: 0.95rem;
-	}
+    .kds-column-body {
+        overflow-y: auto;
+        padding-right: 4px;
+    }
 
-	.kds-card .kds-title {
-		font-size: 1rem;
-		line-height: 1.2;
-	}
+    .kds-card {
+        border-radius: 14px;
+        padding: 10px;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+    }
 
-	.kds-card .kds-meta,
-	.kds-card .kds-items {
-		font-size: 0.85rem;
-		line-height: 1.2;
-	}
+    .kds-card .kds-title {
+        font-size: 1rem;
+        line-height: 1.2;
+    }
 
-	@media (max-width: 1199.98px) and (min-width: 768px) {
-		.kds-grid {
-			grid-template-columns: repeat(4, minmax(0, 1fr));
-			gap: 8px;
-		}
+    .kds-card .kds-meta,
+    .kds-card .kds-items {
+        font-size: 0.85rem;
+        line-height: 1.2;
+    }
 
-		.kds-card {
-			padding: 8px;
-			margin-bottom: 8px;
-			font-size: 0.82rem;
-		}
+    @media (max-width: 1199.98px) and (min-width: 768px) {
+        .kds-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
 
-		.kds-card .kds-title {
-			font-size: 0.9rem;
-		}
+        .kds-card {
+            padding: 8px;
+            margin-bottom: 8px;
+            font-size: 0.82rem;
+        }
 
-		.kds-card .kds-meta,
-		.kds-card .kds-items {
-			font-size: 0.75rem;
-		}
+        .kds-card .kds-title {
+            font-size: 0.9rem;
+        }
 
-		.kds-column {
-			height: calc(100vh - 140px);
-		}
-	}
+        .kds-card .kds-meta,
+        .kds-card .kds-items {
+            font-size: 0.75rem;
+        }
 
-	@media (max-width: 767.98px) {
-		.kds-grid {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-	}
+        .kds-column {
+            height: calc(100vh - 140px);
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .kds-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
 </style>
 
 <script>
@@ -529,7 +538,9 @@
         fullscreenExit: '<?= esc(lang('app.kitchen_exit_fullscreen')) ?>',
         actionStart: '<?= esc(lang('app.kitchen_action_start')) ?>',
         actionReady: '<?= esc(lang('app.kitchen_action_ready')) ?>',
-        actionServed: '<?= esc(lang('app.kitchen_action_served')) ?>'
+        actionServed: '<?= esc(lang('app.kitchen_action_served')) ?>',
+        movedTable: '<?= esc(lang('app.moved_table')) ?>',
+        moveNote: '<?= esc(lang('app.move_note')) ?>'
     };
 
     const csrfName = <?= json_encode(csrf_token()) ?>;
@@ -702,7 +713,10 @@
             item.ticket_no || '',
             item.product_name || '',
             item.item_detail || '',
-            item.note || ''
+            item.note || '',
+            item.moved_from_table_name || '',
+            item.moved_to_table_name || '',
+            item.moved_reason || ''
         ].join(' ').toLowerCase();
     }
 
@@ -731,6 +745,24 @@
         const searchText = searchableText(item);
         const queueNo = Number(indexInColumn || 0) + 1;
 
+        const movedFrom = item.moved_from_table_name || '';
+        const movedTo = item.moved_to_table_name || '';
+        const movedReason = item.moved_reason || '';
+
+        const moveInfoHtml = (movedFrom && movedTo && movedFrom !== movedTo) ? `
+            <div class="kds-move-box">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge text-bg-warning">${escapeHtml(i18n.movedTable)}</span>
+                    <span class="small fw-semibold">${escapeHtml(movedFrom)} → ${escapeHtml(movedTo)}</span>
+                </div>
+                ${movedReason ? `
+                    <div class="small text-muted mt-1">
+                        ${escapeHtml(i18n.moveNote)}: ${escapeHtml(movedReason)}
+                    </div>
+                ` : ''}
+            </div>
+        ` : '';
+
         return `
             <div
                 class="kds-card ${urgencyClass} p-3 mb-3"
@@ -748,7 +780,9 @@
                     <div class="small text-muted">${escapeHtml(i18n.order)}: ${escapeHtml(orderNo)}</div>
                 </div>
 
-                <div class="kds-item-title mb-2">${escapeHtml(item.product_name || '-')}</div>
+                ${moveInfoHtml}
+
+                <div class="kds-item-title mt-2 mb-2">${escapeHtml(item.product_name || '-')}</div>
 
                 ${item.item_detail ? `<div class="kds-item-sub text-muted mt-1">${escapeHtml(item.item_detail)}</div>` : ''}
                 ${item.note ? `<div class="kds-item-sub text-danger mt-1 fw-semibold">${escapeHtml(item.note)}</div>` : ''}
@@ -769,18 +803,18 @@
     }
 
     function renderColumn(targetId, rows) {
-		const el = document.getElementById(targetId);
-		if (!el) {
-			return;
-		}
+        const el = document.getElementById(targetId);
+        if (!el) {
+            return;
+        }
 
-		if (!rows || !rows.length) {
-			el.innerHTML = `<div class="text-muted small kds-empty">${escapeHtml(i18n.noItems)}</div>`;
-			return;
-		}
+        if (!rows || !rows.length) {
+            el.innerHTML = `<div class="text-muted small kds-empty">${escapeHtml(i18n.noItems)}</div>`;
+            return;
+        }
 
-		el.innerHTML = rows.map((row, index) => renderCard(row, index)).join('');
-	}
+        el.innerHTML = rows.map((row, index) => renderCard(row, index)).join('');
+    }
 
     function updateCounts(data) {
         const newCount = (data.new || []).length;

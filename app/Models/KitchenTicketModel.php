@@ -145,6 +145,11 @@ class KitchenTicketModel extends TenantScopedModel
             ks.station_name,
             ks.station_name_th,
             ks.station_name_en,
+			otm.from_table_id AS moved_from_table_id,
+            otm.to_table_id AS moved_to_table_id,
+            otm.reason AS moved_reason,
+            rtf.table_name AS moved_from_table_name,
+            rtt.table_name AS moved_to_table_name,
             {$stationDisplaySql} AS station_display_name,
             CASE
                 WHEN oi.status = 'served' THEN 'served'
@@ -157,10 +162,27 @@ class KitchenTicketModel extends TenantScopedModel
         ");
 
         $builder->join('orders o', 'o.id = kt.order_id', 'inner');
-        $builder->join('order_items oi', 'oi.kitchen_ticket_id = kt.id AND oi.tenant_id = kt.tenant_id', 'inner');
-        $builder->join('products p', 'p.id = oi.product_id', 'left');
-        $builder->join('restaurant_tables rt', 'rt.id = o.table_id', 'left');
-        $builder->join('kitchen_stations ks', 'ks.id = p.kitchen_station_id', 'left');
+		$builder->join('order_items oi', 'oi.kitchen_ticket_id = kt.id AND oi.tenant_id = kt.tenant_id', 'inner');
+		$builder->join('products p', 'p.id = oi.product_id', 'left');
+		$builder->join('restaurant_tables rt', 'rt.id = o.table_id', 'left');
+		$builder->join('kitchen_stations ks', 'ks.id = p.kitchen_station_id', 'left');
+
+		$latestMoveSubquery = "
+		(
+			SELECT x.*
+			FROM order_table_moves x
+			INNER JOIN (
+				SELECT order_id, MAX(id) AS max_id
+				FROM order_table_moves
+				WHERE tenant_id = {$tenantId}
+				GROUP BY order_id
+			) lm ON lm.max_id = x.id
+		) otm
+		";
+
+		$builder->join($latestMoveSubquery, 'otm.order_id = o.id', 'left', false);
+		$builder->join('restaurant_tables rtf', 'rtf.id = otm.from_table_id', 'left');
+		$builder->join('restaurant_tables rtt', 'rtt.id = otm.to_table_id', 'left');
 
         $builder->where('kt.tenant_id', $tenantId);
         $builder->where('o.tenant_id', $tenantId);

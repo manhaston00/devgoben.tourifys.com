@@ -995,4 +995,13 @@ return [
 'served' => 'เสิร์ฟแล้ว',
 'kitchen_fullscreen' => 'เต็มจอ',
 'kitchen_exit_fullscreen' => 'ออกจากเต็มจอ',
+'move_table' => 'ย้ายโต๊ะ',
+'move_table_success' => 'ย้ายโต๊ะเรียบร้อยแล้ว',
+'move_table_failed' => 'ย้ายโต๊ะไม่สำเร็จ',
+'select_new_table' => 'เลือกโต๊ะใหม่',
+'destination_table_has_open_bill' => 'โต๊ะปลายทางมีบิลเปิดอยู่แล้ว',
+'confirm' => 'ยืนยัน',
+'moved_table' => 'ย้ายโต๊ะ',
+'moved_from_to' => 'ย้ายจาก {0} ไป {1}',
+'move_note' => 'หมายเหตุการย้าย',
 ];

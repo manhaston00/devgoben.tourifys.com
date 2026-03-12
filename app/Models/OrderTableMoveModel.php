@@ -22,4 +22,12 @@ class OrderTableMoveModel extends TenantScopedModel
 
     protected $beforeInsert = ['beforeInsertTenant'];
     protected $beforeUpdate = ['beforeUpdateTenant'];
+	
+	public function getLatestByOrder(int $orderId): ?array
+	{
+		return $this->scoped()
+			->where('order_id', $orderId)
+			->orderBy('id', 'DESC')
+			->first();
+	}
 }
