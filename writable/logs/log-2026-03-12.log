@@ -1,0 +1,1 @@
+ERROR - 2026-03-12 00:32:21 --> Cannot change column 'tenant_id': used in a foreign key constraint 'fk_branches_tenant'

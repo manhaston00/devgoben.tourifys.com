@@ -1,0 +1,1259 @@
+CRITICAL - 2026-03-11 00:04:44 --> Cannot declare class App\Controllers\SuperAdmin\SubscriptionPlans, because the name is already in use
+in APPPATH/Views/super_admin/subscription_plans/form.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 00:08:05 --> Cannot declare class App\Controllers\SuperAdmin\SubscriptionPlans, because the name is already in use
+in APPPATH/Views/super_admin/subscription_plans/form.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 00:11:16 --> Call to undefined method App\Models\SubscriptionPlanModel::codeExists
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SuperAdmin/SubscriptionPlans.php(171): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdmin\SubscriptionPlans->update()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 02:25:36 --> Call to undefined function App\Filters\str_starts_with()
+in APPPATH/Filters/AuthSubscriptionFilter.php on line 29.
+ 1 SYSTEMPATH/Filters/Filters.php(173): App\Filters\AuthSubscriptionFilter->before()
+ 2 SYSTEMPATH/CodeIgniter.php(442): CodeIgniter\Filters\Filters->run()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 02:25:39 --> Call to undefined function App\Filters\str_starts_with()
+in APPPATH/Filters/AuthSubscriptionFilter.php on line 29.
+ 1 SYSTEMPATH/Filters/Filters.php(173): App\Filters\AuthSubscriptionFilter->before()
+ 2 SYSTEMPATH/CodeIgniter.php(442): CodeIgniter\Filters\Filters->run()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 02:25:43 --> Call to undefined function App\Filters\str_starts_with()
+in APPPATH/Filters/AuthSubscriptionFilter.php on line 29.
+ 1 SYSTEMPATH/Filters/Filters.php(173): App\Filters\AuthSubscriptionFilter->before()
+ 2 SYSTEMPATH/CodeIgniter.php(442): CodeIgniter\Filters\Filters->run()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 02:46:00 --> Call to undefined function Config\current_tenant_id()
+in APPPATH/Config/Routes.php on line 211.
+ 1 SYSTEMPATH/CodeIgniter.php(839): CodeIgniter\CodeIgniter->Config\{closure}()
+ 2 SYSTEMPATH/CodeIgniter.php(455): CodeIgniter\CodeIgniter->startController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 02:46:34 --> Call to undefined function Config\current_tenant_id()
+in APPPATH/Config/Routes.php on line 38.
+ 1 SYSTEMPATH/CodeIgniter.php(839): CodeIgniter\CodeIgniter->Config\{closure}()
+ 2 SYSTEMPATH/CodeIgniter.php(455): CodeIgniter\CodeIgniter->startController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 02:46:34 --> Call to undefined function Config\current_tenant_id()
+in APPPATH/Config/Routes.php on line 38.
+ 1 SYSTEMPATH/CodeIgniter.php(839): CodeIgniter\CodeIgniter->Config\{closure}()
+ 2 SYSTEMPATH/CodeIgniter.php(455): CodeIgniter\CodeIgniter->startController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 02:46:34 --> Call to undefined function Config\current_tenant_id()
+in APPPATH/Config/Routes.php on line 38.
+ 1 SYSTEMPATH/CodeIgniter.php(839): CodeIgniter\CodeIgniter->Config\{closure}()
+ 2 SYSTEMPATH/CodeIgniter.php(455): CodeIgniter\CodeIgniter->startController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 02:46:35 --> Call to undefined function Config\current_tenant_id()
+in APPPATH/Config/Routes.php on line 38.
+ 1 SYSTEMPATH/CodeIgniter.php(839): CodeIgniter\CodeIgniter->Config\{closure}()
+ 2 SYSTEMPATH/CodeIgniter.php(455): CodeIgniter\CodeIgniter->startController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 02:46:35 --> Call to undefined function Config\current_tenant_id()
+in APPPATH/Config/Routes.php on line 38.
+ 1 SYSTEMPATH/CodeIgniter.php(839): CodeIgniter\CodeIgniter->Config\{closure}()
+ 2 SYSTEMPATH/CodeIgniter.php(455): CodeIgniter\CodeIgniter->startController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 12:29:56 --> Duplicate entry 'admin' for key 'role_name'
+CRITICAL - 2026-03-11 13:46:22 --> Class 'App\Models\OrderModel' not found
+in APPPATH/Controllers/POSController.php on line 41.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\POSController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 14:18:54 --> sendKitchen error: Undefined property: App\Controllers\POSController::$kitchenLogModel
+ERROR - 2026-03-11 14:19:00 --> sendKitchen error: Undefined property: App\Controllers\POSController::$kitchenLogModel
+ERROR - 2026-03-11 14:19:35 --> sendKitchen error: Undefined property: App\Controllers\POSController::$kitchenLogModel
+ERROR - 2026-03-11 14:22:47 --> sendKitchen error: Undefined property: App\Controllers\POSController::$kitchenLogModel
+ERROR - 2026-03-11 14:22:49 --> sendKitchen error: Undefined property: App\Controllers\POSController::$kitchenLogModel
+ERROR - 2026-03-11 14:23:08 --> sendKitchen error: Undefined property: App\Controllers\POSController::$kitchenLogModel
+ERROR - 2026-03-11 14:52:29 --> Unknown column 'kl.kitchen_ticket_id' in 'on clause'
+ERROR - 2026-03-11 14:59:04 --> Duplicate entry '3-pos.access' for key 'plan_id_feature_key'
+ERROR - 2026-03-11 14:59:39 --> Duplicate entry '3-pos.access' for key 'plan_id_feature_key'
+ERROR - 2026-03-11 16:27:27 --> Duplicate entry '2-pos.access' for key 'plan_id_feature_key'
+ERROR - 2026-03-11 16:28:11 --> Duplicate entry '2-pos.access' for key 'plan_id_feature_key'
+CRITICAL - 2026-03-11 18:15:03 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:03 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:04 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:04 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:04 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:04 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:04 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:04 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:05 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:05 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:05 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:05 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:05 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:06 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:06 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:07 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:07 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:08 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:08 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:08 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:08 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:08 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:08 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:08 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:09 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:09 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:09 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:09 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:10 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:10 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:10 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:10 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:11 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:11 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:15:25 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:26 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:15:27 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:16:35 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:16:36 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:16:36 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:16:36 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:16:36 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:16:36 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:16:36 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:16:36 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:16:37 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:16:37 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:16:37 --> Class 'App\Models\TenantModel' not found
+in APPPATH/Services/AccessService.php on line 29.
+ 1 APPPATH/Helpers/tenant_helper.php(11): App\Services\AccessService->__construct()
+ 2 APPPATH/Helpers/tenant_helper.php(70): tenant_access_service()
+ 3 APPPATH/Helpers/branch_helper.php(147): current_tenant_id()
+ 4 APPPATH/Views/layout/main.php(610): branch_options()
+ 5 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/layout/main.php')
+ 6 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 7 SYSTEMPATH/View/View.php(229): CodeIgniter\View\View->render()
+ 8 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 9 APPPATH/Controllers/SuperAdminDashboardController.php(48): view()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdminDashboardController->index()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:17:17 --> Cannot declare class App\Models\TableModel, because the name is already in use
+in APPPATH/Models/TenantModel.php on line 0.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 18:25:11 --> Cache key contains reserved characters {}()/\@:
+in SYSTEMPATH/Cache/Handlers/BaseHandler.php on line 66.
+ 1 SYSTEMPATH/Cache/Handlers/FileHandler.php(80): CodeIgniter\Cache\Handlers\BaseHandler::validateKey()
+ 2 APPPATH/Services/AccessService.php(121): CodeIgniter\Cache\Handlers\FileHandler->get()
+ 3 APPPATH/Services/AccessService.php(171): App\Services\AccessService->getCurrentSubscription()
+ 4 APPPATH/Services/AccessService.php(211): App\Services\AccessService->getPlanIdFromCurrentSubscription()
+ 5 APPPATH/Services/AccessService.php(238): App\Services\AccessService->featureValue()
+ 6 APPPATH/Helpers/tenant_helper.php(112): App\Services\AccessService->featureEnabled()
+ 7 APPPATH/Controllers/BaseController.php(82): feature_enabled()
+ 8 APPPATH/Controllers/POSController.php(340): App\Controllers\BaseController->denyIfFeatureNotEnabled()
+ 9 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->index()
+10 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+12 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:25:14 --> Cache key contains reserved characters {}()/\@:
+in SYSTEMPATH/Cache/Handlers/BaseHandler.php on line 66.
+ 1 SYSTEMPATH/Cache/Handlers/FileHandler.php(80): CodeIgniter\Cache\Handlers\BaseHandler::validateKey()
+ 2 APPPATH/Services/AccessService.php(121): CodeIgniter\Cache\Handlers\FileHandler->get()
+ 3 APPPATH/Services/AccessService.php(171): App\Services\AccessService->getCurrentSubscription()
+ 4 APPPATH/Services/AccessService.php(211): App\Services\AccessService->getPlanIdFromCurrentSubscription()
+ 5 APPPATH/Services/AccessService.php(238): App\Services\AccessService->featureValue()
+ 6 APPPATH/Helpers/tenant_helper.php(112): App\Services\AccessService->featureEnabled()
+ 7 APPPATH/Controllers/BaseController.php(82): feature_enabled()
+ 8 APPPATH/Controllers/POSController.php(340): App\Controllers\BaseController->denyIfFeatureNotEnabled()
+ 9 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->index()
+10 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+12 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:25:23 --> Cache key contains reserved characters {}()/\@:
+in SYSTEMPATH/Cache/Handlers/BaseHandler.php on line 66.
+ 1 SYSTEMPATH/Cache/Handlers/FileHandler.php(80): CodeIgniter\Cache\Handlers\BaseHandler::validateKey()
+ 2 APPPATH/Services/AccessService.php(121): CodeIgniter\Cache\Handlers\FileHandler->get()
+ 3 APPPATH/Services/AccessService.php(171): App\Services\AccessService->getCurrentSubscription()
+ 4 APPPATH/Services/AccessService.php(211): App\Services\AccessService->getPlanIdFromCurrentSubscription()
+ 5 APPPATH/Services/AccessService.php(238): App\Services\AccessService->featureValue()
+ 6 APPPATH/Helpers/tenant_helper.php(112): App\Services\AccessService->featureEnabled()
+ 7 APPPATH/Controllers/BaseController.php(82): feature_enabled()
+ 8 APPPATH/Controllers/POSController.php(340): App\Controllers\BaseController->denyIfFeatureNotEnabled()
+ 9 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->index()
+10 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+12 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:25:49 --> Call to undefined method App\Models\KitchenStationModel::getVisibleStations
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/KitchenStations.php(39): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\KitchenStations->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:25:58 --> Call to undefined method App\Models\KitchenStationModel::getVisibleStations
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/KitchenStations.php(39): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\KitchenStations->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:26:01 --> Call to undefined method App\Models\QuickNoteModel::scopeTenant
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/QuickNoteController.php(37): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\QuickNoteController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:26:05 --> Call to undefined method App\Models\ProductQuickOptionModel::scopeTenant
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/ProductQuickOptionController.php(76): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:26:23 --> Call to undefined method App\Models\TenantModel::getDatatable
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(35): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:26:26 --> Call to undefined method App\Models\TenantModel::getDatatable
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(35): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:26:29 --> Call to undefined method App\Models\TenantModel::getDatatable
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(35): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:26:39 --> Cache key contains reserved characters {}()/\@:
+in SYSTEMPATH/Cache/Handlers/BaseHandler.php on line 66.
+ 1 SYSTEMPATH/Cache/Handlers/FileHandler.php(80): CodeIgniter\Cache\Handlers\BaseHandler::validateKey()
+ 2 APPPATH/Services/AccessService.php(121): CodeIgniter\Cache\Handlers\FileHandler->get()
+ 3 APPPATH/Services/AccessService.php(171): App\Services\AccessService->getCurrentSubscription()
+ 4 APPPATH/Services/AccessService.php(211): App\Services\AccessService->getPlanIdFromCurrentSubscription()
+ 5 APPPATH/Services/AccessService.php(238): App\Services\AccessService->featureValue()
+ 6 APPPATH/Helpers/tenant_helper.php(112): App\Services\AccessService->featureEnabled()
+ 7 APPPATH/Controllers/BaseController.php(82): feature_enabled()
+ 8 APPPATH/Controllers/POSController.php(340): App\Controllers\BaseController->denyIfFeatureNotEnabled()
+ 9 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->index()
+10 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+12 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:29:16 --> Cache key contains reserved characters {}()/\@:
+in SYSTEMPATH/Cache/Handlers/BaseHandler.php on line 66.
+ 1 SYSTEMPATH/Cache/Handlers/FileHandler.php(80): CodeIgniter\Cache\Handlers\BaseHandler::validateKey()
+ 2 APPPATH/Services/AccessService.php(121): CodeIgniter\Cache\Handlers\FileHandler->get()
+ 3 APPPATH/Services/AccessService.php(171): App\Services\AccessService->getCurrentSubscription()
+ 4 APPPATH/Services/AccessService.php(211): App\Services\AccessService->getPlanIdFromCurrentSubscription()
+ 5 APPPATH/Services/AccessService.php(238): App\Services\AccessService->featureValue()
+ 6 APPPATH/Helpers/tenant_helper.php(112): App\Services\AccessService->featureEnabled()
+ 7 APPPATH/Controllers/BaseController.php(82): feature_enabled()
+ 8 APPPATH/Controllers/POSController.php(340): App\Controllers\BaseController->denyIfFeatureNotEnabled()
+ 9 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->index()
+10 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+12 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:29:35 --> Cache key contains reserved characters {}()/\@:
+in SYSTEMPATH/Cache/Handlers/BaseHandler.php on line 66.
+ 1 SYSTEMPATH/Cache/Handlers/FileHandler.php(80): CodeIgniter\Cache\Handlers\BaseHandler::validateKey()
+ 2 APPPATH/Services/AccessService.php(121): CodeIgniter\Cache\Handlers\FileHandler->get()
+ 3 APPPATH/Services/AccessService.php(171): App\Services\AccessService->getCurrentSubscription()
+ 4 APPPATH/Services/AccessService.php(211): App\Services\AccessService->getPlanIdFromCurrentSubscription()
+ 5 APPPATH/Services/AccessService.php(238): App\Services\AccessService->featureValue()
+ 6 APPPATH/Helpers/tenant_helper.php(112): App\Services\AccessService->featureEnabled()
+ 7 APPPATH/Controllers/BaseController.php(82): feature_enabled()
+ 8 APPPATH/Controllers/POSController.php(340): App\Controllers\BaseController->denyIfFeatureNotEnabled()
+ 9 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->index()
+10 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+12 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:29:37 --> Call to undefined method App\Models\TenantModel::getDatatable
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(35): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:29:42 --> Call to undefined method App\Models\TenantModel::getDatatable
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(35): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:34:43 --> Call to undefined method App\Models\TenantModel::getDatatable
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(35): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:35:15 --> Cache key contains reserved characters {}()/\@:
+in SYSTEMPATH/Cache/Handlers/BaseHandler.php on line 66.
+ 1 SYSTEMPATH/Cache/Handlers/FileHandler.php(80): CodeIgniter\Cache\Handlers\BaseHandler::validateKey()
+ 2 APPPATH/Services/AccessService.php(121): CodeIgniter\Cache\Handlers\FileHandler->get()
+ 3 APPPATH/Services/AccessService.php(171): App\Services\AccessService->getCurrentSubscription()
+ 4 APPPATH/Services/AccessService.php(211): App\Services\AccessService->getPlanIdFromCurrentSubscription()
+ 5 APPPATH/Services/AccessService.php(238): App\Services\AccessService->featureValue()
+ 6 APPPATH/Helpers/tenant_helper.php(112): App\Services\AccessService->featureEnabled()
+ 7 APPPATH/Controllers/BaseController.php(82): feature_enabled()
+ 8 APPPATH/Controllers/POSController.php(340): App\Controllers\BaseController->denyIfFeatureNotEnabled()
+ 9 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->index()
+10 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+12 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:35:20 --> Call to undefined method App\Models\KitchenStationModel::getVisibleStations
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/KitchenStations.php(39): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\KitchenStations->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:35:30 --> Call to undefined method App\Models\QuickNoteModel::scopeTenant
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/QuickNoteController.php(37): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\QuickNoteController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:35:39 --> Call to undefined method App\Models\QuickNoteModel::scopeTenant
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/QuickNoteController.php(37): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\QuickNoteController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:35:41 --> Call to undefined method App\Models\ProductQuickOptionModel::scopeTenant
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/ProductQuickOptionController.php(76): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 18:35:53 --> Cache key contains reserved characters {}()/\@:
+in SYSTEMPATH/Cache/Handlers/BaseHandler.php on line 66.
+ 1 SYSTEMPATH/Cache/Handlers/FileHandler.php(80): CodeIgniter\Cache\Handlers\BaseHandler::validateKey()
+ 2 APPPATH/Services/AccessService.php(121): CodeIgniter\Cache\Handlers\FileHandler->get()
+ 3 APPPATH/Services/AccessService.php(171): App\Services\AccessService->getCurrentSubscription()
+ 4 APPPATH/Services/AccessService.php(211): App\Services\AccessService->getPlanIdFromCurrentSubscription()
+ 5 APPPATH/Services/AccessService.php(238): App\Services\AccessService->featureValue()
+ 6 APPPATH/Helpers/tenant_helper.php(112): App\Services\AccessService->featureEnabled()
+ 7 APPPATH/Controllers/BaseController.php(82): feature_enabled()
+ 8 APPPATH/Controllers/POSController.php(340): App\Controllers\BaseController->denyIfFeatureNotEnabled()
+ 9 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->index()
+10 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+12 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 18:52:35 --> Unknown column 's.id' in 'field list'
+CRITICAL - 2026-03-11 18:52:35 --> Unknown column 's.id' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1669): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/TenantModel.php(91): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Controllers/SystemTenantsController.php(35): App\Models\TenantModel->getDatatable()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 18:52:37 --> Unknown column 's.id' in 'field list'
+CRITICAL - 2026-03-11 18:52:37 --> Unknown column 's.id' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1669): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/TenantModel.php(91): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Controllers/SystemTenantsController.php(35): App\Models\TenantModel->getDatatable()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 18:53:07 --> Unknown column 's.id' in 'field list'
+CRITICAL - 2026-03-11 18:53:07 --> Unknown column 's.id' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1669): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/TenantModel.php(91): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Controllers/SystemTenantsController.php(35): App\Models\TenantModel->getDatatable()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 18:53:10 --> Unknown column 's.id' in 'field list'
+CRITICAL - 2026-03-11 18:53:10 --> Unknown column 's.id' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1669): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/TenantModel.php(91): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Controllers/SystemTenantsController.php(35): App\Models\TenantModel->getDatatable()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 18:53:22 --> Unknown column 's.id' in 'field list'
+CRITICAL - 2026-03-11 18:53:22 --> Unknown column 's.id' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1669): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/TenantModel.php(91): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Controllers/SystemTenantsController.php(35): App\Models\TenantModel->getDatatable()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 19:23:23 --> Unknown column 's.id' in 'field list'
+CRITICAL - 2026-03-11 19:23:23 --> Unknown column 's.id' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1669): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/TenantModel.php(96): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Controllers/SystemTenantsController.php(35): App\Models\TenantModel->getDatatable()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 19:23:26 --> Unknown column 's.id' in 'field list'
+CRITICAL - 2026-03-11 19:23:26 --> Unknown column 's.id' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1669): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/TenantModel.php(96): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Controllers/SystemTenantsController.php(35): App\Models\TenantModel->getDatatable()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 19:24:15 --> Unknown column 's.id' in 'field list'
+CRITICAL - 2026-03-11 19:24:15 --> Unknown column 's.id' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1669): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/TenantModel.php(96): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Controllers/SystemTenantsController.php(35): App\Models\TenantModel->getDatatable()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 19:24:53 --> Unknown column 's.id' in 'field list'
+CRITICAL - 2026-03-11 19:24:53 --> Unknown column 's.id' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1669): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/TenantModel.php(96): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Controllers/SystemTenantsController.php(35): App\Models\TenantModel->getDatatable()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 19:27:24 --> Unknown column 's.id' in 'field list'
+CRITICAL - 2026-03-11 19:27:24 --> Unknown column 's.id' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1669): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/TenantModel.php(96): CodeIgniter\Database\BaseBuilder->countAllResults()
+ 6 APPPATH/Controllers/SystemTenantsController.php(35): App\Models\TenantModel->getDatatable()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->data()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 20:24:06 --> Undefined variable: action
+in APPPATH/Views/quick_options/form.php on line 28.
+ 1 APPPATH/Views/quick_options/form.php(28): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/quick_options/form.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/QuickOptionController.php(68): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\QuickOptionController->create()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 20:25:32 --> Undefined variable: action
+in APPPATH/Views/quick_options/form.php on line 28.
+ 1 APPPATH/Views/quick_options/form.php(28): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/quick_options/form.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/QuickOptionController.php(68): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\QuickOptionController->create()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 20:25:56 --> Undefined variable: action
+in APPPATH/Views/quick_options/form.php on line 28.
+ 1 APPPATH/Views/quick_options/form.php(28): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/quick_options/form.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/QuickOptionController.php(68): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\QuickOptionController->create()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 20:26:31 --> Undefined variable: action
+in APPPATH/Views/quick_options/form.php on line 28.
+ 1 APPPATH/Views/quick_options/form.php(28): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/quick_options/form.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/QuickOptionController.php(68): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\QuickOptionController->create()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 21:12:09 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:10 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:10 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:11 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:11 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:11 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:11 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:12 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:12 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:12 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:12 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:12 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:13 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:13 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:13 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:13 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:13 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:13 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:14 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:14 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:14 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:15 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:15 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:46 --> unlink(/var/www/subdomains/devgoben.tourifys.com/writable/debugbar/debugbar_1773237732.211677.json): No such file or directory
+in SYSTEMPATH/Debug/Toolbar/Collectors/History.php on line 76.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/Debug/Toolbar/Collectors/History.php(76): unlink()
+ 3 SYSTEMPATH/Debug/Toolbar.php(495): CodeIgniter\Debug\Toolbar\Collectors\History->setFiles()
+ 4 SYSTEMPATH/Debug/Toolbar.php(472): CodeIgniter\Debug\Toolbar->format()
+ 5 APPPATH/Config/Events.php(46): CodeIgniter\Debug\Toolbar->respond()
+ 6 SYSTEMPATH/Events/Events.php(149): CodeIgniter\Events\Events::Config\{closure}()
+ 7 SYSTEMPATH/CodeIgniter.php(328): CodeIgniter\Events\Events::trigger()
+ 8 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 21:12:50 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 21:12:53 --> Cannot redeclare App\Controllers\POSController::getTenantQuickNotesForPos()
+in APPPATH/Controllers/POSController.php on line 260.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 22:39:31 --> Declaration of App\Controllers\Tables::currentBranchId(): ?int must be compatible with App\Controllers\BaseController::currentBranchId(): int
+in APPPATH/Controllers/Tables.php on line 20.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 22:39:36 --> Declaration of App\Controllers\Tables::currentBranchId(): ?int must be compatible with App\Controllers\BaseController::currentBranchId(): int
+in APPPATH/Controllers/Tables.php on line 20.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 22:39:51 --> Declaration of App\Controllers\Tables::currentBranchId(): ?int must be compatible with App\Controllers\BaseController::currentBranchId(): int
+in APPPATH/Controllers/Tables.php on line 20.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+CRITICAL - 2026-03-11 22:42:06 --> Call to undefined method App\Models\TableModel::getTablesWithZone
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/Tables.php(52): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Tables->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 22:45:32 --> Declaration of App\Controllers\Tables::currentBranchId(): ?int must be compatible with App\Controllers\BaseController::currentBranchId(): int
+in APPPATH/Controllers/Tables.php on line 20.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()
+ERROR - 2026-03-11 22:51:10 --> Unknown column 'branch_id' in 'where clause'
+CRITICAL - 2026-03-11 22:51:10 --> Unknown column 'branch_id' in 'where clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/KitchenStations.php(54): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\KitchenStations->index()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 22:51:16 --> Unknown column 'branch_id' in 'where clause'
+CRITICAL - 2026-03-11 22:51:16 --> Unknown column 'branch_id' in 'where clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/KitchenStations.php(54): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\KitchenStations->index()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 22:52:52 --> Unknown column 'sort_order' in 'order clause'
+CRITICAL - 2026-03-11 22:52:52 --> Unknown column 'sort_order' in 'order clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/KitchenStations.php(47): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\KitchenStations->index()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 22:56:37 --> Unknown column 'sort_order' in 'order clause'
+CRITICAL - 2026-03-11 22:56:37 --> Unknown column 'sort_order' in 'order clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/KitchenStations.php(47): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\KitchenStations->index()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-11 22:56:38 --> Unknown column 'sort_order' in 'order clause'
+CRITICAL - 2026-03-11 22:56:38 --> Unknown column 'sort_order' in 'order clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/KitchenStations.php(47): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\KitchenStations->index()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:07:17 --> Call to undefined method App\Models\ProductModel::scopeTenant
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/ProductQuickOptionController.php(97): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:12:26 --> Call to undefined method App\Models\ProductModel::scopeTenant
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/ProductQuickOptionController.php(97): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:13:50 --> Call to undefined method App\Models\ProductModel::scopeTenant
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/ProductQuickOptionController.php(97): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:15:30 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:15:31 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:15:31 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:15:31 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:15:31 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:15:52 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:15:52 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:15:52 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:15:53 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:16:09 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:16:09 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:16:10 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:16:10 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:16:10 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:16:10 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:16:11 --> Class 'App\Models\QuickOptionModel' not found
+in APPPATH/Controllers/ProductQuickOptionController.php on line 19.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\ProductQuickOptionController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:22:37 --> Undefined variable: products
+in APPPATH/Views/product_quick_options/index.php on line 56.
+ 1 APPPATH/Views/product_quick_options/index.php(56): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/product_quick_options/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/ProductQuickOptionController.php(117): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:22:38 --> Undefined variable: products
+in APPPATH/Views/product_quick_options/index.php on line 56.
+ 1 APPPATH/Views/product_quick_options/index.php(56): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/product_quick_options/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/ProductQuickOptionController.php(117): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:22:38 --> Undefined variable: products
+in APPPATH/Views/product_quick_options/index.php on line 56.
+ 1 APPPATH/Views/product_quick_options/index.php(56): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/product_quick_options/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/ProductQuickOptionController.php(117): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:22:39 --> Undefined variable: products
+in APPPATH/Views/product_quick_options/index.php on line 56.
+ 1 APPPATH/Views/product_quick_options/index.php(56): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/product_quick_options/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/ProductQuickOptionController.php(117): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:22:39 --> Undefined variable: products
+in APPPATH/Views/product_quick_options/index.php on line 56.
+ 1 APPPATH/Views/product_quick_options/index.php(56): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/product_quick_options/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/ProductQuickOptionController.php(117): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:22:39 --> Undefined variable: products
+in APPPATH/Views/product_quick_options/index.php on line 56.
+ 1 APPPATH/Views/product_quick_options/index.php(56): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/product_quick_options/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/ProductQuickOptionController.php(117): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:22:39 --> Undefined variable: products
+in APPPATH/Views/product_quick_options/index.php on line 56.
+ 1 APPPATH/Views/product_quick_options/index.php(56): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/product_quick_options/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/ProductQuickOptionController.php(117): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-11 23:22:40 --> Undefined variable: products
+in APPPATH/Views/product_quick_options/index.php on line 56.
+ 1 APPPATH/Views/product_quick_options/index.php(56): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/product_quick_options/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/ProductQuickOptionController.php(117): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ProductQuickOptionController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()

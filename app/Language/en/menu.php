@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'main'                  => 'Main',
+    'dashboard'             => 'Dashboard',
+    'pos'                   => 'POS / Select Table',
+    'reservations'          => 'Reservations',
+    'master_data'           => 'Master Data',
+    'roles'                 => 'Roles',
+    'users'                 => 'Users',
+    'categories'            => 'Categories',
+    'kitchen_stations'      => 'Kitchen Stations',
+    'products'              => 'Products',
+    'quick_notes'           => 'Additional Notes',
+    'product_quick_options' => 'Bind Food Details to Products',
+    'zones'                 => 'Zones',
+    'tables'                => 'Tables',
+    'system'                => 'System',
+	'tenants'      => 'Tenants',
+	'system_admin' => 'System Admin',
+	'super_admin'           => 'Super Admin',
+	'super_admin_dashboard' => 'Super Admin Dashboard',
+	'tenants'               => 'Tenants',
+	'back_to_store'         => 'Back to Store',
+	'branches' => 'Branches',
+];

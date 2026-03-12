@@ -1,0 +1,1749 @@
+ERROR - 2026-03-10 11:18:08 --> Unknown column 'z.zone_name' in 'field list'
+CRITICAL - 2026-03-10 11:18:08 --> Unknown column 'z.zone_name' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/ReservationModel.php(120): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH/Controllers/ReservationsController.php(164): App\Models\ReservationModel->getList()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ReservationsController->index()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:20:55 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 11:20:55 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(202): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:21:51 --> Unknown column 'z.zone_name' in 'field list'
+CRITICAL - 2026-03-10 11:21:51 --> Unknown column 'z.zone_name' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/ReservationModel.php(120): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH/Controllers/ReservationsController.php(250): App\Models\ReservationModel->getList()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ReservationsController->index()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:21:51 --> Unknown column 'z.zone_name' in 'field list'
+CRITICAL - 2026-03-10 11:21:51 --> Unknown column 'z.zone_name' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/ReservationModel.php(120): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH/Controllers/ReservationsController.php(250): App\Models\ReservationModel->getList()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ReservationsController->index()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:21:52 --> Unknown column 'z.zone_name' in 'field list'
+CRITICAL - 2026-03-10 11:21:52 --> Unknown column 'z.zone_name' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/ReservationModel.php(121): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH/Controllers/ReservationsController.php(250): App\Models\ReservationModel->getList()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ReservationsController->index()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:21:52 --> Unknown column 'z.zone_name' in 'field list'
+CRITICAL - 2026-03-10 11:21:52 --> Unknown column 'z.zone_name' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/ReservationModel.php(121): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH/Controllers/ReservationsController.php(250): App\Models\ReservationModel->getList()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ReservationsController->index()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:21:52 --> Unknown column 'z.zone_name' in 'field list'
+CRITICAL - 2026-03-10 11:21:52 --> Unknown column 'z.zone_name' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/ReservationModel.php(121): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH/Controllers/ReservationsController.php(250): App\Models\ReservationModel->getList()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ReservationsController->index()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:22:15 --> Unknown column 'z.zone_name' in 'field list'
+CRITICAL - 2026-03-10 11:22:15 --> Unknown column 'z.zone_name' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/ReservationModel.php(121): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH/Controllers/ReservationsController.php(250): App\Models\ReservationModel->getList()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ReservationsController->index()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:23:20 --> Unknown column 'z.zone_name' in 'field list'
+CRITICAL - 2026-03-10 11:23:20 --> Unknown column 'z.zone_name' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 APPPATH/Models/ReservationModel.php(121): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH/Controllers/ReservationsController.php(250): App\Models\ReservationModel->getList()
+ 7 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\ReservationsController->index()
+ 8 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+10 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:32:58 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 11:32:58 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:33:17 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 11:33:17 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:33:35 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 11:33:35 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:34:16 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 11:34:16 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:35:48 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 11:35:48 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:35:56 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 11:35:56 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:38:18 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 11:38:18 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 11:44:00 --> Class 'App\Models\CategoryModel' not found
+in APPPATH/Controllers/POSController.php on line 45.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\POSController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 11:44:08 --> Duplicate key name 'idx_users_branch_id'
+CRITICAL - 2026-03-10 12:42:53 --> Class 'App\Models\ReservationModel' not found
+in APPPATH/Controllers/POSController.php on line 52.
+ 1 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\POSController->__construct()
+ 2 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 13:07:05 --> Cannot add foreign key constraint
+ERROR - 2026-03-10 13:22:56 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 13:22:56 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 13:35:41 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 13:35:41 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 13:35:44 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 13:35:44 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 15:35:59 --> Cannot add foreign key constraint
+ERROR - 2026-03-10 15:35:59 --> Cannot add foreign key constraint
+ERROR - 2026-03-10 15:35:59 --> Cannot add foreign key constraint
+ERROR - 2026-03-10 15:35:59 --> Cannot add foreign key constraint
+ERROR - 2026-03-10 15:35:59 --> Cannot add foreign key constraint
+ERROR - 2026-03-10 15:35:59 --> Cannot add foreign key constraint
+CRITICAL - 2026-03-10 16:12:50 --> syntax error, unexpected end of file, expecting function (T_FUNCTION) or const (T_CONST)
+in APPPATH/Models/TableModel.php on line 65.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 3 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 4 APPPATH/Controllers/POSController.php(44): spl_autoload_call()
+ 5 SYSTEMPATH/CodeIgniter.php(860): App\Controllers\POSController->__construct()
+ 6 SYSTEMPATH/CodeIgniter.php(459): CodeIgniter\CodeIgniter->createController()
+ 7 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 16:12:57 --> syntax error, unexpected end of file, expecting function (T_FUNCTION) or const (T_CONST)
+in APPPATH/Models/TableModel.php on line 65.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 3 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 4 APPPATH/Controllers/Dashboard.php(21): spl_autoload_call()
+ 5 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Dashboard->index()
+ 6 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 16:15:12 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 16:15:12 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 16:15:19 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 16:15:19 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 16:15:25 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 16:15:25 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 16:15:26 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 16:15:26 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 16:15:32 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 16:15:32 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 16:15:35 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 16:15:35 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 16:15:38 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 16:15:38 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(249): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 17:02:54 --> Cannot add foreign key constraint
+ERROR - 2026-03-10 17:45:37 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 17:45:37 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(308): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 17:49:17 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 17:49:17 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(308): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 17:49:37 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+CRITICAL - 2026-03-10 17:49:37 --> Unknown column 'product_quick_options.quick_option_id' in 'on clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1585): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(222): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(584): CodeIgniter\Model->doFindAll()
+ 7 APPPATH/Controllers/POSController.php(308): CodeIgniter\BaseModel->findAll()
+ 8 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\POSController->getProductQuickOptions()
+ 9 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:14:29 --> auth,subscription.guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:14:54 --> auth,subscription.guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:16:31 --> auth,subscription.guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:19:00 --> auth,subscription.guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:19:03 --> auth,subscription.guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:19:04 --> auth,subscription.guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:21:29 --> auth,subscription.guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:44 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:44 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:45 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:45 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:45 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:45 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:45 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:46 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:46 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:46 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:46 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:23:46 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:24:27 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:24:28 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:24:28 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:26:01 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:26:22 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:01 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:02 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:02 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:03 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:03 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:03 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:03 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:03 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:03 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:04 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:25 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:26 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:26 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:26 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:26 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:27 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:27 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:28 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:30 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:28:50 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/Commands/Utilities/Routes/FilterFinder.php(35): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/Commands/Utilities/Routes/FilterFinder.php(58): CodeIgniter\Commands\Utilities\Routes\FilterFinder->getRouteFilters()
+ 4 SYSTEMPATH/Commands/Utilities/Routes/FilterCollector.php(59): CodeIgniter\Commands\Utilities\Routes\FilterFinder->find()
+ 5 SYSTEMPATH/Commands/Utilities/Routes.php(102): CodeIgniter\Commands\Utilities\Routes\FilterCollector->get()
+ 6 SYSTEMPATH/CLI/Commands.php(63): CodeIgniter\Commands\Utilities\Routes->run()
+ 7 SYSTEMPATH/CLI/CommandRunner.php(65): CodeIgniter\CLI\Commands->run()
+ 8 SYSTEMPATH/CLI/CommandRunner.php(51): CodeIgniter\CLI\CommandRunner->index()
+ 9 SYSTEMPATH/CodeIgniter.php(891): CodeIgniter\CLI\CommandRunner->_remap()
+10 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(347): CodeIgniter\CodeIgniter->handleRequest()
+12 SYSTEMPATH/CLI/Console.php(48): CodeIgniter\CodeIgniter->run()
+13 ROOTPATH/spark(86): CodeIgniter\CLI\Console->run()
+CRITICAL - 2026-03-10 18:29:26 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:27 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:27 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:27 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:28 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:28 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:32 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:33 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:33 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:33 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:33 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:35 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:36 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:36 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:36 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:36 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:54 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:56 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:56 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:57 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:57 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:57 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:57 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:29:59 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:11 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:12 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:12 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:12 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:12 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:12 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:13 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:13 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:13 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:13 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:13 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:41 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:41 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:41 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:42 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:42 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:42 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:42 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:42 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:42 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:43 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:43 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:43 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:43 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:43 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:30:44 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:32:05 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:32:08 --> Return value of CodeIgniter\Router\RouteCollection::getFilterForRoute() must be of the type string, array returned
+in SYSTEMPATH/Router/RouteCollection.php on line 1089.
+ 1 SYSTEMPATH/Router/Router.php(188): CodeIgniter\Router\RouteCollection->getFilterForRoute()
+ 2 SYSTEMPATH/CodeIgniter.php(773): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(417): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:23 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(347): CodeIgniter\CodeIgniter->handleRequest()
+16 SYSTEMPATH/CLI/Console.php(48): CodeIgniter\CodeIgniter->run()
+17 ROOTPATH/spark(86): CodeIgniter\CLI\Console->run()
+CRITICAL - 2026-03-10 18:34:27 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(347): CodeIgniter\CodeIgniter->handleRequest()
+16 SYSTEMPATH/CLI/Console.php(48): CodeIgniter\CodeIgniter->run()
+17 ROOTPATH/spark(86): CodeIgniter\CLI\Console->run()
+CRITICAL - 2026-03-10 18:34:30 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:31 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:32 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:32 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:32 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:32 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:32 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:33 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:33 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:33 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:33 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:34 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:34 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:34:43 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(347): CodeIgniter\CodeIgniter->handleRequest()
+16 SYSTEMPATH/CLI/Console.php(48): CodeIgniter\CodeIgniter->run()
+17 ROOTPATH/spark(86): CodeIgniter\CLI\Console->run()
+CRITICAL - 2026-03-10 18:36:35 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:36:36 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:36:37 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:36:38 --> Class 'CodeIgniter\Config\Filters' not found
+in APPPATH/Config/Filters.php on line 12.
+ 1 SYSTEMPATH/Autoloader/Autoloader.php(284): include_once()
+ 2 SYSTEMPATH/Autoloader/Autoloader.php(261): CodeIgniter\Autoloader\Autoloader->includeFile()
+ 3 SYSTEMPATH/Autoloader/Autoloader.php(239): CodeIgniter\Autoloader\Autoloader->loadInNamespace()
+ 4 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass()
+ 5 [internal function]: spl_autoload_call()
+ 6 SYSTEMPATH/Config/Factories.php(152): class_exists()
+ 7 SYSTEMPATH/Config/Factories.php(122): CodeIgniter\Config\Factories::locateClass()
+ 8 SYSTEMPATH/Common.php(198): CodeIgniter\Config\Factories::__callStatic()
+ 9 SYSTEMPATH/Config/Services.php(280): config()
+10 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+11 SYSTEMPATH/Config/BaseService.php(192): CodeIgniter\Config\BaseService::__callStatic()
+12 SYSTEMPATH/Config/Services.php(277): CodeIgniter\Config\BaseService::getSharedInstance()
+13 SYSTEMPATH/Config/BaseService.php(251): CodeIgniter\Config\Services::filters()
+14 SYSTEMPATH/CodeIgniter.php(422): CodeIgniter\Config\BaseService::__callStatic()
+15 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+16 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:37:40 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:37:51 --> auth,subscription_guard filter must have a matching alias defined.
+in SYSTEMPATH/Filters/Filters.php on line 340.
+ 1 SYSTEMPATH/Filters/Filters.php(340): CodeIgniter\Filters\Exceptions\FilterException::forNoAlias()
+ 2 SYSTEMPATH/CodeIgniter.php(433): CodeIgniter\Filters\Filters->enableFilter()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:40:03 --> Call to undefined function App\Filters\str_starts_with()
+in APPPATH/Filters/SubscriptionGuard.php on line 31.
+ 1 APPPATH/Filters/AuthSubscriptionFilter.php(20): App\Filters\SubscriptionGuard->before()
+ 2 SYSTEMPATH/Filters/Filters.php(173): App\Filters\AuthSubscriptionFilter->before()
+ 3 SYSTEMPATH/CodeIgniter.php(442): CodeIgniter\Filters\Filters->run()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:40:03 --> Call to undefined function App\Filters\str_starts_with()
+in APPPATH/Filters/SubscriptionGuard.php on line 31.
+ 1 APPPATH/Filters/AuthSubscriptionFilter.php(20): App\Filters\SubscriptionGuard->before()
+ 2 SYSTEMPATH/Filters/Filters.php(173): App\Filters\AuthSubscriptionFilter->before()
+ 3 SYSTEMPATH/CodeIgniter.php(442): CodeIgniter\Filters\Filters->run()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:40:03 --> Call to undefined function App\Filters\str_starts_with()
+in APPPATH/Filters/SubscriptionGuard.php on line 31.
+ 1 APPPATH/Filters/AuthSubscriptionFilter.php(20): App\Filters\SubscriptionGuard->before()
+ 2 SYSTEMPATH/Filters/Filters.php(173): App\Filters\AuthSubscriptionFilter->before()
+ 3 SYSTEMPATH/CodeIgniter.php(442): CodeIgniter\Filters\Filters->run()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:40:04 --> Call to undefined function App\Filters\str_starts_with()
+in APPPATH/Filters/SubscriptionGuard.php on line 31.
+ 1 APPPATH/Filters/AuthSubscriptionFilter.php(20): App\Filters\SubscriptionGuard->before()
+ 2 SYSTEMPATH/Filters/Filters.php(173): App\Filters\AuthSubscriptionFilter->before()
+ 3 SYSTEMPATH/CodeIgniter.php(442): CodeIgniter\Filters\Filters->run()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:40:04 --> Call to undefined function App\Filters\str_starts_with()
+in APPPATH/Filters/SubscriptionGuard.php on line 31.
+ 1 APPPATH/Filters/AuthSubscriptionFilter.php(20): App\Filters\SubscriptionGuard->before()
+ 2 SYSTEMPATH/Filters/Filters.php(173): App\Filters\AuthSubscriptionFilter->before()
+ 3 SYSTEMPATH/CodeIgniter.php(442): CodeIgniter\Filters\Filters->run()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:40:04 --> Call to undefined function App\Filters\str_starts_with()
+in APPPATH/Filters/SubscriptionGuard.php on line 31.
+ 1 APPPATH/Filters/AuthSubscriptionFilter.php(20): App\Filters\SubscriptionGuard->before()
+ 2 SYSTEMPATH/Filters/Filters.php(173): App\Filters\AuthSubscriptionFilter->before()
+ 3 SYSTEMPATH/CodeIgniter.php(442): CodeIgniter\Filters\Filters->run()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 18:40:19 --> Call to undefined function App\Filters\str_starts_with()
+in APPPATH/Filters/SubscriptionGuard.php on line 31.
+ 1 APPPATH/Filters/AuthSubscriptionFilter.php(20): App\Filters\SubscriptionGuard->before()
+ 2 SYSTEMPATH/Filters/Filters.php(173): App\Filters\AuthSubscriptionFilter->before()
+ 3 SYSTEMPATH/CodeIgniter.php(442): CodeIgniter\Filters\Filters->run()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 19:05:47 --> Unknown column 'updated_at' in 'subscription_logs'
+ERROR - 2026-03-10 19:39:02 --> Duplicate column name 'deleted_at'
+ERROR - 2026-03-10 19:40:45 --> You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'IF NOT EXISTS `deleted_at` DATETIME NULL DEFAULT NULL' at line 2
+CRITICAL - 2026-03-10 20:34:53 --> syntax error, unexpected '=>' (T_DOUBLE_ARROW)
+in APPPATH/Views/super_admin/subscription_plans/index.php on line 74.
+ 1 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 2 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 3 APPPATH/Controllers/SuperAdmin/SubscriptionPlans.php(59): view()
+ 4 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdmin\SubscriptionPlans->index()
+ 5 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 7 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 20:37:58 --> syntax error, unexpected '=>' (T_DOUBLE_ARROW)
+in APPPATH/Views/super_admin/subscription_plans/index.php on line 74.
+ 1 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 2 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 3 APPPATH/Controllers/SuperAdmin/SubscriptionPlans.php(59): view()
+ 4 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdmin\SubscriptionPlans->index()
+ 5 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 7 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 21:14:42 --> Call to undefined method App\Controllers\Users::denyIfNoPermission()
+in APPPATH/Controllers/Users.php on line 40.
+ 1 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Users->index()
+ 2 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 21:15:17 --> Call to undefined method App\Controllers\Users::denyIfNoPermission()
+in APPPATH/Controllers/Users.php on line 40.
+ 1 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Users->index()
+ 2 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 21:15:20 --> Call to undefined method App\Controllers\Users::denyIfNoPermission()
+in APPPATH/Controllers/Users.php on line 40.
+ 1 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Users->index()
+ 2 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 21:15:27 --> Call to undefined method App\Controllers\Users::denyIfNoPermission()
+in APPPATH/Controllers/Users.php on line 40.
+ 1 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Users->index()
+ 2 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 21:15:37 --> Call to undefined method App\Controllers\Users::denyIfNoPermission()
+in APPPATH/Controllers/Users.php on line 40.
+ 1 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Users->index()
+ 2 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 21:17:10 --> Call to undefined method App\Controllers\Users::denyIfNoPermission()
+in APPPATH/Controllers/Users.php on line 40.
+ 1 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Users->index()
+ 2 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 21:17:11 --> Call to undefined method App\Controllers\Users::denyIfNoPermission()
+in APPPATH/Controllers/Users.php on line 40.
+ 1 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Users->index()
+ 2 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 21:17:11 --> Call to undefined method App\Controllers\Users::denyIfNoPermission()
+in APPPATH/Controllers/Users.php on line 40.
+ 1 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Users->index()
+ 2 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 21:17:12 --> Call to undefined method App\Controllers\Users::denyIfNoPermission()
+in APPPATH/Controllers/Users.php on line 40.
+ 1 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Users->index()
+ 2 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 21:17:12 --> Call to undefined method App\Controllers\Users::denyIfNoPermission()
+in APPPATH/Controllers/Users.php on line 40.
+ 1 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\Users->index()
+ 2 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 4 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 22:56:25 --> Call to undefined method App\Models\TenantModel::getAdminRows
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(77): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 22:56:28 --> Call to undefined method App\Models\TenantModel::getAdminRows
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(77): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 22:56:31 --> Call to undefined method App\Models\TenantModel::getAdminRows
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(77): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 22:56:37 --> Call to undefined method App\Models\TenantModel::getAdminRows
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(77): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 22:56:52 --> Call to undefined method App\Models\TenantModel::getAdminRows
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(77): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 22:57:03 --> Call to undefined method App\Models\TenantModel::getAdminRows
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(77): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 22:57:49 --> Call to undefined method App\Models\TenantModel::getAdminRows
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(77): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 22:59:19 --> Call to undefined method App\Models\TenantModel::getAdminRows
+in SYSTEMPATH/Model.php on line 773.
+ 1 APPPATH/Controllers/SystemTenantsController.php(77): CodeIgniter\Model->__call()
+ 2 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 3 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 23:25:19 --> Undefined variable: row
+in APPPATH/Views/super_admin/tenants/index.php on line 29.
+ 1 APPPATH/Views/super_admin/tenants/index.php(29): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/super_admin/tenants/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/SystemTenantsController.php(83): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 23:25:23 --> Undefined variable: row
+in APPPATH/Views/super_admin/tenants/index.php on line 29.
+ 1 APPPATH/Views/super_admin/tenants/index.php(29): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/super_admin/tenants/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/SystemTenantsController.php(83): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 23:25:28 --> Undefined variable: row
+in APPPATH/Views/super_admin/tenants/index.php on line 29.
+ 1 APPPATH/Views/super_admin/tenants/index.php(29): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/super_admin/tenants/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/SystemTenantsController.php(83): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 23:26:59 --> Undefined variable: row
+in APPPATH/Views/super_admin/tenants/index.php on line 29.
+ 1 APPPATH/Views/super_admin/tenants/index.php(29): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/super_admin/tenants/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/SystemTenantsController.php(83): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-03-10 23:37:27 --> Duplicate entry '1-pos.access' for key 'plan_id_feature_key'
+CRITICAL - 2026-03-10 23:37:27 --> Duplicate entry '1-pos.access' for key 'plan_id_feature_key'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 292.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(292): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(678): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1904): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(278): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH/BaseModel.php(738): CodeIgniter\Model->doInsert()
+ 7 SYSTEMPATH/Model.php(666): CodeIgniter\BaseModel->insert()
+ 8 APPPATH/Models/SubscriptionPlanFeatureModel.php(66): CodeIgniter\Model->insert()
+ 9 APPPATH/Controllers/SuperAdmin/SubscriptionPlans.php(123): App\Models\SubscriptionPlanFeatureModel->syncPlanFeatures()
+10 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SuperAdmin\SubscriptionPlans->update()
+11 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+13 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 23:55:14 --> Undefined variable: row
+in APPPATH/Views/super_admin/tenants/index.php on line 29.
+ 1 APPPATH/Views/super_admin/tenants/index.php(29): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/super_admin/tenants/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/SystemTenantsController.php(90): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2026-03-10 23:55:31 --> Undefined variable: row
+in APPPATH/Views/super_admin/tenants/index.php on line 29.
+ 1 APPPATH/Views/super_admin/tenants/index.php(29): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(213): include('APPPATH/Views/super_admin/tenants/index.php')
+ 3 SYSTEMPATH/View/View.php(216): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1135): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/SystemTenantsController.php(90): view()
+ 6 SYSTEMPATH/CodeIgniter.php(898): App\Controllers\SystemTenantsController->index()
+ 7 SYSTEMPATH/CodeIgniter.php(468): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(351): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(55): CodeIgniter\CodeIgniter->run()

@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'main'                  => 'เมนูหลัก',
+    'dashboard'             => 'แดชบอร์ด',
+    'pos'                   => 'POS / เลือกโต๊ะ',
+    'reservations'          => 'การจองโต๊ะ',
+    'master_data'           => 'ข้อมูลหลัก',
+    'roles'                 => 'กำหนดสิทธิ์',
+    'users'                 => 'พนักงาน',
+    'categories'            => 'หมวดหมู่',
+    'kitchen_stations'      => 'สถานี ครัว',
+    'products'              => 'สินค้า',
+    'quick_options'         => 'ตัวเลือกด่วน',
+    'quick_notes'           => 'หมายเหตุเพิ่มเติม',
+    'product_quick_options' => 'ผูกรายละเอียดอาหารกับสินค้า',
+    'zones'                 => 'โซน',
+    'tables'                => 'โต๊ะ',
+    'system'                => 'ระบบ',
+	'tenants'      => 'Tenants',
+	'system_admin' => 'System Admin',
+	'super_admin'           => 'Super Admin',
+	'super_admin_dashboard' => 'แดชบอร์ดส่วนกลาง',
+	'tenants'               => 'Tenants',
+	'back_to_store'         => 'กลับสู่ระบบร้าน',
+	'branches' => 'สาขา',
+];
