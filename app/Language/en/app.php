@@ -939,4 +939,5 @@ return [
 	'order' => 'Order',
 	'kitchen_action_start' => 'Start Cooking',
 	'kitchen_action_served' => 'Served',
+	'kitchen_action_ready' => 'Ready',
 ];

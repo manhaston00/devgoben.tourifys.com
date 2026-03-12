@@ -936,4 +936,5 @@ return [
 	'order' => 'ออเดอร์',
 	'kitchen_action_start' => 'เริ่มทำ',
 	'kitchen_action_served' => 'เสิร์ฟแล้ว',
+	'kitchen_action_ready' => 'พร้อมเสิร์ฟ',
 ];

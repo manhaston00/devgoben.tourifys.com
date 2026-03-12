@@ -93,6 +93,7 @@
 
     let lastNewCount = 0;
     let boardLoadedOnce = false;
+    let isLoadingBoard = false;
 
     const i18n = {
         kitchen: '<?= esc(lang('app.kitchen')) ?>',
@@ -103,8 +104,12 @@
         sentLabel: '<?= esc(lang('app.sent')) ?>',
         servedLabel: '<?= esc(lang('app.served')) ?>',
         actionStart: '<?= esc(lang('app.kitchen_action_start')) ?>',
+        actionReady: '<?= esc(lang('app.kitchen_action_ready')) ?>',
         actionServed: '<?= esc(lang('app.kitchen_action_served')) ?>'
     };
+
+    const csrfName = <?= json_encode(csrf_token()) ?>;
+    let csrfHash = <?= json_encode(csrf_hash()) ?>;
 
     function escapeHtml(text) {
         return String(text ?? '')
@@ -155,45 +160,97 @@
         return hours + 'h ' + remain + 'm';
     }
 
-    function nextActions(status) {
-        const map = {
-            pending: ['cooking'],
-            sent: ['cooking'],
-            cooking: ['served'],
-            served: [],
-            cancel: []
-        };
+    function normalizeBoardStatus(item) {
+        const boardStatus = String(item.board_status || '').toLowerCase().trim();
+        if (boardStatus === 'new' || boardStatus === 'preparing' || boardStatus === 'ready' || boardStatus === 'served') {
+            return boardStatus;
+        }
 
-        return map[status] || [];
+        const itemStatus = String(item.item_status || '').toLowerCase().trim();
+        const ticketStatus = String(item.ticket_status || '').toLowerCase().trim();
+
+        if (itemStatus === 'served') {
+            return 'served';
+        }
+
+        if (itemStatus === 'ready') {
+            return 'ready';
+        }
+
+        if (itemStatus === 'cooking') {
+            return 'preparing';
+        }
+
+        if (itemStatus === 'sent' && ticketStatus === 'done') {
+            return 'ready';
+        }
+
+        return 'new';
     }
 
-    function actionLabel(status) {
-        const labels = {
-            cooking: i18n.actionStart,
-            served: i18n.actionServed
-        };
+    function getActionConfig(boardStatus) {
+        if (boardStatus === 'new') {
+            return {
+                nextStatus: 'preparing',
+                label: i18n.actionStart,
+                className: 'btn-warning'
+            };
+        }
 
-        return labels[status] || status;
+        if (boardStatus === 'preparing') {
+            return {
+                nextStatus: 'ready',
+                label: i18n.actionReady,
+                className: 'btn-info text-dark'
+            };
+        }
+
+        if (boardStatus === 'ready') {
+            return {
+                nextStatus: 'served',
+                label: i18n.actionServed,
+                className: 'btn-success'
+            };
+        }
+
+        return null;
     }
 
-    function actionButtonClass(status) {
-        const classes = {
-            cooking: 'btn-warning',
-            served: 'btn-success'
-        };
+    function renderActionButtons(item) {
+        const boardStatus = normalizeBoardStatus(item);
+        const action = getActionConfig(boardStatus);
 
-        return classes[status] || 'btn-primary';
+        if (!action) {
+            return '';
+        }
+
+        const itemId = Number(item.order_item_id || item.item_id || 0);
+        if (!itemId) {
+            return '';
+        }
+
+        return `
+            <button
+                type="button"
+                class="btn btn-sm ${action.className} mt-2 me-1 kitchen-status-btn"
+                data-item-id="${itemId}"
+                data-status="${escapeHtml(action.nextStatus)}">
+                ${escapeHtml(action.label)}
+            </button>
+        `;
     }
 
     function renderCard(item) {
         const locale = '<?= esc(service('request')->getLocale()) ?>';
 
-        let stationName = item.station_name || i18n.kitchen;
+        let stationName = item.station_display_name || item.station_name || i18n.kitchen;
 
-        if (locale === 'th' && item.station_name_th) {
-            stationName = item.station_name_th;
-        } else if (locale !== 'th' && item.station_name_en) {
-            stationName = item.station_name_en;
+        if (!item.station_display_name) {
+            if (locale === 'th' && item.station_name_th) {
+                stationName = item.station_name_th;
+            } else if (locale !== 'th' && item.station_name_en) {
+                stationName = item.station_name_en;
+            }
         }
 
         const tableName = item.table_name || '-';
@@ -202,17 +259,7 @@
         const servedAt = item.served_at ? formatDateTime(item.served_at) : '-';
         const ageText = item.sent_at ? diffMinutes(item.sent_at) : '';
 
-        const actions = nextActions(item.item_status).map((status) => {
-            return `
-                <button
-                    type="button"
-                    class="btn btn-sm ${actionButtonClass(status)} mt-2 me-1"
-                    data-item-id="${item.order_item_id}"
-                    data-status="${status}">
-                    ${escapeHtml(actionLabel(status))}
-                </button>
-            `;
-        }).join('');
+        const actions = renderActionButtons(item);
 
         return `
             <div class="border rounded-3 p-3 mb-3 bg-white shadow-sm">
@@ -291,6 +338,12 @@
     }
 
     async function loadBoard() {
+        if (isLoadingBoard) {
+            return;
+        }
+
+        isLoadingBoard = true;
+
         const params = new URLSearchParams({
             station_id: stationFilter ? (stationFilter.value || '0') : '0',
             mode: modeFilter ? (modeFilter.value || 'all') : 'all'
@@ -326,13 +379,24 @@
             boardLoadedOnce = true;
         } catch (error) {
             console.error('Kitchen board load error:', error);
+        } finally {
+            isLoadingBoard = false;
         }
     }
 
-    async function updateStatus(itemId, status) {
+    async function updateStatus(itemId, status, buttonEl) {
+        if (!itemId || !status) {
+            return;
+        }
+
         const body = new URLSearchParams();
         body.append('item_id', itemId);
         body.append('status', status);
+        body.append(csrfName, csrfHash);
+
+        if (buttonEl) {
+            buttonEl.disabled = true;
+        }
 
         try {
             const res = await fetch(`<?= site_url('kitchen-monitor/update-status') ?>`, {
@@ -346,24 +410,34 @@
 
             const json = await res.json();
 
+            if (json && json.token) {
+                csrfHash = json.token;
+            }
+
             if (json && json.status === 'success') {
-                loadBoard();
+                await loadBoard();
             } else {
                 alert((json && json.message) ? json.message : i18n.saveFailed);
+                if (buttonEl) {
+                    buttonEl.disabled = false;
+                }
             }
         } catch (error) {
             console.error('Kitchen status update error:', error);
             alert(i18n.saveFailed);
+            if (buttonEl) {
+                buttonEl.disabled = false;
+            }
         }
     }
 
     document.addEventListener('click', function (e) {
-        const btn = e.target.closest('button[data-item-id][data-status]');
+        const btn = e.target.closest('.kitchen-status-btn[data-item-id][data-status]');
         if (!btn) {
             return;
         }
 
-        updateStatus(btn.getAttribute('data-item-id'), btn.getAttribute('data-status'));
+        updateStatus(btn.getAttribute('data-item-id'), btn.getAttribute('data-status'), btn);
     });
 
     if (stationFilter) {
