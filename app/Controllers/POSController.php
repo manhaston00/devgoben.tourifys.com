@@ -1142,60 +1142,72 @@ class POSController extends BaseController
     }
 
     public function updateItemStatus()
-    {
+	{
 		if ($response = $this->jsonPosWriteDenied()) {
 			return $response;
 		}
-        $itemId = (int) $this->request->getPost('item_id');
-        $status = trim((string) $this->request->getPost('status'));
 
-        $allowed = ['pending', 'sent', 'cooking', 'served', 'cancel'];
+		$itemId  = (int) ($this->request->getPost('item_id') ?? 0);
+		$status  = strtolower(trim((string) ($this->request->getPost('status') ?? '')));
+		$allowed = ['sent', 'preparing', 'ready', 'served', 'cancelled'];
 
-        if (!in_array($status, $allowed, true)) {
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => lang('app.invalid_status'),
-            ]);
-        }
+		if ($itemId <= 0 || ! in_array($status, $allowed, true)) {
+			return $this->response->setJSON([
+				'status'  => 'error',
+				'message' => lang('app.invalid_request'),
+			]);
+		}
 
-        $item = $this->getScopedOrderItem($itemId);
-        if (!$item) {
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => lang('app.item_not_found'),
-            ]);
-        }
+		$item = $this->orderItemModel->findScoped($itemId);
 
-        $order = $this->getScopedOrder((int) ($item['order_id'] ?? 0), ['open', 'billing']);
-        if (!$order) {
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => lang('app.order_not_found'),
-            ]);
-        }
+		if (! $item) {
+			return $this->response->setJSON([
+				'status'  => 'error',
+				'message' => lang('app.item_not_found'),
+			]);
+		}
 
-        $data = [
-            'status'     => $status,
-            'updated_at' => date('Y-m-d H:i:s'),
-        ];
+		$payload = [
+			'status'     => $status,
+			'updated_at' => date('Y-m-d H:i:s'),
+		];
 
-        if ($status === 'served') {
-            $data['served_at'] = date('Y-m-d H:i:s');
-        }
+		if ($status === 'preparing') {
+			$payload['started_at'] = date('Y-m-d H:i:s');
+		}
 
-        if ($status === 'cancel') {
-            $data['cancelled_at'] = date('Y-m-d H:i:s');
-            $data['cancelled_by'] = session()->get('user_id') ?: null;
-        }
+		if ($status === 'ready') {
+			$payload['ready_at'] = date('Y-m-d H:i:s');
+		}
 
-        $this->orderItemModel->update($itemId, $data);
-        $this->recalculateOrder((int) $item['order_id']);
+		if ($status === 'served') {
+			$payload['served_at'] = date('Y-m-d H:i:s');
+		}
 
-        return $this->response->setJSON([
-            'status'  => 'success',
-            'message' => lang('app.status_updated'),
-        ]);
-    }
+		if (! $this->orderItemModel->update($itemId, $payload)) {
+			return $this->response->setJSON([
+				'status'  => 'error',
+				'message' => lang('app.save_failed'),
+			]);
+		}
+
+		if (isset($this->kitchenLogModel) && method_exists($this->kitchenLogModel, 'addLog')) {
+			try {
+				$this->kitchenLogModel->addLog(
+					$itemId,
+					$status,
+					lang('app.kitchen_status_updated')
+				);
+			} catch (\Throwable $e) {
+				log_message('error', 'KitchenLog addLog error: ' . $e->getMessage());
+			}
+		}
+
+		return $this->response->setJSON([
+			'status'  => 'success',
+			'message' => lang('app.save_success'),
+		]);
+	}
 
     public function requestBill()
     {
