@@ -1147,18 +1147,21 @@ class POSController extends BaseController
 			return $response;
 		}
 
-		$itemId  = (int) ($this->request->getPost('item_id') ?? 0);
-		$status  = strtolower(trim((string) ($this->request->getPost('status') ?? '')));
-		$allowed = ['sent', 'preparing', 'ready', 'served', 'cancelled'];
+		$itemId = (int) ($this->request->getPost('item_id') ?? 0);
+		$status = strtolower(trim((string) ($this->request->getPost('status') ?? '')));
 
-		if ($itemId <= 0 || ! in_array($status, $allowed, true)) {
+		$allowedStatuses = ['sent', 'preparing', 'ready', 'served', 'cancelled'];
+
+		if ($itemId <= 0 || ! in_array($status, $allowedStatuses, true)) {
 			return $this->response->setJSON([
 				'status'  => 'error',
 				'message' => lang('app.invalid_request'),
 			]);
 		}
 
-		$item = $this->orderItemModel->findScoped($itemId);
+		$item = method_exists($this->orderItemModel, 'findScoped')
+			? $this->orderItemModel->findScoped($itemId)
+			: $this->orderItemModel->find($itemId);
 
 		if (! $item) {
 			return $this->response->setJSON([
@@ -1167,39 +1170,50 @@ class POSController extends BaseController
 			]);
 		}
 
-		$payload = [
+		$data = [
 			'status'     => $status,
 			'updated_at' => date('Y-m-d H:i:s'),
 		];
 
 		if ($status === 'preparing') {
-			$payload['started_at'] = date('Y-m-d H:i:s');
+			$data['started_at'] = date('Y-m-d H:i:s');
 		}
 
 		if ($status === 'ready') {
-			$payload['ready_at'] = date('Y-m-d H:i:s');
+			$data['ready_at'] = date('Y-m-d H:i:s');
 		}
 
 		if ($status === 'served') {
-			$payload['served_at'] = date('Y-m-d H:i:s');
+			$data['served_at'] = date('Y-m-d H:i:s');
 		}
 
-		if (! $this->orderItemModel->update($itemId, $payload)) {
+		if (! $this->orderItemModel->update($itemId, $data)) {
 			return $this->response->setJSON([
 				'status'  => 'error',
 				'message' => lang('app.save_failed'),
 			]);
 		}
 
-		if (isset($this->kitchenLogModel) && method_exists($this->kitchenLogModel, 'addLog')) {
+		if (isset($this->kitchenLogModel) && $this->kitchenLogModel) {
 			try {
-				$this->kitchenLogModel->addLog(
-					$itemId,
-					$status,
-					lang('app.kitchen_status_updated')
-				);
+				if (method_exists($this->kitchenLogModel, 'addLog')) {
+					$this->kitchenLogModel->addLog(
+						$itemId,
+						$status,
+						lang('app.kitchen_status_updated')
+					);
+				} else {
+					$this->kitchenLogModel->insert([
+						'tenant_id'   => (int) ($item['tenant_id'] ?? current_tenant_id()),
+						'order_id'    => (int) ($item['order_id'] ?? 0),
+						'order_item_id'=> $itemId,
+						'status'      => $status,
+						'note'        => lang('app.kitchen_status_updated'),
+						'created_by'  => (int) (session('user_id') ?? 0),
+					]);
+				}
 			} catch (\Throwable $e) {
-				log_message('error', 'KitchenLog addLog error: ' . $e->getMessage());
+				log_message('error', 'updateItemStatus kitchen log error: ' . $e->getMessage());
 			}
 		}
 

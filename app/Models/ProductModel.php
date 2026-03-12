@@ -116,5 +116,4 @@ class ProductModel extends TenantScopedModel
             ->get()
             ->getResultArray();
     }
-	
 }

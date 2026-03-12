@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\TenantScopedModel;
-
 class UserModel extends TenantScopedModel
 {
     protected $table            = 'users';
