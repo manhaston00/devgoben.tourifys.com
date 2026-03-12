@@ -2,32 +2,52 @@
 
 namespace App\Filters;
 
+use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
-use CodeIgniter\Filters\FilterInterface;
 
 class RoleFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        $role = session()->get('role');
-
-        if (!$role) {
-            return redirect()->to('/login')->with('error', 'กรุณาเข้าสู่ระบบ');
+        if (! session('isLoggedIn')) {
+            return redirect()
+                ->to(site_url('login'))
+                ->with('error', lang('app.please_login'));
         }
 
-        if (empty($arguments)) {
-            return;
+        if (function_exists('is_super_admin') && is_super_admin()) {
+            return null;
         }
 
-        $allowedRoles = array_map('trim', $arguments);
-
-        if (!in_array($role, $allowedRoles, true)) {
-            return redirect()->to('/dashboard')->with('error', 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+        if (empty($arguments) || ! is_array($arguments)) {
+            return null;
         }
+
+        $currentRoles = array_filter([
+            strtolower(trim((string) session('role_code'))),
+            strtolower(trim((string) session('role_name'))),
+            strtolower(trim((string) session('role'))),
+        ]);
+
+        $allowedRoles = array_map(
+            static fn ($role) => strtolower(trim((string) $role)),
+            $arguments
+        );
+
+        foreach ($currentRoles as $role) {
+            if (in_array($role, $allowedRoles, true)) {
+                return null;
+            }
+        }
+
+        return redirect()
+            ->to(site_url('dashboard'))
+            ->with('error', lang('app.no_permission'));
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
+        return $response;
     }
 }
