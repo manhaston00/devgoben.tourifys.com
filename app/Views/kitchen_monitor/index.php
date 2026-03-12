@@ -417,6 +417,14 @@
         padding: 8px 10px;
         margin-top: 10px;
     }
+	
+	.kds-merge-box {
+		border: 1px dashed rgba(13, 110, 253, 0.55);
+		background: rgba(13, 110, 253, 0.08);
+		border-radius: 10px;
+		padding: 8px 10px;
+		margin-top: 10px;
+	}
 
     @media (max-width: 1200px) {
         .kds-search-group {
@@ -523,25 +531,30 @@
     let focusMode = false;
 
     const i18n = {
-        kitchen: '<?= esc(lang('app.kitchen')) ?>',
-        table: '<?= esc(lang('app.table')) ?>',
-        order: '<?= esc(lang('app.order')) ?>',
-        noItems: '<?= esc(lang('app.no_items')) ?>',
-        saveFailed: '<?= esc(lang('app.save_failed')) ?>',
-        sentLabel: '<?= esc(lang('app.sent')) ?>',
-        servedLabel: '<?= esc(lang('app.served')) ?>',
-        queueLabel: '<?= esc(lang('app.kitchen_queue')) ?>',
-        itemCountLabel: '<?= esc(lang('app.kitchen_item_count')) ?>',
-        focusModeEnter: '<?= esc(lang('app.kitchen_focus_mode')) ?>',
-        focusModeExit: '<?= esc(lang('app.kitchen_exit_focus_mode')) ?>',
-        fullscreenEnter: '<?= esc(lang('app.kitchen_fullscreen')) ?>',
-        fullscreenExit: '<?= esc(lang('app.kitchen_exit_fullscreen')) ?>',
-        actionStart: '<?= esc(lang('app.kitchen_action_start')) ?>',
-        actionReady: '<?= esc(lang('app.kitchen_action_ready')) ?>',
-        actionServed: '<?= esc(lang('app.kitchen_action_served')) ?>',
-        movedTable: '<?= esc(lang('app.moved_table')) ?>',
-        moveNote: '<?= esc(lang('app.move_note')) ?>'
-    };
+		kitchen: '<?= esc(lang('app.kitchen')) ?>',
+		table: '<?= esc(lang('app.table')) ?>',
+		order: '<?= esc(lang('app.order')) ?>',
+		noItems: '<?= esc(lang('app.no_items')) ?>',
+		saveFailed: '<?= esc(lang('app.save_failed')) ?>',
+		sentLabel: '<?= esc(lang('app.sent')) ?>',
+		servedLabel: '<?= esc(lang('app.served')) ?>',
+		queueLabel: '<?= esc(lang('app.kitchen_queue')) ?>',
+		itemCountLabel: '<?= esc(lang('app.kitchen_item_count')) ?>',
+		focusModeEnter: '<?= esc(lang('app.kitchen_focus_mode')) ?>',
+		focusModeExit: '<?= esc(lang('app.kitchen_exit_focus_mode')) ?>',
+		fullscreenEnter: '<?= esc(lang('app.kitchen_fullscreen')) ?>',
+		fullscreenExit: '<?= esc(lang('app.kitchen_exit_fullscreen')) ?>',
+		actionStart: '<?= esc(lang('app.kitchen_action_start')) ?>',
+		actionReady: '<?= esc(lang('app.kitchen_action_ready')) ?>',
+		actionServed: '<?= esc(lang('app.kitchen_action_served')) ?>',
+		movedTable: '<?= esc(lang('app.moved_table')) ?>',
+		moveNote: '<?= esc(lang('app.move_note')) ?>',
+		mergedBill: 'รวมบิลแล้ว',
+		serveToTable: 'เสิร์ฟที่โต๊ะ',
+		mergedFromTable: 'จากโต๊ะ',
+		mergedTargetOrder: 'บิลปลายทาง',
+		mergeReason: 'เหตุผลรวมบิล'
+	};
 
     const csrfName = <?= json_encode(csrf_token()) ?>;
     let csrfHash = <?= json_encode(csrf_hash()) ?>;
@@ -707,18 +720,22 @@
     }
 
     function searchableText(item) {
-        return [
-            item.table_name || '',
-            item.order_number || '',
-            item.ticket_no || '',
-            item.product_name || '',
-            item.item_detail || '',
-            item.note || '',
-            item.moved_from_table_name || '',
-            item.moved_to_table_name || '',
-            item.moved_reason || ''
-        ].join(' ').toLowerCase();
-    }
+		return [
+			item.table_name || '',
+			item.order_number || '',
+			item.ticket_no || '',
+			item.product_name || '',
+			item.item_detail || '',
+			item.note || '',
+			item.moved_from_table_name || '',
+			item.moved_to_table_name || '',
+			item.moved_reason || '',
+			item.merged_from_table_name || '',
+			item.merged_to_table_name || '',
+			item.merged_target_order_number || '',
+			item.merged_reason || ''
+		].join(' ').toLowerCase();
+	}
 
     function renderCard(item, indexInColumn) {
         const locale = '<?= esc(service('request')->getLocale()) ?>';
@@ -746,22 +763,54 @@
         const queueNo = Number(indexInColumn || 0) + 1;
 
         const movedFrom = item.moved_from_table_name || '';
-        const movedTo = item.moved_to_table_name || '';
-        const movedReason = item.moved_reason || '';
+		const movedTo = item.moved_to_table_name || '';
+		const movedReason = item.moved_reason || '';
 
-        const moveInfoHtml = (movedFrom && movedTo && movedFrom !== movedTo) ? `
-            <div class="kds-move-box">
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <span class="badge text-bg-warning">${escapeHtml(i18n.movedTable)}</span>
-                    <span class="small fw-semibold">${escapeHtml(movedFrom)} → ${escapeHtml(movedTo)}</span>
-                </div>
-                ${movedReason ? `
-                    <div class="small text-muted mt-1">
-                        ${escapeHtml(i18n.moveNote)}: ${escapeHtml(movedReason)}
-                    </div>
-                ` : ''}
-            </div>
-        ` : '';
+		const mergedFrom = item.merged_from_table_name || '';
+		const mergedTo = item.merged_to_table_name || '';
+		const mergedTargetOrderNo = item.merged_target_order_number || '';
+		const mergedReason = item.merged_reason || '';
+		const isMerged = Number(item.is_merged || 0) === 1 || (!!mergedFrom && !!mergedTo && mergedFrom !== mergedTo);
+
+		const moveInfoHtml = (movedFrom && movedTo && movedFrom !== movedTo) ? `
+			<div class="kds-move-box">
+				<div class="d-flex align-items-center gap-2 flex-wrap">
+					<span class="badge text-bg-warning">${escapeHtml(i18n.movedTable)}</span>
+					<span class="small fw-semibold">${escapeHtml(movedFrom)} → ${escapeHtml(movedTo)}</span>
+				</div>
+				${movedReason ? `
+					<div class="small text-muted mt-1">
+						${escapeHtml(i18n.moveNote)}: ${escapeHtml(movedReason)}
+					</div>
+				` : ''}
+			</div>
+		` : '';
+
+		const mergeInfoHtml = isMerged ? `
+			<div class="kds-merge-box">
+				<div class="d-flex align-items-center gap-2 flex-wrap">
+					<span class="badge text-bg-primary">${escapeHtml(i18n.mergedBill)}</span>
+					<span class="small fw-semibold">
+						${escapeHtml(i18n.mergedFromTable)}: ${escapeHtml(mergedFrom || tableName)}
+					</span>
+					<span class="small fw-semibold">
+						→ ${escapeHtml(i18n.serveToTable)}: ${escapeHtml(mergedTo || tableName)}
+					</span>
+				</div>
+
+				${mergedTargetOrderNo ? `
+					<div class="small text-muted mt-1">
+						${escapeHtml(i18n.mergedTargetOrder)}: ${escapeHtml(mergedTargetOrderNo)}
+					</div>
+				` : ''}
+
+				${mergedReason ? `
+					<div class="small text-muted mt-1">
+						${escapeHtml(i18n.mergeReason)}: ${escapeHtml(mergedReason)}
+					</div>
+				` : ''}
+			</div>
+		` : '';
 
         return `
             <div
@@ -781,8 +830,9 @@
                 </div>
 
                 ${moveInfoHtml}
+				${mergeInfoHtml}
 
-                <div class="kds-item-title mt-2 mb-2">${escapeHtml(item.product_name || '-')}</div>
+				<div class="kds-item-title mt-2 mb-2">${escapeHtml(item.product_name || '-')}</div>
 
                 ${item.item_detail ? `<div class="kds-item-sub text-muted mt-1">${escapeHtml(item.item_detail)}</div>` : ''}
                 ${item.note ? `<div class="kds-item-sub text-danger mt-1 fw-semibold">${escapeHtml(item.note)}</div>` : ''}
