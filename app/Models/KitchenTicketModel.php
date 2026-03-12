@@ -170,7 +170,13 @@ class KitchenTicketModel extends TenantScopedModel
             $builder->where('kt.branch_id', $branchId);
         }
 
-        $builder->whereIn('oi.status', ['pending', 'sent', 'cooking', 'ready', 'served']);
+        $builder->groupStart()
+			->whereIn('oi.status', ['pending', 'sent', 'cooking', 'ready'])
+			->orGroupStart()
+				->where('oi.status', 'served')
+				->where('oi.served_at >=', date('Y-m-d H:i:s', strtotime('-20 minutes')))
+			->groupEnd()
+		->groupEnd();
 
         if ($stationId) {
             $builder->where('p.kitchen_station_id', $stationId);

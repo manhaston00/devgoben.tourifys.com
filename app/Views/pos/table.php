@@ -198,6 +198,15 @@
                     >
                         <?= esc(lang('app.close_bill_pay')) ?>
                     </button>
+					
+					<button
+						type="button"
+						class="btn btn-outline-primary"
+						id="btnMoveTable"
+						<?= $tableDisabled ? 'disabled' : '' ?>
+					>
+						<?= esc(lang('app.move_table')) ?>
+					</button>
                 </div>
             </div>
         </div>
@@ -327,6 +336,35 @@
     </div>
 </div>
 
+<div class="modal fade" id="moveTableModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title"><?= esc(lang('app.move_table')) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label"><?= esc(lang('app.select_new_table')) ?></label>
+                    <select class="form-select" id="moveToTableId">
+                        <option value=""><?= esc(lang('app.please_select')) ?></option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><?= esc(lang('app.note')) ?></label>
+                    <input type="text" class="form-control" id="moveTableReason" placeholder="<?= esc(lang('app.additional_note_placeholder')) ?>">
+                </div>
+
+                <div class="small text-muted" id="moveTableHint"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?= esc(lang('app.cancel')) ?></button>
+                <button type="button" class="btn btn-primary" id="btnConfirmMoveTable"><?= esc(lang('app.confirm')) ?></button>
+            </div>
+        </div>
+    </div>
+</div>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
@@ -340,6 +378,8 @@ $(function () {
     let SELECTED_PRODUCT_NAME = '';
     let SELECTED_PRODUCT_PRICE = 0;
     let AUTO_REFRESH_TIMER = null;
+	const moveTableModalEl = document.getElementById('moveTableModal');
+	const moveTableModal = moveTableModalEl ? new bootstrap.Modal(moveTableModalEl) : null;	
 
     const TXT = {
         tableDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -393,6 +433,9 @@ $(function () {
         closeBillSuccess: <?= json_encode(lang('app.close_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         changeLabel: <?= json_encode(lang('app.change'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         allProductsDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+		moveTableFailed: <?= json_encode(lang('app.move_table_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+		moveTableSuccess: <?= json_encode(lang('app.move_table_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+		destinationBusy: <?= json_encode(lang('app.destination_table_has_open_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
     };
 
     const productOptionModalEl = document.getElementById('productOptionModal');
@@ -831,6 +874,32 @@ $(function () {
             }
         }, 5000);
     }
+	
+	function loadMoveTableOptions() {
+		if (!CURRENT_ORDER_ID) {
+			return;
+		}
+
+		$('#moveToTableId').html('<option value="">' + <?= json_encode(lang('app.please_select')) ?> + '</option>');
+		$('#moveTableHint').text('');
+
+		$.get("<?= site_url('pos/available-tables') ?>/" + CURRENT_ORDER_ID)
+			.done(function (res) {
+				if (!res || res.status !== 'success') {
+					return;
+				}
+
+				let html = '<option value=""><?= esc(lang('app.please_select')) ?></option>';
+
+				(res.tables || []).forEach(function (row) {
+					const disabled = Number(row.has_open_order || 0) === 1 ? 'disabled' : '';
+					const busyText = Number(row.has_open_order || 0) === 1 ? ' (' + TXT.billStatus + ')' : '';
+					html += '<option value="' + row.id + '" ' + disabled + '>' + row.table_name + busyText + '</option>';
+				});
+
+				$('#moveToTableId').html(html);
+			});
+	}
 
     $(document).on('click', '#btnOpenOrder', function () {
         if (!TABLE_IS_ACTIVE) {
@@ -1262,6 +1331,57 @@ $(function () {
             alert(TXT.paymentFailed);
         });
     });
+	
+	$(document).on('click', '#btnMoveTable', function () {
+		if (!CURRENT_ORDER_ID) {
+			alert(TXT.noBillYet);
+			return;
+		}
+
+		loadMoveTableOptions();
+
+		if (moveTableModal) {
+			moveTableModal.show();
+		}
+	});
+
+	$(document).on('click', '#btnConfirmMoveTable', function () {
+		if (!CURRENT_ORDER_ID) {
+			alert(TXT.noBillYet);
+			return;
+		}
+
+		const toTableId = Number($('#moveToTableId').val() || 0);
+		const reason = $.trim($('#moveTableReason').val());
+
+		if (!toTableId) {
+			alert('<?= esc(lang('app.please_select')) ?>');
+			return;
+		}
+
+		$.post("<?= site_url('pos/move-table') ?>", {
+			order_id: CURRENT_ORDER_ID,
+			to_table_id: toTableId,
+			reason: reason
+		})
+		.done(function (res) {
+			if (!res || res.status !== 'success') {
+				alert((res && res.message) ? res.message : TXT.moveTableFailed);
+				return;
+			}
+
+			if (moveTableModal) {
+				moveTableModal.hide();
+			}
+
+			alert(res.message || TXT.moveTableSuccess);
+			window.location.reload();
+		})
+		.fail(function (xhr) {
+			console.error('moveTable error:', xhr.responseText);
+			alert(TXT.moveTableFailed);
+		});
+	});
 
     if (productOptionModalEl) {
         productOptionModalEl.addEventListener('hidden.bs.modal', function () {

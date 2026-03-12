@@ -17,6 +17,7 @@ use App\Models\ReservationModel;
 use App\Models\ReservationLogModel;
 use App\Models\ReservationTableModel;
 use App\Models\KitchenLogModel;
+use App\Models\OrderTableMoveModel;
 
 class POSController extends BaseController
 {
@@ -53,6 +54,7 @@ class POSController extends BaseController
 		$this->reservationLogModel     = new ReservationLogModel();
 		$this->reservationTableModel   = new ReservationTableModel();
 		$this->db                      = \Config\Database::connect();
+		$this->orderTableMoveModel = new OrderTableMoveModel();
 	}
 
     protected function getActiveOrderStatuses(): array
@@ -1804,5 +1806,188 @@ class POSController extends BaseController
 	protected function currentUserId(): int
 	{
 		return (int) (session('user_id') ?? 0);
+	}
+
+	protected function refreshTableStatusById(int $tableId): void
+	{
+		if ($tableId <= 0) {
+			return;
+		}
+
+		$activeOrder = $this->findCurrentOrderByTable($tableId, ['open', 'billing']);
+
+		$this->tableModel->update($tableId, [
+			'status' => $activeOrder ? 'occupied' : 'available',
+		]);
+	}
+	
+	public function availableMoveTables(int $orderId = 0)
+	{
+		$order = $this->getScopedOrder($orderId, ['open', 'billing']);
+
+		if (! $order) {
+			return $this->response->setJSON([
+				'status' => 'error',
+				'message' => lang('app.order_not_found'),
+			]);
+		}
+
+		$branchId = $this->getCurrentBranchId();
+
+		$rows = $this->tableModel
+			->where('tenant_id', $this->currentTenantId())
+			->where('branch_id', $branchId)
+			->where('deleted_at', null)
+			->where('is_active', 1)
+			->where('id !=', (int) $order['table_id'])
+			->orderBy('table_name', 'ASC')
+			->findAll();
+
+		$data = [];
+
+		foreach ($rows as $row) {
+			$otherOpen = $this->findCurrentOrderByTable((int) $row['id'], ['open', 'billing']);
+
+			$data[] = [
+				'id' => (int) $row['id'],
+				'table_name' => (string) ($row['table_name'] ?? '-'),
+				'status' => (string) ($row['status'] ?? 'available'),
+				'has_open_order' => $otherOpen ? 1 : 0,
+			];
+		}
+
+		return $this->response->setJSON([
+			'status' => 'success',
+			'tables' => $data,
+		]);
+	}
+	
+	public function moveTable()
+	{
+		if ($response = $this->jsonPosWriteDenied()) {
+			return $response;
+		}
+
+		$orderId = (int) $this->request->getPost('order_id');
+		$toTableId = (int) $this->request->getPost('to_table_id');
+		$reason = trim((string) $this->request->getPost('reason'));
+
+		$order = $this->getScopedOrder($orderId, ['open', 'billing']);
+
+		if (! $order) {
+			return $this->response->setJSON([
+				'status' => 'error',
+				'message' => lang('app.order_not_found'),
+			]);
+		}
+
+		$fromTableId = (int) ($order['table_id'] ?? 0);
+
+		if ($fromTableId <= 0 || $toTableId <= 0 || $fromTableId === $toTableId) {
+			return $this->response->setJSON([
+				'status' => 'error',
+				'message' => lang('app.invalid_request'),
+			]);
+		}
+
+		$toTable = $this->getScopedTable($toTableId);
+
+		if (! $toTable) {
+			return $this->response->setJSON([
+				'status' => 'error',
+				'message' => lang('app.table_not_found'),
+			]);
+		}
+
+		if ((int) ($toTable['is_active'] ?? 0) !== 1 || strtolower((string) ($toTable['status'] ?? '')) === 'disabled') {
+			return $this->response->setJSON([
+				'status' => 'error',
+				'message' => lang('app.table_disabled'),
+			]);
+		}
+
+		$existingAtDestination = $this->findCurrentOrderByTable($toTableId, ['open', 'billing']);
+		if ($existingAtDestination) {
+			return $this->response->setJSON([
+				'status' => 'error',
+				'code' => 'DESTINATION_HAS_OPEN_ORDER',
+				'message' => lang('app.destination_table_has_open_bill'),
+			]);
+		}
+
+		$db = \Config\Database::connect();
+		$db->transBegin();
+
+		try {
+			$this->orderModel->update($orderId, [
+				'table_id' => $toTableId,
+				'updated_at' => date('Y-m-d H:i:s'),
+			]);
+
+			$this->refreshTableStatusById($fromTableId);
+			$this->refreshTableStatusById($toTableId);
+
+			$this->orderTableMoveModel->insert([
+				'tenant_id' => $this->currentTenantId(),
+				'branch_id' => $this->getCurrentBranchId(),
+				'order_id' => $orderId,
+				'from_table_id' => $fromTableId,
+				'to_table_id' => $toTableId,
+				'moved_by' => $this->currentUserId(),
+				'reason' => $reason !== '' ? $reason : null,
+			]);
+
+			$latestTickets = $this->kitchenTicketModel->getByOrder($orderId);
+			foreach ($latestTickets as $ticket) {
+				$this->kitchenLogModel->addLog(
+					0,
+					'new',
+					'ย้ายโต๊ะจาก #' . $fromTableId . ' ไป #' . $toTableId,
+					[
+						'branch_id'     => $this->getCurrentBranchId(),
+						'order_id'      => $orderId,
+						'ticket_id'     => (int) ($ticket['id'] ?? 0),
+						'from_status'   => 'table:' . $fromTableId,
+						'to_status'     => 'table:' . $toTableId,
+						'action_by'     => $this->currentUserId(),
+						'action_source' => 'pos.move_table',
+						'meta_json'     => [
+							'from_table_id' => $fromTableId,
+							'to_table_id'   => $toTableId,
+							'reason'        => $reason,
+						],
+					]
+				);
+			}
+
+			if ($db->transStatus() === false) {
+				$db->transRollback();
+
+				return $this->response->setJSON([
+					'status' => 'error',
+					'message' => lang('app.save_failed'),
+				]);
+			}
+
+			$db->transCommit();
+
+			return $this->response->setJSON([
+				'status' => 'success',
+				'message' => lang('app.move_table_success'),
+				'data' => [
+					'order_id' => $orderId,
+					'from_table_id' => $fromTableId,
+					'to_table_id' => $toTableId,
+				],
+			]);
+		} catch (\Throwable $e) {
+			$db->transRollback();
+			log_message('error', 'moveTable error: ' . $e->getMessage());
+
+			return $this->response->setJSON([
+				'status' => 'error',
+				'message' => lang('app.save_failed'),
+			]);
+		}
 	}
 }

@@ -427,6 +427,73 @@
             height: 56vh;
         }
     }
+	.kds-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 12px;
+	}
+
+	.kds-column {
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		height: calc(100vh - 180px);
+	}
+
+	.kds-column-body {
+		overflow-y: auto;
+		padding-right: 4px;
+	}
+
+	.kds-card {
+		border-radius: 14px;
+		padding: 10px;
+		margin-bottom: 10px;
+		font-size: 0.95rem;
+	}
+
+	.kds-card .kds-title {
+		font-size: 1rem;
+		line-height: 1.2;
+	}
+
+	.kds-card .kds-meta,
+	.kds-card .kds-items {
+		font-size: 0.85rem;
+		line-height: 1.2;
+	}
+
+	@media (max-width: 1199.98px) and (min-width: 768px) {
+		.kds-grid {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: 8px;
+		}
+
+		.kds-card {
+			padding: 8px;
+			margin-bottom: 8px;
+			font-size: 0.82rem;
+		}
+
+		.kds-card .kds-title {
+			font-size: 0.9rem;
+		}
+
+		.kds-card .kds-meta,
+		.kds-card .kds-items {
+			font-size: 0.75rem;
+		}
+
+		.kds-column {
+			height: calc(100vh - 140px);
+		}
+	}
+
+	@media (max-width: 767.98px) {
+		.kds-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
 </style>
 
 <script>
