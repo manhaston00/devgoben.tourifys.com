@@ -18,6 +18,7 @@ use App\Models\ReservationLogModel;
 use App\Models\ReservationTableModel;
 use App\Models\KitchenLogModel;
 use App\Models\OrderTableMoveModel;
+use App\Models\OrderMergeModel;
 
 class POSController extends BaseController
 {
@@ -35,6 +36,7 @@ class POSController extends BaseController
 	protected $reservationModel;
 	protected $reservationLogModel;
 	protected $reservationTableModel;
+	protected $orderMergeModel;
 	protected $db;
 
     public function __construct()
@@ -55,6 +57,7 @@ class POSController extends BaseController
 		$this->reservationTableModel   = new ReservationTableModel();
 		$this->db                      = \Config\Database::connect();
 		$this->orderTableMoveModel = new OrderTableMoveModel();
+		$this->orderMergeModel = new OrderMergeModel();
 	}
 
     protected function getActiveOrderStatuses(): array

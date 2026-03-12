@@ -28,11 +28,11 @@
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-dark category-btn active" data-id="all"><?= esc(lang('app.all')) ?></button>
                     <?php foreach ($categories as $cat): ?>
-						<?php $categoryName = lfield($cat, 'category_name', '-'); ?>
-						<button type="button" class="btn btn-outline-dark category-btn" data-id="<?= (int) $cat['id'] ?>">
-							<?= esc($categoryName) ?>
-						</button>
-					<?php endforeach; ?>
+                        <?php $categoryName = lfield($cat, 'category_name', '-'); ?>
+                        <button type="button" class="btn btn-outline-dark category-btn" data-id="<?= (int) $cat['id'] ?>">
+                            <?= esc($categoryName) ?>
+                        </button>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -45,15 +45,15 @@
                 <div class="d-flex gap-2 overflow-auto pb-1 mobile-category-scroll" id="mobileCategoryBar">
                     <button type="button" class="btn btn-dark flex-shrink-0 category-btn active" data-id="all"><?= esc(lang('app.all')) ?></button>
                     <?php foreach ($categories as $cat): ?>
-						<?php $categoryName = lfield($cat, 'category_name', '-'); ?>
-						<button
-							type="button"
-							class="btn btn-outline-secondary flex-shrink-0 category-btn"
-							data-id="<?= (int) $cat['id'] ?>"
-						>
-							<?= esc($categoryName) ?>
-						</button>
-					<?php endforeach; ?>
+                        <?php $categoryName = lfield($cat, 'category_name', '-'); ?>
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary flex-shrink-0 category-btn"
+                            data-id="<?= (int) $cat['id'] ?>"
+                        >
+                            <?= esc($categoryName) ?>
+                        </button>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -72,44 +72,38 @@
                         </div>
 
                         <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <?php
+                                $tableStatusText = lang('app.available');
+
+                                if ($tableDisabled) {
+                                    $tableStatusText = lang('app.disabled');
+                                } else {
+                                    switch ($tableStatus) {
+                                        case 'occupied':
+                                            $tableStatusText = lang('app.occupied');
+                                            break;
+                                        case 'reserved':
+                                            $tableStatusText = lang('app.reserved');
+                                            break;
+                                        case 'cleaning':
+                                            $tableStatusText = lang('app.cleaning');
+                                            break;
+                                        case 'disabled':
+                                            $tableStatusText = lang('app.disabled');
+                                            break;
+                                        case 'available':
+                                        default:
+                                            $tableStatusText = lang('app.available');
+                                            break;
+                                    }
+                                }
+                            ?>
                             <span
                                 class="badge <?= $tableDisabled ? 'text-bg-dark' : 'text-bg-info' ?>"
                                 id="tableStatusBadge"
                             >
                                 <?= esc(lang('app.table_status')) ?>:
-                                <?php
-									$tableStatusText = lang('app.available');
-
-									if ($tableDisabled) {
-										$tableStatusText = lang('app.disabled');
-									} else {
-										switch ($tableStatus) {
-											case 'occupied':
-												$tableStatusText = lang('app.occupied');
-												break;
-											case 'reserved':
-												$tableStatusText = lang('app.reserved');
-												break;
-											case 'cleaning':
-												$tableStatusText = lang('app.cleaning');
-												break;
-											case 'disabled':
-												$tableStatusText = lang('app.disabled');
-												break;
-											case 'available':
-											default:
-												$tableStatusText = lang('app.available');
-												break;
-										}
-									}
-								?>
-								<span
-									class="badge <?= $tableDisabled ? 'text-bg-dark' : 'text-bg-info' ?>"
-									id="tableStatusBadge"
-								>
-									<?= esc(lang('app.table_status')) ?>:
-									<?= esc($tableStatusText) ?>
-								</span>
+                                <?= esc($tableStatusText) ?>
                             </span>
 
                             <span class="badge text-bg-secondary" id="orderStatusBadge">
@@ -142,20 +136,20 @@
 
                 <div class="row g-3" id="productGrid">
                     <?php foreach ($products as $product): ?>
-						<?php $productName = lfield($product, 'product_name', '-'); ?>
-						<div class="col-6 col-md-4 product-card" data-category="<?= (int) ($product['category_id'] ?? 0) ?>">
-							<button
-								type="button"
-								class="btn btn-light border w-100 text-start rounded-4 p-3 product-btn h-100"
-								data-id="<?= (int) $product['id'] ?>"
-								data-name="<?= esc($productName) ?>"
-								<?= $tableDisabled ? 'disabled' : '' ?>
-							>
-								<div class="fw-bold mb-1"><?= esc($productName) ?></div>
-								<div class="text-muted small">฿<?= number_format((float) ($product['price'] ?? 0), 2) ?></div>
-							</button>
-						</div>
-					<?php endforeach; ?>
+                        <?php $productName = lfield($product, 'product_name', '-'); ?>
+                        <div class="col-6 col-md-4 product-card" data-category="<?= (int) ($product['category_id'] ?? 0) ?>">
+                            <button
+                                type="button"
+                                class="btn btn-light border w-100 text-start rounded-4 p-3 product-btn h-100"
+                                data-id="<?= (int) $product['id'] ?>"
+                                data-name="<?= esc($productName) ?>"
+                                <?= $tableDisabled ? 'disabled' : '' ?>
+                            >
+                                <div class="fw-bold mb-1"><?= esc($productName) ?></div>
+                                <div class="text-muted small">฿<?= number_format((float) ($product['price'] ?? 0), 2) ?></div>
+                            </button>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -198,15 +192,24 @@
                     >
                         <?= esc(lang('app.close_bill_pay')) ?>
                     </button>
-					
-					<button
-						type="button"
-						class="btn btn-outline-primary"
-						id="btnMoveTable"
-						<?= $tableDisabled ? 'disabled' : '' ?>
-					>
-						<?= esc(lang('app.move_table')) ?>
-					</button>
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary"
+                        id="btnMoveTable"
+                        <?= $tableDisabled ? 'disabled' : '' ?>
+                    >
+                        <?= esc(lang('app.move_table')) ?>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-dark"
+                        id="btnMergeBill"
+                        <?= $tableDisabled ? 'disabled' : '' ?>
+                    >
+                        <?= esc(lang('app.merge_bill')) ?>
+                    </button>
                 </div>
             </div>
         </div>
@@ -235,8 +238,8 @@
                     <label class="form-label fw-semibold"><?= esc(lang('app.food_detail_or_custom')) ?></label>
 
                     <div class="d-flex flex-wrap gap-2 mb-2" id="quickDetailBox">
-						<div class="text-muted small"><?= esc(lang('app.no_data')) ?></div>
-					</div>
+                        <div class="text-muted small"><?= esc(lang('app.no_data')) ?></div>
+                    </div>
 
                     <input
                         type="text"
@@ -251,21 +254,21 @@
                 </div>
 
                 <div class="mb-3">
-					<label class="form-label fw-semibold"><?= esc(lang('app.additional_note')) ?></label>
-					<div class="d-flex flex-wrap gap-2 mb-2">
-						<?php foreach (($quickNotes ?? []) as $note): ?>
-							<?php $quickNoteText = lfield($note, 'note_name', '-'); ?>
-							<button
-								type="button"
-								class="btn btn-outline-secondary btn-sm modal-quick-note"
-								data-value="<?= esc($quickNoteText) ?>"
-							>
-								<?= esc($quickNoteText ?: '-') ?>
-							</button>
-						<?php endforeach; ?>
-					</div>
-					<input type="text" class="form-control" id="modalItemNote" placeholder="<?= esc(lang('app.additional_note_placeholder')) ?>">
-				</div>
+                    <label class="form-label fw-semibold"><?= esc(lang('app.additional_note')) ?></label>
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        <?php foreach (($quickNotes ?? []) as $note): ?>
+                            <?php $quickNoteText = lfield($note, 'note_name', '-'); ?>
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary btn-sm modal-quick-note"
+                                data-value="<?= esc($quickNoteText) ?>"
+                            >
+                                <?= esc($quickNoteText ?: '-') ?>
+                            </button>
+                        <?php endforeach; ?>
+                    </div>
+                    <input type="text" class="form-control" id="modalItemNote" placeholder="<?= esc(lang('app.additional_note_placeholder')) ?>">
+                </div>
 
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-outline-danger" id="btnClearModalOption"><?= esc(lang('app.clear')) ?></button>
@@ -365,6 +368,39 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="mergeBillModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title"><?= esc(lang('app.confirm_merge_bill')) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label"><?= esc(lang('app.select_target_bill')) ?></label>
+                    <select class="form-select" id="mergeTargetOrderId">
+                        <option value=""><?= esc(lang('app.please_select')) ?></option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><?= esc(lang('app.merge_note')) ?></label>
+                    <input type="text" class="form-control" id="mergeBillReason" placeholder="<?= esc(lang('app.additional_note_placeholder')) ?>">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <?= esc(lang('app.cancel')) ?>
+                </button>
+                <button type="button" class="btn btn-dark" id="btnConfirmMergeBill">
+                    <?= esc(lang('app.confirm')) ?>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
@@ -378,65 +414,73 @@ $(function () {
     let SELECTED_PRODUCT_NAME = '';
     let SELECTED_PRODUCT_PRICE = 0;
     let AUTO_REFRESH_TIMER = null;
-	const moveTableModalEl = document.getElementById('moveTableModal');
-	const moveTableModal = moveTableModalEl ? new bootstrap.Modal(moveTableModalEl) : null;	
+
+    const moveTableModalEl = document.getElementById('moveTableModal');
+    const moveTableModal = moveTableModalEl ? new bootstrap.Modal(moveTableModalEl) : null;
+
+    const mergeBillModalEl = document.getElementById('mergeBillModal');
+    const mergeBillModal = mergeBillModalEl ? new bootstrap.Modal(mergeBillModalEl) : null;
 
     const TXT = {
-		tableDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		tableDisabledCannotOrder: <?= json_encode(lang('app.table_disabled_cannot_order'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		noOpenBill: <?= json_encode(lang('app.no_open_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		billStatus: <?= json_encode(lang('app.bill_status'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		openBill: <?= json_encode(lang('app.open_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		tableAlreadyOpen: <?= json_encode(lang('app.table_already_open'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		openBillStatus: <?= json_encode(lang('app.status_open'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		billingStatus: <?= json_encode(lang('app.status_billing'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		paidStatus: <?= json_encode(lang('app.status_paid'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		cancelStatus: <?= json_encode(lang('app.status_cancel'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		pending: <?= json_encode(lang('app.pending'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		sentKitchen: <?= json_encode(lang('app.sent_to_kitchen'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		cooking: <?= json_encode(lang('app.cooking'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		served: <?= json_encode(lang('app.served'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		canceled: <?= json_encode(lang('app.canceled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		unknownStatus: <?= json_encode(lang('app.unknown_status'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		addFoodItem: <?= json_encode(lang('app.add_food_item'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		editFoodItem: <?= json_encode(lang('app.edit_food_item'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		addToBill: <?= json_encode(lang('app.add_to_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		saveEdit: <?= json_encode(lang('app.save_edit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		noQuickOptions: <?= json_encode(lang('app.no_quick_options_for_product'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		loadQuickOptionsFailed: <?= json_encode(lang('app.load_quick_options_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		noItemsYet: <?= json_encode(lang('app.no_food_items_yet'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		detailLabel: <?= json_encode(lang('app.detail'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		optionLabel: <?= json_encode(lang('app.options'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		noteLabel: <?= json_encode(lang('app.note'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		edit: <?= json_encode(lang('app.edit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		remove: <?= json_encode(lang('app.remove'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		loadBillFailed: <?= json_encode(lang('app.load_bill_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		openBillFirst: <?= json_encode(lang('app.please_open_bill_first'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		billCannotAddItems: <?= json_encode(lang('app.bill_status_cannot_add_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		itemCannotEdit: <?= json_encode(lang('app.item_cannot_edit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		billNotFound: <?= json_encode(lang('app.bill_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		editItemNotFound: <?= json_encode(lang('app.edit_item_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		selectedItemNotFound: <?= json_encode(lang('app.selected_item_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		addItemFailed: <?= json_encode(lang('app.add_item_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		editItemFailed: <?= json_encode(lang('app.edit_item_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		updateItemFailed: <?= json_encode(lang('app.update_item_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		removeItemFailed: <?= json_encode(lang('app.remove_item_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		noBillYet: <?= json_encode(lang('app.no_bill_yet'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		sendKitchenFailed: <?= json_encode(lang('app.send_kitchen_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		billCannotPay: <?= json_encode(lang('app.bill_cannot_pay_yet'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		hasPendingItemsConfirm: <?= json_encode(lang('app.pending_items_pay_confirm'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		zeroBillConfirm: <?= json_encode(lang('app.zero_bill_confirm'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		paymentAmountInvalid: <?= json_encode(lang('app.invalid_payment_amount'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		amountLessThanBill: <?= json_encode(lang('app.received_less_than_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		paymentFailed: <?= json_encode(lang('app.payment_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		paymentSuccess: <?= json_encode(lang('app.payment_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		closeBillSuccess: <?= json_encode(lang('app.close_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		changeLabel: <?= json_encode(lang('app.change'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		allProductsDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		moveTableFailed: <?= json_encode(lang('app.move_table_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		moveTableSuccess: <?= json_encode(lang('app.move_table_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-		destinationBusy: <?= json_encode(lang('app.destination_table_has_open_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
-	};
+        tableDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        tableDisabledCannotOrder: <?= json_encode(lang('app.table_disabled_cannot_order'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        noOpenBill: <?= json_encode(lang('app.no_open_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        billStatus: <?= json_encode(lang('app.bill_status'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        openBill: <?= json_encode(lang('app.open_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        tableAlreadyOpen: <?= json_encode(lang('app.table_already_open'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        openBillStatus: <?= json_encode(lang('app.status_open'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        billingStatus: <?= json_encode(lang('app.status_billing'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        paidStatus: <?= json_encode(lang('app.status_paid'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        cancelStatus: <?= json_encode(lang('app.status_cancel'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        pending: <?= json_encode(lang('app.pending'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        sentKitchen: <?= json_encode(lang('app.sent_to_kitchen'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        cooking: <?= json_encode(lang('app.cooking'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        served: <?= json_encode(lang('app.served'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        canceled: <?= json_encode(lang('app.canceled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        unknownStatus: <?= json_encode(lang('app.unknown_status'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        addFoodItem: <?= json_encode(lang('app.add_food_item'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        editFoodItem: <?= json_encode(lang('app.edit_food_item'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        addToBill: <?= json_encode(lang('app.add_to_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        saveEdit: <?= json_encode(lang('app.save_edit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        noQuickOptions: <?= json_encode(lang('app.no_quick_options_for_product'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        loadQuickOptionsFailed: <?= json_encode(lang('app.load_quick_options_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        noItemsYet: <?= json_encode(lang('app.no_food_items_yet'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        detailLabel: <?= json_encode(lang('app.detail'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        optionLabel: <?= json_encode(lang('app.options'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        noteLabel: <?= json_encode(lang('app.note'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        edit: <?= json_encode(lang('app.edit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        remove: <?= json_encode(lang('app.remove'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        loadBillFailed: <?= json_encode(lang('app.load_bill_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        openBillFirst: <?= json_encode(lang('app.please_open_bill_first'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        billCannotAddItems: <?= json_encode(lang('app.bill_status_cannot_add_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        itemCannotEdit: <?= json_encode(lang('app.item_cannot_edit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        billNotFound: <?= json_encode(lang('app.bill_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        editItemNotFound: <?= json_encode(lang('app.edit_item_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        selectedItemNotFound: <?= json_encode(lang('app.selected_item_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        addItemFailed: <?= json_encode(lang('app.add_item_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        editItemFailed: <?= json_encode(lang('app.edit_item_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        updateItemFailed: <?= json_encode(lang('app.update_item_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        removeItemFailed: <?= json_encode(lang('app.remove_item_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        noBillYet: <?= json_encode(lang('app.no_bill_yet'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        sendKitchenFailed: <?= json_encode(lang('app.send_kitchen_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        billCannotPay: <?= json_encode(lang('app.bill_cannot_pay_yet'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        hasPendingItemsConfirm: <?= json_encode(lang('app.pending_items_pay_confirm'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        zeroBillConfirm: <?= json_encode(lang('app.zero_bill_confirm'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        paymentAmountInvalid: <?= json_encode(lang('app.invalid_payment_amount'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        amountLessThanBill: <?= json_encode(lang('app.received_less_than_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        paymentFailed: <?= json_encode(lang('app.payment_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        paymentSuccess: <?= json_encode(lang('app.payment_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        closeBillSuccess: <?= json_encode(lang('app.close_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        changeLabel: <?= json_encode(lang('app.change'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        allProductsDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        moveTableFailed: <?= json_encode(lang('app.move_table_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        moveTableSuccess: <?= json_encode(lang('app.move_table_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        destinationBusy: <?= json_encode(lang('app.destination_table_has_open_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        mergeBill: <?= json_encode(lang('app.merge_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        mergeBillFailed: <?= json_encode(lang('app.merge_bill_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        mergeBillSuccess: <?= json_encode(lang('app.merge_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        selectTargetBill: <?= json_encode(lang('app.select_target_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+    };
 
     const productOptionModalEl = document.getElementById('productOptionModal');
     const productOptionModal = productOptionModalEl ? new bootstrap.Modal(productOptionModalEl) : null;
@@ -499,6 +543,7 @@ $(function () {
         if (status === 'billing') return TXT.billingStatus;
         if (status === 'paid') return TXT.paidStatus;
         if (status === 'cancel') return TXT.cancelStatus;
+        if (status === 'merged') return <?= json_encode(lang('app.merged_order_status'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
         return TXT.noOpenBill;
     }
 
@@ -507,6 +552,7 @@ $(function () {
         if (status === 'billing') return 'text-bg-warning';
         if (status === 'paid') return 'text-bg-success';
         if (status === 'cancel') return 'text-bg-danger';
+        if (status === 'merged') return 'text-bg-dark';
         return 'text-bg-secondary';
     }
 
@@ -529,219 +575,219 @@ $(function () {
     }
 
     function parseCommaText(text) {
-		return (text || '')
-			.toString()
-			.split(',')
-			.map(function (x) { return $.trim(x); })
-			.filter(function (x) { return x !== ''; });
-	}
+        return (text || '')
+            .toString()
+            .split(',')
+            .map(function (x) { return $.trim(x); })
+            .filter(function (x) { return x !== ''; });
+    }
 
-	function setSelectedQuickNotesFromText(text) {
-		const selectedNotes = parseCommaText(text);
+    function setSelectedQuickNotesFromText(text) {
+        const selectedNotes = parseCommaText(text);
 
-		$('.modal-quick-note').each(function () {
-			const value = $.trim($(this).data('value') || '');
+        $('.modal-quick-note').each(function () {
+            const value = $.trim($(this).data('value') || '');
 
-			if (selectedNotes.includes(value)) {
-				$(this).addClass('active btn-dark').removeClass('btn-outline-secondary');
-			} else {
-				$(this).removeClass('active btn-dark').addClass('btn-outline-secondary');
-			}
-		});
-	}
+            if (selectedNotes.includes(value)) {
+                $(this).addClass('active btn-dark').removeClass('btn-outline-secondary');
+            } else {
+                $(this).removeClass('active btn-dark').addClass('btn-outline-secondary');
+            }
+        });
+    }
 
-	function clearModalOption() {
-		$('#modalItemDetail').val('').data('manual-detail', '');
-		$('#modalItemNote').val('').data('manual-note', '');
-		$('#editingItemId').val('');
-		$('#editingProductId').val('');
-		$('#quickDetailBox').html('<div class="text-muted small">' + TXT.noQuickOptions + '</div>');
+    function clearModalOption() {
+        $('#modalItemDetail').val('').data('manual-detail', '');
+        $('#modalItemNote').val('').data('manual-note', '');
+        $('#editingItemId').val('');
+        $('#editingProductId').val('');
+        $('#quickDetailBox').html('<div class="text-muted small">' + TXT.noQuickOptions + '</div>');
 
-		$('.modal-quick-detail, .modal-quick-note')
-			.removeClass('active btn-dark')
-			.addClass('btn-outline-secondary');
+        $('.modal-quick-detail, .modal-quick-note')
+            .removeClass('active btn-dark')
+            .addClass('btn-outline-secondary');
 
-		$('#productOptionModalLabel').text(TXT.addFoodItem);
-		$('#btnConfirmAddProduct').text(TXT.addToBill);
-	}
+        $('#productOptionModalLabel').text(TXT.addFoodItem);
+        $('#btnConfirmAddProduct').text(TXT.addToBill);
+    }
 
     function openProductModal(productId, productName, productPrice) {
-		if (!TABLE_IS_ACTIVE) {
-			alert(TXT.tableDisabled);
-			return;
-		}
+        if (!TABLE_IS_ACTIVE) {
+            alert(TXT.tableDisabled);
+            return;
+        }
 
-		SELECTED_PRODUCT_ID = productId;
-		SELECTED_PRODUCT_NAME = productName;
-		SELECTED_PRODUCT_PRICE = productPrice;
+        SELECTED_PRODUCT_ID = productId;
+        SELECTED_PRODUCT_NAME = productName;
+        SELECTED_PRODUCT_PRICE = productPrice;
 
-		clearModalOption();
+        clearModalOption();
 
-		$('#modalMode').val('add');
-		$('#editingProductId').val(productId);
-		$('#modalProductName').text(productName);
-		$('#modalProductPrice').text(money(productPrice));
-		$('#productOptionModalLabel').text(TXT.addFoodItem);
-		$('#btnConfirmAddProduct').text(TXT.addToBill);
+        $('#modalMode').val('add');
+        $('#editingProductId').val(productId);
+        $('#modalProductName').text(productName);
+        $('#modalProductPrice').text(money(productPrice));
+        $('#productOptionModalLabel').text(TXT.addFoodItem);
+        $('#btnConfirmAddProduct').text(TXT.addToBill);
 
-		loadProductQuickOptions(productId, []);
+        loadProductQuickOptions(productId, []);
 
-		if (productOptionModal) {
-			productOptionModal.show();
-		}
-	}
+        if (productOptionModal) {
+            productOptionModal.show();
+        }
+    }
 
     function openEditItemModal(item) {
-		clearModalOption();
+        clearModalOption();
 
-		const selectedDetails = parseCommaText(item.item_detail || '');
-		const selectedNotes = $.trim(item.note || '');
+        const selectedDetails = parseCommaText(item.item_detail || '');
+        const selectedNotes = $.trim(item.note || '');
 
-		SELECTED_PRODUCT_ID = item.product_id || '';
+        SELECTED_PRODUCT_ID = item.product_id || '';
 
-		$('#modalMode').val('edit');
-		$('#editingItemId').val(item.id);
-		$('#editingProductId').val(item.product_id || '');
-		$('#modalProductName').text(item.product_name || '-');
-		$('#modalProductPrice').text(money(item.price || 0));
-		$('#modalItemDetail').val(item.item_detail || '').data('manual-detail', $.trim(item.item_detail || ''));
-		$('#modalItemNote').val(item.note || '').data('manual-note', $.trim(item.note || ''));
-		$('#productOptionModalLabel').text(TXT.editFoodItem);
-		$('#btnConfirmAddProduct').text(TXT.saveEdit);
+        $('#modalMode').val('edit');
+        $('#editingItemId').val(item.id);
+        $('#editingProductId').val(item.product_id || '');
+        $('#modalProductName').text(item.product_name || '-');
+        $('#modalProductPrice').text(money(item.price || 0));
+        $('#modalItemDetail').val(item.item_detail || '').data('manual-detail', $.trim(item.item_detail || ''));
+        $('#modalItemNote').val(item.note || '').data('manual-note', $.trim(item.note || ''));
+        $('#productOptionModalLabel').text(TXT.editFoodItem);
+        $('#btnConfirmAddProduct').text(TXT.saveEdit);
 
-		setSelectedQuickNotesFromText(selectedNotes);
-		loadProductQuickOptions(item.product_id || '', selectedDetails);
+        setSelectedQuickNotesFromText(selectedNotes);
+        loadProductQuickOptions(item.product_id || '', selectedDetails);
 
-		if (productOptionModal) {
-			productOptionModal.show();
-		}
-	}
+        if (productOptionModal) {
+            productOptionModal.show();
+        }
+    }
 
     function loadProductQuickOptions(productId, preselectedValues = []) {
-		if (!productId) {
-			$('#quickDetailBox').html('<div class="text-muted small">' + TXT.noQuickOptions + '</div>');
-			return;
-		}
+        if (!productId) {
+            $('#quickDetailBox').html('<div class="text-muted small">' + TXT.noQuickOptions + '</div>');
+            return;
+        }
 
-		$.get("<?= site_url('pos/product-quick-options') ?>/" + productId)
-			.done(function (res) {
-				if (!res || res.status !== 'success') {
-					$('#quickDetailBox').html('<div class="text-muted small">' + TXT.noQuickOptions + '</div>');
-					return;
-				}
+        $.get("<?= site_url('pos/product-quick-options') ?>/" + productId)
+            .done(function (res) {
+                if (!res || res.status !== 'success') {
+                    $('#quickDetailBox').html('<div class="text-muted small">' + TXT.noQuickOptions + '</div>');
+                    return;
+                }
 
-				let html = '';
+                let html = '';
 
-				(res.options || []).forEach(function (opt) {
-					const rawName = (opt.option_name || '').toString();
-					const safeName = escapeHtml(rawName);
-					const priceAdjust = parseFloat(opt.price_adjust || 0);
-					const priceText = priceAdjust > 0 ? ` (+${money(priceAdjust)})` : '';
-					const isActive = preselectedValues.includes($.trim(rawName));
+                (res.options || []).forEach(function (opt) {
+                    const rawName = (opt.option_name || '').toString();
+                    const safeName = escapeHtml(rawName);
+                    const priceAdjust = parseFloat(opt.price_adjust || 0);
+                    const priceText = priceAdjust > 0 ? ` (+${money(priceAdjust)})` : '';
+                    const isActive = preselectedValues.includes($.trim(rawName));
 
-					html += `
-						<button
-							type="button"
-							class="btn btn-sm modal-quick-detail ${isActive ? 'btn-dark active' : 'btn-outline-secondary'}"
-							data-value="${rawName.replace(/"/g, '&quot;')}"
-							data-price="${priceAdjust}"
-						>
-							${safeName}${priceText}
-						</button>
-					`;
-				});
+                    html += `
+                        <button
+                            type="button"
+                            class="btn btn-sm modal-quick-detail ${isActive ? 'btn-dark active' : 'btn-outline-secondary'}"
+                            data-value="${rawName.replace(/"/g, '&quot;')}"
+                            data-price="${priceAdjust}"
+                        >
+                            ${safeName}${priceText}
+                        </button>
+                    `;
+                });
 
-				if (html === '') {
-					html = '<div class="text-muted small">' + TXT.noQuickOptions + '</div>';
-				}
+                if (html === '') {
+                    html = '<div class="text-muted small">' + TXT.noQuickOptions + '</div>';
+                }
 
-				$('#quickDetailBox').html(html);
-			})
-			.fail(function (xhr) {
-				console.error('loadProductQuickOptions error:', xhr.responseText);
-				$('#quickDetailBox').html('<div class="text-danger small">' + TXT.loadQuickOptionsFailed + '</div>');
-			});
-	}
-	
-	function collectSelectedQuickDetails() {
-		const details = [];
+                $('#quickDetailBox').html(html);
+            })
+            .fail(function (xhr) {
+                console.error('loadProductQuickOptions error:', xhr.responseText);
+                $('#quickDetailBox').html('<div class="text-danger small">' + TXT.loadQuickOptionsFailed + '</div>');
+            });
+    }
 
-		$('#quickDetailBox .modal-quick-detail.active').each(function () {
-			const name = $.trim($(this).data('value') || '');
-			const priceAdjust = parseFloat($(this).data('price') || 0);
+    function collectSelectedQuickDetails() {
+        const details = [];
 
-			if (name !== '') {
-				details.push({
-					group: <?= json_encode(lang('app.food_detail'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-					name: name,
-					price_adjust: priceAdjust
-				});
-			}
-		});
+        $('#quickDetailBox .modal-quick-detail.active').each(function () {
+            const name = $.trim($(this).data('value') || '');
+            const priceAdjust = parseFloat($(this).data('price') || 0);
 
-		return details;
-	}
-	
-	function collectSelectedQuickDetailNames() {
-		return collectSelectedQuickDetails().map(function (row) {
-			return $.trim(row.name || '');
-		}).filter(function (name) {
-			return name !== '';
-		});
-	}
+            if (name !== '') {
+                details.push({
+                    group: <?= json_encode(lang('app.food_detail'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                    name: name,
+                    price_adjust: priceAdjust
+                });
+            }
+        });
 
-	function syncQuickDetailsToInput() {
-		const selectedDetails = collectSelectedQuickDetailNames();
-		const manualDetail = $.trim($('#modalItemDetail').data('manual-detail') || '');
-		const merged = [...selectedDetails];
+        return details;
+    }
 
-		if (manualDetail !== '') {
-			const exists = merged.some(function (text) {
-				return $.trim(text) === manualDetail;
-			});
+    function collectSelectedQuickDetailNames() {
+        return collectSelectedQuickDetails().map(function (row) {
+            return $.trim(row.name || '');
+        }).filter(function (name) {
+            return name !== '';
+        });
+    }
 
-			if (!exists) {
-				merged.push(manualDetail);
-			}
-		}
+    function syncQuickDetailsToInput() {
+        const selectedDetails = collectSelectedQuickDetailNames();
+        const manualDetail = $.trim($('#modalItemDetail').data('manual-detail') || '');
+        const merged = [...selectedDetails];
 
-		$('#modalItemDetail').val(merged.join(', '));
-	}
+        if (manualDetail !== '') {
+            const exists = merged.some(function (text) {
+                return $.trim(text) === manualDetail;
+            });
 
-	function collectSelectedQuickNotes() {
-		const notes = [];
+            if (!exists) {
+                merged.push(manualDetail);
+            }
+        }
 
-		$('.modal-quick-note.active').each(function () {
-			const value = $.trim($(this).data('value') || '');
-			if (value !== '') {
-				notes.push(value);
-			}
-		});
+        $('#modalItemDetail').val(merged.join(', '));
+    }
 
-		return notes;
-	}
+    function collectSelectedQuickNotes() {
+        const notes = [];
 
-	function syncQuickNotesToInput() {
-		const selectedNotes = collectSelectedQuickNotes();
-		const manualNote = $.trim($('#modalItemNote').data('manual-note') || '');
-		const merged = [...selectedNotes];
+        $('.modal-quick-note.active').each(function () {
+            const value = $.trim($(this).data('value') || '');
+            if (value !== '') {
+                notes.push(value);
+            }
+        });
 
-		if (manualNote !== '') {
-			const exists = merged.some(function (text) {
-				return $.trim(text) === manualNote;
-			});
+        return notes;
+    }
 
-			if (!exists) {
-				merged.push(manualNote);
-			}
-		}
+    function syncQuickNotesToInput() {
+        const selectedNotes = collectSelectedQuickNotes();
+        const manualNote = $.trim($('#modalItemNote').data('manual-note') || '');
+        const merged = [...selectedNotes];
 
-		$('#modalItemNote').val(merged.join(', '));
-	}
+        if (manualNote !== '') {
+            const exists = merged.some(function (text) {
+                return $.trim(text) === manualNote;
+            });
+
+            if (!exists) {
+                merged.push(manualNote);
+            }
+        }
+
+        $('#modalItemNote').val(merged.join(', '));
+    }
 
     function updateOrderHeader(order = null) {
         const $badge = $('#orderStatusBadge');
-        $badge.removeClass('text-bg-primary text-bg-warning text-bg-success text-bg-danger text-bg-secondary');
+        $badge.removeClass('text-bg-primary text-bg-warning text-bg-success text-bg-danger text-bg-secondary text-bg-dark');
         $badge.addClass(statusBadgeClass(CURRENT_ORDER_STATUS));
         $badge.text(TXT.billStatus + ': ' + statusText(CURRENT_ORDER_STATUS));
 
@@ -749,6 +795,8 @@ $(function () {
             $('#btnOpenOrder').prop('disabled', true).text(TXT.tableDisabled);
             $('#btnSendKitchen').prop('disabled', true);
             $('#btnPay').prop('disabled', true);
+            $('#btnMoveTable').prop('disabled', true);
+            $('#btnMergeBill').prop('disabled', true);
             $('.product-btn').prop('disabled', true);
         } else {
             if (CURRENT_ORDER_ID && (CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')) {
@@ -759,6 +807,8 @@ $(function () {
 
             $('#btnSendKitchen').prop('disabled', CURRENT_ORDER_STATUS !== 'open');
             $('#btnPay').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
+            $('#btnMoveTable').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
+            $('#btnMergeBill').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
             $('.product-btn').prop('disabled', false);
         }
 
@@ -831,7 +881,10 @@ $(function () {
     }
 
     function isAnyModalOpen() {
-        return $('#productOptionModal').hasClass('show') || $('#paymentModal').hasClass('show');
+        return $('#productOptionModal').hasClass('show')
+            || $('#paymentModal').hasClass('show')
+            || $('#moveTableModal').hasClass('show')
+            || $('#mergeBillModal').hasClass('show');
     }
 
     function loadOrder() {
@@ -874,32 +927,56 @@ $(function () {
             }
         }, 5000);
     }
-	
-	function loadMoveTableOptions() {
-		if (!CURRENT_ORDER_ID) {
-			return;
-		}
 
-		$('#moveToTableId').html('<option value="">' + <?= json_encode(lang('app.please_select')) ?> + '</option>');
-		$('#moveTableHint').text('');
+    function loadMoveTableOptions() {
+        if (!CURRENT_ORDER_ID) {
+            return;
+        }
 
-		$.get("<?= site_url('pos/available-tables') ?>/" + CURRENT_ORDER_ID)
-			.done(function (res) {
-				if (!res || res.status !== 'success') {
-					return;
-				}
+        $('#moveToTableId').html('<option value=""><?= esc(lang('app.please_select')) ?></option>');
+        $('#moveTableHint').text('');
 
-				let html = '<option value=""><?= esc(lang('app.please_select')) ?></option>';
+        $.get("<?= site_url('pos/available-tables') ?>/" + CURRENT_ORDER_ID)
+            .done(function (res) {
+                if (!res || res.status !== 'success') {
+                    return;
+                }
 
-				(res.tables || []).forEach(function (row) {
-					const disabled = Number(row.has_open_order || 0) === 1 ? 'disabled' : '';
-					const busyText = Number(row.has_open_order || 0) === 1 ? ' (' + TXT.billStatus + ')' : '';
-					html += '<option value="' + row.id + '" ' + disabled + '>' + row.table_name + busyText + '</option>';
-				});
+                let html = '<option value=""><?= esc(lang('app.please_select')) ?></option>';
 
-				$('#moveToTableId').html(html);
-			});
-	}
+                (res.tables || []).forEach(function (row) {
+                    const disabled = Number(row.has_open_order || 0) === 1 ? 'disabled' : '';
+                    const busyText = Number(row.has_open_order || 0) === 1 ? ' (' + TXT.billStatus + ')' : '';
+                    html += '<option value="' + row.id + '" ' + disabled + '>' + row.table_name + busyText + '</option>';
+                });
+
+                $('#moveToTableId').html(html);
+            });
+    }
+
+    function loadMergeTargets() {
+        if (!CURRENT_ORDER_ID) {
+            return;
+        }
+
+        $('#mergeTargetOrderId').html('<option value="">' + TXT.selectTargetBill + '</option>');
+
+        $.get("<?= site_url('pos/merge-targets') ?>/" + CURRENT_ORDER_ID)
+            .done(function (res) {
+                if (!res || res.status !== 'success') {
+                    return;
+                }
+
+                let html = '<option value="">' + TXT.selectTargetBill + '</option>';
+
+                (res.orders || []).forEach(function (row) {
+                    const label = row.order_number + ' / ' + row.table_name + ' / ฿' + Number(row.total_price || 0).toFixed(2);
+                    html += '<option value="' + row.id + '">' + label + '</option>';
+                });
+
+                $('#mergeTargetOrderId').html(html);
+            });
+    }
 
     $(document).on('click', '#btnOpenOrder', function () {
         if (!TABLE_IS_ACTIVE) {
@@ -965,108 +1042,108 @@ $(function () {
     });
 
     $(document).on('click', '.modal-quick-detail', function () {
-		$(this).toggleClass('active btn-dark btn-outline-secondary');
-		syncQuickDetailsToInput();
-	});
+        $(this).toggleClass('active btn-dark btn-outline-secondary');
+        syncQuickDetailsToInput();
+    });
 
     $(document).on('click', '.modal-quick-note', function () {
-		$(this).toggleClass('active btn-dark btn-outline-secondary');
-		syncQuickNotesToInput();
-	});
-	
-	$(document).on('input', '#modalItemDetail', function () {
-		$(this).data('manual-detail', $.trim($(this).val()));
-	});
-	
-	$(document).on('input', '#modalItemNote', function () {
-		$(this).data('manual-note', $.trim($(this).val()));
-	});
+        $(this).toggleClass('active btn-dark btn-outline-secondary');
+        syncQuickNotesToInput();
+    });
+
+    $(document).on('input', '#modalItemDetail', function () {
+        $(this).data('manual-detail', $.trim($(this).val()));
+    });
+
+    $(document).on('input', '#modalItemNote', function () {
+        $(this).data('manual-note', $.trim($(this).val()));
+    });
 
     $(document).on('click', '#btnClearModalOption', function () {
-		$('#modalItemDetail').val('').data('manual-detail', '');
-		$('#modalItemNote').val('').data('manual-note', '');
-		$('.modal-quick-detail, .modal-quick-note')
-			.removeClass('active btn-dark')
-			.addClass('btn-outline-secondary');
-	});
+        $('#modalItemDetail').val('').data('manual-detail', '');
+        $('#modalItemNote').val('').data('manual-note', '');
+        $('.modal-quick-detail, .modal-quick-note')
+            .removeClass('active btn-dark')
+            .addClass('btn-outline-secondary');
+    });
 
     $(document).on('click', '#btnConfirmAddProduct', function () {
-		if (!TABLE_IS_ACTIVE) {
-			alert(TXT.tableDisabled);
-			return;
-		}
+        if (!TABLE_IS_ACTIVE) {
+            alert(TXT.tableDisabled);
+            return;
+        }
 
-		if (!CURRENT_ORDER_ID) {
-			alert(TXT.billNotFound);
-			return;
-		}
+        if (!CURRENT_ORDER_ID) {
+            alert(TXT.billNotFound);
+            return;
+        }
 
-		const mode = $('#modalMode').val();
-		const itemDetail = $.trim($('#modalItemDetail').val());
-		const note = $.trim($('#modalItemNote').val());
-		const options = collectSelectedQuickDetails();
+        const mode = $('#modalMode').val();
+        const itemDetail = $.trim($('#modalItemDetail').val());
+        const note = $.trim($('#modalItemNote').val());
+        const options = collectSelectedQuickDetails();
 
-		if (mode === 'edit') {
-			const itemId = $('#editingItemId').val();
+        if (mode === 'edit') {
+            const itemId = $('#editingItemId').val();
 
-			if (!itemId) {
-				alert(TXT.editItemNotFound);
-				return;
-			}
+            if (!itemId) {
+                alert(TXT.editItemNotFound);
+                return;
+            }
 
-			$.post("<?= site_url('pos/update-item') ?>", {
-				item_id: itemId,
-				item_detail: itemDetail,
-				note: note,
-				options: JSON.stringify(options)
-			})
-			.done(function (res) {
-				if (res.status === 'success') {
-					if (productOptionModal) {
-						productOptionModal.hide();
-					}
-					clearModalOption();
-					loadOrder();
-				} else {
-					alert(res.message || TXT.editItemFailed);
-				}
-			})
-			.fail(function (xhr) {
-				console.error('updateItem error:', xhr.responseText);
-				alert(TXT.editItemFailed);
-			});
+            $.post("<?= site_url('pos/update-item') ?>", {
+                item_id: itemId,
+                item_detail: itemDetail,
+                note: note,
+                options: JSON.stringify(options)
+            })
+            .done(function (res) {
+                if (res.status === 'success') {
+                    if (productOptionModal) {
+                        productOptionModal.hide();
+                    }
+                    clearModalOption();
+                    loadOrder();
+                } else {
+                    alert(res.message || TXT.editItemFailed);
+                }
+            })
+            .fail(function (xhr) {
+                console.error('updateItem error:', xhr.responseText);
+                alert(TXT.editItemFailed);
+            });
 
-			return;
-		}
+            return;
+        }
 
-		if (!SELECTED_PRODUCT_ID) {
-			alert(TXT.selectedItemNotFound);
-			return;
-		}
+        if (!SELECTED_PRODUCT_ID) {
+            alert(TXT.selectedItemNotFound);
+            return;
+        }
 
-		$.post("<?= site_url('pos/add-item') ?>", {
-			order_id: CURRENT_ORDER_ID,
-			product_id: SELECTED_PRODUCT_ID,
-			item_detail: itemDetail,
-			note: note,
-			options: JSON.stringify(options)
-		})
-		.done(function (res) {
-			if (res.status === 'success') {
-				if (productOptionModal) {
-					productOptionModal.hide();
-				}
-				clearModalOption();
-				loadOrder();
-			} else {
-				alert(res.message || TXT.addItemFailed);
-			}
-		})
-		.fail(function (xhr) {
-			console.error('addItem error:', xhr.responseText);
-			alert(TXT.addItemFailed);
-		});
-	});
+        $.post("<?= site_url('pos/add-item') ?>", {
+            order_id: CURRENT_ORDER_ID,
+            product_id: SELECTED_PRODUCT_ID,
+            item_detail: itemDetail,
+            note: note,
+            options: JSON.stringify(options)
+        })
+        .done(function (res) {
+            if (res.status === 'success') {
+                if (productOptionModal) {
+                    productOptionModal.hide();
+                }
+                clearModalOption();
+                loadOrder();
+            } else {
+                alert(res.message || TXT.addItemFailed);
+            }
+        })
+        .fail(function (xhr) {
+            console.error('addItem error:', xhr.responseText);
+            alert(TXT.addItemFailed);
+        });
+    });
 
     $(document).on('click', '.btn-qty', function () {
         $.post("<?= site_url('pos/update-item-qty') ?>", {
@@ -1105,80 +1182,67 @@ $(function () {
 
     let SEND_KITCHEN_BUSY = false;
 
-	function generateRequestUuid() {
-		if (window.crypto && window.crypto.randomUUID) {
-			return window.crypto.randomUUID();
-		}
-		return 'rk-' + Date.now() + '-' + Math.random().toString(16).slice(2);
-	}
+    function generateRequestUuid() {
+        if (window.crypto && window.crypto.randomUUID) {
+            return window.crypto.randomUUID();
+        }
+        return 'rk-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+    }
 
-	$(document).off('click', '#btnSendKitchen');
+    $(document).off('click', '#btnSendKitchen');
 
-	$(document).on('click', '#btnSendKitchen', function () {
+    $(document).on('click', '#btnSendKitchen', function () {
+        if (SEND_KITCHEN_BUSY) {
+            return;
+        }
 
-		if (SEND_KITCHEN_BUSY) {
-			return;
-		}
+        if (!TABLE_IS_ACTIVE) {
+            alert(TXT.tableDisabled);
+            return;
+        }
 
-		if (!TABLE_IS_ACTIVE) {
-			alert(TXT.tableDisabled);
-			return;
-		}
+        if (!CURRENT_ORDER_ID) {
+            alert(TXT.noBillYet);
+            return;
+        }
 
-		if (!CURRENT_ORDER_ID) {
-			alert(TXT.noBillYet);
-			return;
-		}
+        SEND_KITCHEN_BUSY = true;
 
-		SEND_KITCHEN_BUSY = true;
+        const $btn = $('#btnSendKitchen');
+        const originalText = $btn.text();
 
-		const $btn = $('#btnSendKitchen');
-		const originalText = $btn.text();
+        $btn.prop('disabled', true);
+        $btn.text('...');
 
-		$btn.prop('disabled', true);
-		$btn.text('...');
+        const requestUuid = generateRequestUuid();
 
-		const requestUuid = generateRequestUuid();
-
-		$.ajax({
-			url: "<?= site_url('pos/send-kitchen') ?>",
-			type: "POST",
-			dataType: "json",
-			data: {
-				order_id: CURRENT_ORDER_ID,
-				request_uuid: requestUuid
-			},
-
-			complete: function () {
-				SEND_KITCHEN_BUSY = false;
-				$btn.prop('disabled', false);
-				$btn.text(originalText);
-			},
-
-			success: function (res) {
-
-				if (res && res.status === 'success') {
-
-					alert(res.message || <?= json_encode(lang('app.sent_to_kitchen_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
-
-					loadOrder();
-
-				} else {
-
-					alert(res.message || TXT.sendKitchenFailed);
-
-				}
-			},
-
-			error: function (xhr) {
-
-				console.error('sendKitchen error:', xhr.responseText);
-				alert(TXT.sendKitchenFailed);
-
-			}
-		});
-
-	});
+        $.ajax({
+            url: "<?= site_url('pos/send-kitchen') ?>",
+            type: "POST",
+            dataType: "json",
+            data: {
+                order_id: CURRENT_ORDER_ID,
+                request_uuid: requestUuid
+            },
+            complete: function () {
+                SEND_KITCHEN_BUSY = false;
+                $btn.prop('disabled', false);
+                $btn.text(originalText);
+            },
+            success: function (res) {
+                if (res && res.status === 'success') {
+                    alert(res.message || <?= json_encode(lang('app.sent_to_kitchen_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
+                    loadOrder();
+                } else {
+                    alert((res && res.message) ? res.message : TXT.sendKitchenFailed);
+                }
+            },
+            error: function (xhr) {
+                console.error('sendKitchen error:', xhr.responseText);
+                alert(TXT.sendKitchenFailed);
+            }
+        });
+    });
 
     $(document).on('click', '#btnPay', function () {
         if (!TABLE_IS_ACTIVE) {
@@ -1214,7 +1278,7 @@ $(function () {
                 order_id: CURRENT_ORDER_ID,
                 payment_method: 'cash',
                 amount: 0
-            }).done(function(res){
+            }).done(function () {
                 alert(TXT.closeBillSuccess);
                 CURRENT_ORDER_ID = null;
                 CURRENT_ORDER_STATUS = null;
@@ -1331,61 +1395,127 @@ $(function () {
             alert(TXT.paymentFailed);
         });
     });
-	
-	$(document).on('click', '#btnMoveTable', function () {
-		if (!CURRENT_ORDER_ID) {
-			alert(TXT.noBillYet);
-			return;
-		}
 
-		loadMoveTableOptions();
+    $(document).on('click', '#btnMoveTable', function () {
+        if (!CURRENT_ORDER_ID) {
+            alert(TXT.noBillYet);
+            return;
+        }
 
-		if (moveTableModal) {
-			moveTableModal.show();
-		}
-	});
+        loadMoveTableOptions();
 
-	$(document).on('click', '#btnConfirmMoveTable', function () {
-		if (!CURRENT_ORDER_ID) {
-			alert(TXT.noBillYet);
-			return;
-		}
+        if (moveTableModal) {
+            moveTableModal.show();
+        }
+    });
 
-		const toTableId = Number($('#moveToTableId').val() || 0);
-		const reason = $.trim($('#moveTableReason').val());
+    $(document).on('click', '#btnConfirmMoveTable', function () {
+        if (!CURRENT_ORDER_ID) {
+            alert(TXT.noBillYet);
+            return;
+        }
 
-		if (!toTableId) {
-			alert('<?= esc(lang('app.please_select')) ?>');
-			return;
-		}
+        const toTableId = Number($('#moveToTableId').val() || 0);
+        const reason = $.trim($('#moveTableReason').val());
 
-		$.post("<?= site_url('pos/move-table') ?>", {
-			order_id: CURRENT_ORDER_ID,
-			to_table_id: toTableId,
-			reason: reason
-		})
-		.done(function (res) {
-			if (!res || res.status !== 'success') {
-				alert((res && res.message) ? res.message : TXT.moveTableFailed);
-				return;
-			}
+        if (!toTableId) {
+            alert('<?= esc(lang('app.please_select')) ?>');
+            return;
+        }
 
-			if (moveTableModal) {
-				moveTableModal.hide();
-			}
+        $.post("<?= site_url('pos/move-table') ?>", {
+            order_id: CURRENT_ORDER_ID,
+            to_table_id: toTableId,
+            reason: reason
+        })
+        .done(function (res) {
+            if (!res || res.status !== 'success') {
+                alert((res && res.message) ? res.message : TXT.moveTableFailed);
+                return;
+            }
 
-			alert(res.message || TXT.moveTableSuccess);
-			window.location.reload();
-		})
-		.fail(function (xhr) {
-			console.error('moveTable error:', xhr.responseText);
-			alert(TXT.moveTableFailed);
-		});
-	});
+            if (moveTableModal) {
+                moveTableModal.hide();
+            }
+
+            alert(res.message || TXT.moveTableSuccess);
+            window.location.reload();
+        })
+        .fail(function (xhr) {
+            console.error('moveTable error:', xhr.responseText);
+            alert(TXT.moveTableFailed);
+        });
+    });
+
+    $(document).on('click', '#btnMergeBill', function () {
+        if (!CURRENT_ORDER_ID) {
+            alert(TXT.noBillYet);
+            return;
+        }
+
+        loadMergeTargets();
+
+        if (mergeBillModal) {
+            mergeBillModal.show();
+        }
+    });
+
+    $(document).on('click', '#btnConfirmMergeBill', function () {
+        if (!CURRENT_ORDER_ID) {
+            alert(TXT.noBillYet);
+            return;
+        }
+
+        const targetOrderId = Number($('#mergeTargetOrderId').val() || 0);
+        const reason = $.trim($('#mergeBillReason').val());
+
+        if (!targetOrderId) {
+            alert(TXT.selectTargetBill);
+            return;
+        }
+
+        $.post("<?= site_url('pos/merge-bill') ?>", {
+            source_order_id: CURRENT_ORDER_ID,
+            target_order_id: targetOrderId,
+            reason: reason
+        })
+        .done(function (res) {
+            if (!res || res.status !== 'success') {
+                alert((res && res.message) ? res.message : TXT.mergeBillFailed);
+                return;
+            }
+
+            if (mergeBillModal) {
+                mergeBillModal.hide();
+            }
+
+            alert(res.message || TXT.mergeBillSuccess);
+            window.location.reload();
+        })
+        .fail(function (xhr) {
+            console.error('mergeBill error:', xhr.responseText);
+            alert(TXT.mergeBillFailed);
+        });
+    });
 
     if (productOptionModalEl) {
         productOptionModalEl.addEventListener('hidden.bs.modal', function () {
             clearModalOption();
+        });
+    }
+
+    if (moveTableModalEl) {
+        moveTableModalEl.addEventListener('hidden.bs.modal', function () {
+            $('#moveToTableId').val('');
+            $('#moveTableReason').val('');
+            $('#moveTableHint').text('');
+        });
+    }
+
+    if (mergeBillModalEl) {
+        mergeBillModalEl.addEventListener('hidden.bs.modal', function () {
+            $('#mergeTargetOrderId').val('');
+            $('#mergeBillReason').val('');
         });
     }
 

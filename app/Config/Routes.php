@@ -168,6 +168,10 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
         'filter' => 'permission:pos.view,feature_gate:pos.access'
     ]);
 
+    $routes->get('merge-targets/(:num)', 'POSController::availableMergeTargets/$1', [
+        'filter' => 'permission:pos.view,feature_gate:pos.access'
+    ]);
+
     $routes->post('open-order', 'POSController::openOrder', [
         'filter' => 'permission:pos.open_table,feature_gate:pos.sell'
     ]);
@@ -193,6 +197,10 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
     ]);
 
     $routes->post('move-table', 'POSController::moveTable', [
+        'filter' => 'permission:pos.open_table,feature_gate:pos.sell'
+    ]);
+
+    $routes->post('merge-bill', 'POSController::mergeBill', [
         'filter' => 'permission:pos.open_table,feature_gate:pos.sell'
     ]);
 
