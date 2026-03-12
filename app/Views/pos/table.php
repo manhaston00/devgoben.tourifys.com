@@ -161,6 +161,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0"><?= esc(lang('app.current_bill')) ?></h5>
                     <span class="small text-muted" id="orderNoLabel">-</span>
+					<div id="mergedNoticeBox" class="mt-2"></div>
                 </div>
 
                 <div id="orderBox">
@@ -784,48 +785,74 @@ $(function () {
 
         $('#modalItemNote').val(merged.join(', '));
     }
+	
+	function renderMergedNotice(notice = null) {
+		if (!notice || !notice.target_table_name) {
+			$('#mergedNoticeBox').html('');
+			return;
+		}
+
+		const targetTableName = escapeHtml(notice.target_table_name || '-');
+		const targetOrderNumber = escapeHtml(notice.target_order_number || '-');
+		const reason = escapeHtml(notice.reason || '');
+
+		let html = `
+			<div class="alert alert-warning border-0 rounded-4 py-2 px-3 mb-0">
+				<div class="fw-bold mb-1">บิลนี้ถูกรวมไปแล้ว</div>
+				<div class="small">ไปที่โต๊ะ: <strong>${targetTableName}</strong></div>
+				<div class="small">บิลปลายทาง: <strong>${targetOrderNumber}</strong></div>
+				${reason ? `<div class="small text-muted mt-1">เหตุผล: ${reason}</div>` : ''}
+			</div>
+		`;
+
+		$('#mergedNoticeBox').html(html);
+	}
 
     function updateOrderHeader(order = null) {
-        const $badge = $('#orderStatusBadge');
-        $badge.removeClass('text-bg-primary text-bg-warning text-bg-success text-bg-danger text-bg-secondary text-bg-dark');
-        $badge.addClass(statusBadgeClass(CURRENT_ORDER_STATUS));
-        $badge.text(TXT.billStatus + ': ' + statusText(CURRENT_ORDER_STATUS));
+		const $badge = $('#orderStatusBadge');
+		const mergedNotice = order && order.merged_notice ? order.merged_notice : null;
 
-        if (!TABLE_IS_ACTIVE) {
-            $('#btnOpenOrder').prop('disabled', true).text(TXT.tableDisabled);
-            $('#btnSendKitchen').prop('disabled', true);
-            $('#btnPay').prop('disabled', true);
-            $('#btnMoveTable').prop('disabled', true);
-            $('#btnMergeBill').prop('disabled', true);
-            $('.product-btn').prop('disabled', true);
-        } else {
-            if (CURRENT_ORDER_ID && (CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')) {
-                $('#btnOpenOrder').prop('disabled', true).text(TXT.tableAlreadyOpen);
-            } else {
-                $('#btnOpenOrder').prop('disabled', false).text(TXT.openBill);
-            }
+		$badge.removeClass('text-bg-primary text-bg-warning text-bg-success text-bg-danger text-bg-secondary text-bg-dark');
+		$badge.addClass(statusBadgeClass(CURRENT_ORDER_STATUS));
+		$badge.text(TXT.billStatus + ': ' + statusText(CURRENT_ORDER_STATUS));
 
-            $('#btnSendKitchen').prop('disabled', CURRENT_ORDER_STATUS !== 'open');
-            $('#btnPay').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
-            $('#btnMoveTable').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
-            $('#btnMergeBill').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
-            $('.product-btn').prop('disabled', false);
-        }
+		renderMergedNotice(mergedNotice);
 
-        if (CURRENT_ORDER_STATUS === 'open') {
-            $('#btnPay').text(<?= json_encode(lang('app.close_bill_pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
-        } else if (CURRENT_ORDER_STATUS === 'billing') {
-            $('#btnPay').text(<?= json_encode(lang('app.pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
-        } else {
-            $('#btnPay').text(<?= json_encode(lang('app.close_bill_pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
-        }
+		if (!TABLE_IS_ACTIVE) {
+			$('#btnOpenOrder').prop('disabled', true).text(TXT.tableDisabled);
+			$('#btnSendKitchen').prop('disabled', true);
+			$('#btnPay').prop('disabled', true);
+			$('#btnMoveTable').prop('disabled', true);
+			$('#btnMergeBill').prop('disabled', true);
+			$('.product-btn').prop('disabled', true);
+		} else {
+			if (CURRENT_ORDER_ID && (CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')) {
+				$('#btnOpenOrder').prop('disabled', true).text(TXT.tableAlreadyOpen);
+			} else {
+				$('#btnOpenOrder').prop('disabled', false).text(TXT.openBill);
+			}
 
-        if (order && order.order_number) {
-            $('#orderNoLabel').text(order.order_number);
-        } else {
-            $('#orderNoLabel').text('-');
-        }
-    }
+			$('#btnSendKitchen').prop('disabled', CURRENT_ORDER_STATUS !== 'open');
+			$('#btnPay').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
+			$('#btnMoveTable').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
+			$('#btnMergeBill').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
+			$('.product-btn').prop('disabled', false);
+		}
+
+		if (CURRENT_ORDER_STATUS === 'open') {
+			$('#btnPay').text(<?= json_encode(lang('app.close_bill_pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
+		} else if (CURRENT_ORDER_STATUS === 'billing') {
+			$('#btnPay').text(<?= json_encode(lang('app.pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
+		} else {
+			$('#btnPay').text(<?= json_encode(lang('app.close_bill_pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
+		}
+
+		if (order && order.order_number) {
+			$('#orderNoLabel').text(order.order_number);
+		} else {
+			$('#orderNoLabel').text('-');
+		}
+	}
 
     function canEditItem(status) {
         return !status || status === 'pending' || status === 'open' || status === 'new';
@@ -888,33 +915,57 @@ $(function () {
     }
 
     function loadOrder() {
-        if (isAnyModalOpen()) {
-            return;
-        }
+		if (isAnyModalOpen()) {
+			return;
+		}
 
-        $.get("<?= site_url('pos/current-order') ?>/" + TABLE_ID)
-            .done(function (res) {
-                if (!res || res.status !== 'success') {
-                    CURRENT_ORDER_ID = null;
-                    CURRENT_ORDER_STATUS = null;
-                    $('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
-                    $('#billTotal').text('฿0.00');
-                    updateOrderHeader(null);
-                    return;
-                }
+		$.get("<?= site_url('pos/current-order') ?>/" + TABLE_ID)
+			.done(function (res) {
+				if (!res) {
+					CURRENT_ORDER_ID = null;
+					CURRENT_ORDER_STATUS = null;
+					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
+					$('#billTotal').text('฿0.00');
+					updateOrderHeader(null);
+					return;
+				}
 
-                CURRENT_ORDER_ID = res.order.id;
-                CURRENT_ORDER_STATUS = res.order.status || 'open';
+				if (res.status === 'empty') {
+					CURRENT_ORDER_ID = null;
+					CURRENT_ORDER_STATUS = null;
+					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
+					$('#billTotal').text('฿0.00');
+					updateOrderHeader({
+						merged_notice: res.merged_notice || null
+					});
+					return;
+				}
 
-                renderItems(res.order, res.items || []);
-                updateOrderHeader(res.order);
-            })
-            .fail(function (xhr) {
-                console.error('loadOrder error:', xhr.responseText);
-                $('#orderBox').html('<div class="text-danger">' + TXT.loadBillFailed + '</div>');
-                $('#billTotal').text('฿0.00');
-            });
-    }
+				if (res.status !== 'success') {
+					CURRENT_ORDER_ID = null;
+					CURRENT_ORDER_STATUS = null;
+					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
+					$('#billTotal').text('฿0.00');
+					updateOrderHeader(null);
+					return;
+				}
+
+				CURRENT_ORDER_ID = res.order.id;
+				CURRENT_ORDER_STATUS = res.order.status || 'open';
+
+				const orderData = Object.assign({}, res.order, {
+					merged_notice: res.merged_notice || null
+				});
+
+				renderItems(orderData, res.items || []);
+				updateOrderHeader(orderData);
+			})
+			.fail(function (xhr) {
+				console.error('loadOrder error:', xhr.responseText);
+				$('#orderBox').html('<div class="text-danger">' + TXT.loadBillFailed + '</div>');
+				$('#billTotal').text('฿0.00');
+			});
+	}
 
     function startAutoRefresh() {
         if (AUTO_REFRESH_TIMER) {
@@ -1254,51 +1305,55 @@ $(function () {
     });
 
     $(document).on('click', '#btnPay', function () {
-        if (!TABLE_IS_ACTIVE) {
-            alert(TXT.tableDisabled);
-            return;
-        }
+		if (!TABLE_IS_ACTIVE) {
+			alert(TXT.tableDisabled);
+			return;
+		}
 
-        if (!CURRENT_ORDER_ID) {
-            alert(TXT.noBillYet);
-            return;
-        }
+		if (!CURRENT_ORDER_ID) {
+			alert(TXT.noBillYet);
+			return;
+		}
 
-        if (CURRENT_ORDER_STATUS !== 'open' && CURRENT_ORDER_STATUS !== 'billing') {
-            alert(TXT.billCannotPay);
-            return;
-        }
+		if (CURRENT_ORDER_STATUS !== 'open' && CURRENT_ORDER_STATUS !== 'billing') {
+			alert(TXT.billCannotPay);
+			return;
+		}
 
-        const hasPending = $('#orderBox [data-item-status="pending"]').length > 0;
-        if (hasPending) {
-            if (!confirm(TXT.hasPendingItemsConfirm)) {
-                return;
-            }
-        }
+		const hasPending = $('#orderBox [data-item-status="pending"]').length > 0;
+		if (hasPending) {
+			alert('<?= esc(lang('app.pending_items_must_send_first')) ?>');
+			return;
+		}
 
-        const total = getBillTotalNumber();
+		const total = getBillTotalNumber();
 
-        if (total === 0) {
-            if (!confirm(TXT.zeroBillConfirm)) {
-                return;
-            }
+		if (total === 0) {
+			if (!confirm(TXT.zeroBillConfirm)) {
+				return;
+			}
 
-            $.post("<?= site_url('pos/pay') ?>", {
-                order_id: CURRENT_ORDER_ID,
-                payment_method: 'cash',
-                amount: 0
-            }).done(function () {
-                alert(TXT.closeBillSuccess);
-                CURRENT_ORDER_ID = null;
-                CURRENT_ORDER_STATUS = null;
-                loadOrder();
-            });
+			$.post("<?= site_url('pos/pay') ?>", {
+				order_id: CURRENT_ORDER_ID,
+				payment_method: 'cash',
+				amount: 0
+			}).done(function (res) {
+				if (!res || res.status !== 'success') {
+					alert((res && res.message) ? res.message : TXT.paymentFailed);
+					return;
+				}
 
-            return;
-        }
+				alert(res.message || TXT.closeBillSuccess);
+				CURRENT_ORDER_ID = null;
+				CURRENT_ORDER_STATUS = null;
+				loadOrder();
+			});
 
-        openPaymentModal();
-    });
+			return;
+		}
+
+		openPaymentModal();
+	});
 
     $(document).on('click', '.category-btn', function () {
         const categoryId = $(this).data('id');

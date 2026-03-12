@@ -6,6 +6,9 @@ use App\Models\KitchenLogModel;
 use App\Models\KitchenStationModel;
 use App\Models\KitchenTicketModel;
 use App\Models\OrderItemModel;
+use App\Models\OrderMergeModel;
+use App\Models\TableModel;
+use App\Models\OrderModel;
 
 class KitchenMonitorController extends BaseController
 {
@@ -13,6 +16,9 @@ class KitchenMonitorController extends BaseController
     protected $kitchenStationModel;
     protected $orderItemModel;
     protected $kitchenLogModel;
+    protected $orderMergeModel;
+    protected $tableModel;
+    protected $orderModel;
 
     public function __construct()
     {
@@ -20,6 +26,9 @@ class KitchenMonitorController extends BaseController
         $this->kitchenStationModel = new KitchenStationModel();
         $this->orderItemModel      = new OrderItemModel();
         $this->kitchenLogModel     = new KitchenLogModel();
+        $this->orderMergeModel     = new OrderMergeModel();
+        $this->tableModel          = new TableModel();
+        $this->orderModel          = new OrderModel();
     }
 
     protected function currentTenantId(): int
@@ -66,30 +75,30 @@ class KitchenMonitorController extends BaseController
     }
 
     protected function mapStatusToLogType(string $status): string
-	{
-		$status = strtolower(trim($status));
+    {
+        $status = strtolower(trim($status));
 
-		switch ($status) {
-			case 'pending':
-			case 'sent':
-				return 'new';
+        switch ($status) {
+            case 'pending':
+            case 'sent':
+                return 'new';
 
-			case 'cooking':
-				return 'cooking';
+            case 'cooking':
+                return 'cooking';
 
-			case 'ready':
-				return 'ready';
+            case 'ready':
+                return 'ready';
 
-			case 'served':
-				return 'served';
+            case 'served':
+                return 'served';
 
-			case 'cancel':
-				return 'cancel';
+            case 'cancel':
+                return 'cancel';
 
-			default:
-				return '';
-		}
-	}
+            default:
+                return '';
+        }
+    }
 
     protected function resolveBoardStatus(array $row): string
     {
@@ -134,6 +143,73 @@ class KitchenMonitorController extends BaseController
         ];
     }
 
+    protected function attachMergeInfoToRow(array $row): array
+    {
+        $tenantId = $this->currentTenantId();
+        $branchId = $this->currentBranchId();
+        $orderId  = (int) ($row['order_id'] ?? 0);
+
+        $row['is_merged'] = 0;
+        $row['merged_from_table_name'] = null;
+        $row['merged_to_table_name'] = null;
+        $row['merged_target_order_number'] = null;
+        $row['merged_reason'] = null;
+
+        if ($orderId <= 0) {
+            return $row;
+        }
+
+        $mergeBuilder = $this->orderMergeModel
+            ->where('tenant_id', $tenantId)
+            ->where('source_order_id', $orderId);
+
+        if ($branchId > 0) {
+            $mergeBuilder->groupStart()
+                ->where('branch_id', $branchId)
+                ->orWhere('branch_id', null)
+                ->orWhere('branch_id', 0)
+                ->groupEnd();
+        }
+
+        $merge = $mergeBuilder
+            ->orderBy('id', 'DESC')
+            ->first();
+
+        if (! $merge) {
+            return $row;
+        }
+
+        $row['is_merged'] = 1;
+        $row['merged_reason'] = $merge['reason'] ?? null;
+
+        $sourceTableId = (int) ($merge['source_table_id'] ?? 0);
+        $targetTableId = (int) ($merge['target_table_id'] ?? 0);
+        $targetOrderId = (int) ($merge['target_order_id'] ?? 0);
+
+        if ($sourceTableId > 0) {
+            $sourceTable = $this->tableModel->find($sourceTableId);
+            if ($sourceTable) {
+                $row['merged_from_table_name'] = $sourceTable['table_name'] ?? null;
+            }
+        }
+
+        if ($targetTableId > 0) {
+            $targetTable = $this->tableModel->find($targetTableId);
+            if ($targetTable) {
+                $row['merged_to_table_name'] = $targetTable['table_name'] ?? null;
+            }
+        }
+
+        if ($targetOrderId > 0) {
+            $targetOrder = $this->orderModel->find($targetOrderId);
+            if ($targetOrder) {
+                $row['merged_target_order_number'] = $targetOrder['order_number'] ?? null;
+            }
+        }
+
+        return $row;
+    }
+
     public function index()
     {
         $stationId = (int) ($this->request->getGet('station_id') ?? 0);
@@ -172,6 +248,8 @@ class KitchenMonitorController extends BaseController
         ];
 
         foreach ($rows as $row) {
+            $row = $this->attachMergeInfoToRow($row);
+
             $boardStatus = $this->resolveBoardStatus($row);
             $row['board_status'] = $boardStatus;
             $row['status_label'] = $this->statusLabels()[$boardStatus] ?? ucfirst($boardStatus);
@@ -269,19 +347,19 @@ class KitchenMonitorController extends BaseController
         }
 
         return $this->response->setJSON([
-		'status'  => 'success',
-		'message' => lang('app.save_success'),
-		'token'   => csrf_hash(),
-		'data'    => [
-			'item_id'        => $itemId,
-			'requested'      => strtolower(trim($requestedStatus)),
-			'stored_status'  => $status,
-			'display_status' => $this->resolveBoardStatus([
-				'item_status'    => $status,
-				'ticket_status'  => '',
-				'display_status' => '',
-			]),
-		],
-	]);
+            'status'  => 'success',
+            'message' => lang('app.save_success'),
+            'token'   => csrf_hash(),
+            'data'    => [
+                'item_id'        => $itemId,
+                'requested'      => strtolower(trim($requestedStatus)),
+                'stored_status'  => $status,
+                'display_status' => $this->resolveBoardStatus([
+                    'item_status'    => $status,
+                    'ticket_status'  => '',
+                    'display_status' => '',
+                ]),
+            ],
+        ]);
     }
 }
