@@ -180,6 +180,20 @@ class KitchenMonitorController extends BaseController
     {
         return $this->currentLocale() === 'th' ? $th : $en;
     }
+	
+	protected function canShowCancelDecisionActions(array $row): bool
+	{
+		$cancelRequestStatus = strtolower((string) ($row['cancel_request_status'] ?? ''));
+		$itemStatus          = strtolower((string) ($row['item_status'] ?? $row['status'] ?? ''));
+		$prevStatus          = strtolower((string) ($row['cancel_request_prev_status'] ?? ''));
+
+		if ($cancelRequestStatus !== 'pending') {
+			return false;
+		}
+
+		// กรณีที่เคย served แล้ว หรือสถานะก่อนหน้าคือ served
+		return $itemStatus === 'served' || $prevStatus === 'served';
+	}
 
     protected function getScopedItemFull(int $itemId): ?array
     {
@@ -248,37 +262,58 @@ class KitchenMonitorController extends BaseController
     }
 
     protected function resolveBoardStatus(array $row): string
-    {
-        $displayStatus = strtolower((string) ($row['display_status'] ?? ''));
-        if (in_array($displayStatus, ['new', 'preparing', 'ready', 'served'], true)) {
-            return $displayStatus;
-        }
+	{
+		$displayStatus = strtolower((string) ($row['display_status'] ?? ''));
+		if (in_array($displayStatus, ['new', 'preparing', 'ready', 'served', 'cancel_request'], true)) {
+			return $displayStatus;
+		}
 
-        $itemStatus = strtolower((string) ($row['item_status'] ?? $row['status'] ?? ''));
-        $ticketStatus = strtolower((string) ($row['ticket_status'] ?? ''));
+		$cancelRequestStatus = strtolower((string) ($row['cancel_request_status'] ?? ''));
+		$cancelPrevStatus    = strtolower((string) ($row['cancel_request_prev_status'] ?? ''));
+		$itemStatus          = strtolower((string) ($row['item_status'] ?? $row['status'] ?? ''));
+		$ticketStatus        = strtolower((string) ($row['ticket_status'] ?? ''));
 
-        if ($itemStatus === 'served') {
-            return 'served';
-        }
+		// สำคัญมาก:
+		// ถ้ามีคำขอยกเลิกค้างอยู่ ให้แยกออกจากคอลัมน์ served ทันที
+		if ($cancelRequestStatus === 'pending') {
+			return 'cancel_request';
+		}
 
-        if ($itemStatus === 'ready') {
-            return 'ready';
-        }
+		// ถ้าครัวปฏิเสธ ให้ย้อนกลับไปแสดงตามสถานะก่อนกดยกเลิก
+		if ($cancelRequestStatus === 'rejected' && in_array($cancelPrevStatus, ['new', 'preparing', 'ready', 'served'], true)) {
+			return $cancelPrevStatus;
+		}
 
-        if ($itemStatus === 'cooking') {
-            return 'preparing';
-        }
+		if ($itemStatus === 'served') {
+			return 'served';
+		}
 
-        if (in_array($itemStatus, ['pending', 'sent'], true)) {
-            if ($itemStatus === 'sent' && $ticketStatus === 'done') {
-                return 'ready';
-            }
+		if ($itemStatus === 'ready') {
+			return 'ready';
+		}
 
-            return 'new';
-        }
+		if (in_array($itemStatus, ['preparing', 'cooking', 'doing'], true)) {
+			return 'preparing';
+		}
 
-        return 'new';
-    }
+		if ($itemStatus === 'new') {
+			return 'new';
+		}
+
+		if ($ticketStatus === 'served') {
+			return 'served';
+		}
+
+		if ($ticketStatus === 'ready') {
+			return 'ready';
+		}
+
+		if (in_array($ticketStatus, ['preparing', 'cooking', 'doing'], true)) {
+			return 'preparing';
+		}
+
+		return 'new';
+	}
 
     protected function statusLabels(): array
     {
@@ -398,6 +433,10 @@ class KitchenMonitorController extends BaseController
 
             $boardStatus = $this->resolveBoardStatus($row);
             $row['board_status'] = $boardStatus;
+			$row['show_cancel_decision_actions'] = $this->canShowCancelDecisionActions($row);
+			$row['cancel_request_is_pending']    = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'pending';
+			$row['cancel_request_is_rejected']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'rejected';
+			$row['cancel_request_is_approved']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'approved';
             $row['status_label'] = $this->statusLabels()[$boardStatus] ?? ucfirst($boardStatus);
             $grouped[$boardStatus][] = $row;
         }

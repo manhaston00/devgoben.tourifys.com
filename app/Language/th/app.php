@@ -1015,4 +1015,13 @@ return [
 'merged_bill' => 'รวมบิล',
 'merged_from_to' => 'รวมจาก {0} ไป {1}',
 'merged_order_status' => 'รวมเข้าบิลอื่นแล้ว',
+'kds_compact_mode' => 'โหมดจอกระชับ',
+'kds_focus_mode'   => 'โหมดโฟกัส',
+'kds_history'      => 'ย้อนหลังที่เสิร์ฟแล้ว',
+'kds_toggle_header'=> 'ย่อส่วนบน',
+'kds_expand_header'=> 'ขยายส่วนบน',
+'kds_search'       => 'ค้นหาโต๊ะ / ออเดอร์ / เมนู / หมายเหตุ',
+'kds_clear'        => 'ล้าง',
+'kds_served_history'=> 'ประวัติการเสิร์ฟ',
+'kds_no_history'   => 'ไม่มีข้อมูลย้อนหลัง',
 ];

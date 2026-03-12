@@ -3,7 +3,8 @@
 
 <div class="card card-soft kitchen-monitor-page" id="kitchenMonitorPage">
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+        <div id="kdsHeaderBlock" class="kds-header-block">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3 kds-top-toolbar">
             <div>
                 <h4 class="mb-1"><?= esc($title ?? lang('app.kitchen_monitor')) ?></h4>
                 <div class="text-muted small"><?= esc(lang('app.kitchen_monitor_desc')) ?></div>
@@ -45,6 +46,14 @@
                     <?= esc(lang('app.refresh')) ?>
                 </button>
 
+                <button type="button" class="btn btn-outline-secondary" id="servedHistoryBtn">
+                    <?= esc(service('request')->getLocale() === 'th' ? 'ย้อนหลังที่เสิร์ฟแล้ว' : 'Served history') ?>
+                </button>
+
+                <button type="button" class="btn btn-outline-dark" id="compactHeaderBtn">
+                    <?= esc(service('request')->getLocale() === 'th' ? 'โหมดย่อส่วนบน' : 'Compact header') ?>
+                </button>
+
                 <button type="button" class="btn btn-dark" id="focusModeBtn">
                     <?= esc(lang('app.kitchen_focus_mode')) ?>
                 </button>
@@ -55,7 +64,7 @@
             </div>
         </div>
 
-        <div class="row g-3 mb-3">
+        <div class="row g-3 mb-3" id="kdsSummaryRow">
             <div class="col-xl-3 col-md-6">
                 <div class="kds-summary-card kds-summary-card-main">
                     <div class="kds-summary-label"><?= esc(lang('app.kitchen_queue_total')) ?></div>
@@ -87,9 +96,19 @@
                     <div class="kds-summary-help"><?= esc(lang('app.kitchen_ready_queue')) ?></div>
                 </div>
             </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="kds-summary-card kds-summary-card-cancel-request">
+                    <div class="kds-summary-label"><?= esc(service('request')->getLocale() === 'th' ? 'คำขอยกเลิก' : 'Cancel requests') ?></div>
+                    <div class="kds-summary-number" id="summary-cancel-request">0</div>
+                    <div class="kds-summary-help"><?= esc(service('request')->getLocale() === 'th' ? 'รายการที่รอครัวอนุมัติหรือปฏิเสธ' : 'Items waiting for kitchen approval or rejection') ?></div>
+                </div>
+            </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 kds-sticky-filter-bar" id="kdsStickyFilterBar">
             <div class="d-flex flex-wrap gap-2" id="quickFilters">
                 <button type="button" class="btn btn-dark kitchen-filter-btn active" data-filter="all">
                     <?= esc(lang('app.all')) ?>
@@ -102,6 +121,9 @@
                 </button>
                 <button type="button" class="btn btn-outline-info kitchen-filter-btn" data-filter="ready">
                     <?= esc(lang('app.status_ready')) ?>
+                </button>
+                <button type="button" class="btn btn-outline-danger kitchen-filter-btn" data-filter="cancel_request">
+                    <?= esc(service('request')->getLocale() === 'th' ? 'คำขอยกเลิก' : 'Cancel requests') ?>
                 </button>
                 <button type="button" class="btn btn-outline-success kitchen-filter-btn" data-filter="served">
                     <?= esc(lang('app.status_served')) ?>
@@ -117,7 +139,7 @@
         </div>
 
         <div class="row g-3" id="kdsBoard">
-            <div class="col-xxl-3 col-lg-6 kds-col-wrap" data-col="new">
+            <div class="col-xxl kds-col-wrap" data-col="new">
                 <div class="card border-0 shadow-sm h-100 kds-column-card">
                     <div class="card-header kds-col-header d-flex justify-content-between align-items-center">
                         <span><?= esc(lang('app.status_new')) ?></span>
@@ -127,7 +149,7 @@
                 </div>
             </div>
 
-            <div class="col-xxl-3 col-lg-6 kds-col-wrap" data-col="preparing">
+            <div class="col-xxl kds-col-wrap" data-col="preparing">
                 <div class="card border-0 shadow-sm h-100 kds-column-card">
                     <div class="card-header kds-col-header d-flex justify-content-between align-items-center">
                         <span><?= esc(lang('app.status_preparing')) ?></span>
@@ -137,7 +159,7 @@
                 </div>
             </div>
 
-            <div class="col-xxl-3 col-lg-6 kds-col-wrap" data-col="ready">
+            <div class="col-xxl kds-col-wrap" data-col="ready">
                 <div class="card border-0 shadow-sm h-100 kds-column-card">
                     <div class="card-header kds-col-header d-flex justify-content-between align-items-center">
                         <span><?= esc(lang('app.status_ready')) ?></span>
@@ -147,7 +169,17 @@
                 </div>
             </div>
 
-            <div class="col-xxl-3 col-lg-6 kds-col-wrap" data-col="served">
+            <div class="col-xxl kds-col-wrap" data-col="cancel_request">
+                <div class="card border-0 shadow-sm h-100 kds-column-card">
+                    <div class="card-header kds-col-header d-flex justify-content-between align-items-center">
+                        <span><?= esc(service('request')->getLocale() === 'th' ? 'คำขอยกเลิก' : 'Cancel requests') ?></span>
+                        <span class="badge bg-danger kds-col-count" id="count-cancel-request">0</span>
+                    </div>
+                    <div class="card-body bg-light kds-column-body" id="col-cancel-request"></div>
+                </div>
+            </div>
+
+            <div class="col-xxl kds-col-wrap" data-col="served">
                 <div class="card border-0 shadow-sm h-100 kds-column-card">
                     <div class="card-header kds-col-header d-flex justify-content-between align-items-center">
                         <span><?= esc(lang('app.status_served')) ?></span>
@@ -155,6 +187,44 @@
                     </div>
                     <div class="card-body bg-light kds-column-body" id="col-served"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="servedHistoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-1" id="servedHistoryTitle"><?= esc(service('request')->getLocale() === 'th' ? 'ย้อนหลังที่เสิร์ฟแล้ว' : 'Served history') ?></h5>
+                    <div class="small text-muted" id="servedHistorySubTitle"><?= esc(lang('app.kitchen_monitor_desc')) ?></div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-lg-6">
+                        <div class="input-group">
+                            <span class="input-group-text">🔎</span>
+                            <input type="text" class="form-control" id="servedHistorySearchInput" placeholder="<?= esc(lang('app.kitchen_search_placeholder')) ?>">
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <select class="form-select" id="servedHistoryRange">
+                            <option value="today"><?= esc(service('request')->getLocale() === 'th' ? 'วันนี้' : 'Today') ?></option>
+                            <option value="1h"><?= esc(service('request')->getLocale() === 'th' ? '1 ชั่วโมงล่าสุด' : 'Last 1 hour') ?></option>
+                            <option value="3h"><?= esc(service('request')->getLocale() === 'th' ? '3 ชั่วโมงล่าสุด' : 'Last 3 hours') ?></option>
+                            <option value="all"><?= esc(lang('app.all') ?? 'All') ?></option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3 d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary w-100" id="servedHistoryClearBtn"><?= esc(lang('app.clear')) ?></button>
+                    </div>
+                </div>
+                <div class="served-history-meta mb-3" id="servedHistoryMeta"></div>
+                <div class="served-history-list" id="servedHistoryList"></div>
             </div>
         </div>
     </div>
@@ -179,6 +249,37 @@
         color: #fff !important;
         background-color: #111827 !important;
         border-color: #111827 !important;
+    }
+
+    #kdsSummaryRow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    #kdsSummaryRow > [class*="col-"] {
+        width: auto;
+        max-width: none;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    @media (max-width: 1399.98px) {
+        #kdsSummaryRow {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        #kdsSummaryRow {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        #kdsSummaryRow {
+            grid-template-columns: 1fr;
+        }
     }
 
     .kds-summary-card {
@@ -215,6 +316,10 @@
         background: #06b6d4;
     }
 
+    .kds-summary-card-cancel-request::before {
+        background: #dc3545;
+    }
+
     .kds-summary-label {
         font-size: 12px;
         font-weight: 800;
@@ -246,6 +351,10 @@
 
     .kds-summary-card-new .kds-summary-number {
         color: #4b5563;
+    }
+
+    .kds-summary-card-cancel-request .kds-summary-number {
+        color: #b91c1c;
     }
 
     .kds-summary-help {
@@ -472,6 +581,15 @@
         text-align: center;
     }
 
+    .kds-sticky-filter-bar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #fff;
+        padding: 0 0 6px;
+    }
+
+
     .kds-focus-mode .sidebar,
     .kds-focus-mode .app-sidebar,
     .kds-focus-mode aside,
@@ -523,6 +641,28 @@
 		padding: 8px 10px;
 		margin-top: 10px;
 	}
+
+    .kds-cancel-request-box {
+        border: 1px dashed rgba(220, 53, 69, 0.55);
+        background: rgba(220, 53, 69, 0.08);
+        border-radius: 10px;
+        padding: 8px 10px;
+        margin-top: 10px;
+    }
+
+    .kds-cancel-decision-actions {
+        display: grid;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .kds-cancel-decision-btn {
+        width: 100%;
+        min-height: 46px;
+        font-size: 16px;
+        font-weight: 800;
+        border-radius: 12px;
+    }
 
     @media (max-width: 1200px) {
         .kds-search-group {
@@ -609,17 +749,148 @@
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
+
+
+    .kds-top-toolbar {
+        transition: all .2s ease;
+    }
+
+    .kds-header-block {
+        transition: all .2s ease;
+    }
+
+    .kds-sticky-filter-bar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: #fff;
+        padding-top: 4px;
+        padding-bottom: 8px;
+    }
+
+    .kds-compact .kitchen-monitor-page .card-body {
+        padding-top: 12px;
+    }
+
+    .kds-compact #kdsHeaderBlock {
+        margin-bottom: 8px !important;
+    }
+
+    .kds-compact .kds-top-toolbar {
+        gap: .5rem !important;
+        margin-bottom: .5rem !important;
+        align-items: center !important;
+    }
+
+    .kds-compact .kds-top-toolbar > div:first-child {
+        display: none !important;
+    }
+
+    .kds-compact .kds-top-toolbar .d-flex.align-items-center.gap-2.flex-wrap {
+        width: 100%;
+    }
+
+    .kds-compact .kds-search-group {
+        min-width: 280px;
+        flex: 1 1 320px;
+    }
+
+    .kds-compact .kds-station-filter {
+        min-width: 200px;
+    }
+
+    .kds-compact #kdsSummaryRow {
+        display: none !important;
+    }
+
+    .kds-compact .kds-sticky-filter-bar {
+        position: sticky;
+        top: 0;
+        z-index: 11;
+        background: #fff;
+        padding: 8px 0 10px;
+        margin-bottom: 10px !important;
+        border-bottom: 1px solid rgba(0,0,0,.06);
+    }
+
+    .kds-compact .kds-column-body {
+        height: 78vh;
+    }
+
+    .kds-compact .kds-col-header {
+        padding: 8px 12px;
+    }
+
+    .served-history-meta {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .served-history-card {
+        border: 1px solid rgba(0,0,0,.08);
+        border-radius: 14px;
+        background: #fff;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.04);
+    }
+
+    .served-history-card .title {
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .served-history-card .sub {
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .served-history-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid rgba(0,0,0,.08);
+        background: #f8fafc;
+    }
+
+    .served-history-empty {
+        border: 1px dashed rgba(0,0,0,.12);
+        border-radius: 14px;
+        padding: 20px;
+        text-align: center;
+        color: #6b7280;
+        background: #fafafa;
+    }
+
 </style>
 
+<?= $this->endSection() ?>
+
+
+<?= $this->section('scripts') ?>
 <script>
 (function () {
     const stationFilter = document.getElementById('stationFilter');
     const searchInput = document.getElementById('searchInput');
     const clearSearchBtn = document.getElementById('clearSearchBtn');
     const refreshBoardBtn = document.getElementById('refreshBoardBtn');
+    const servedHistoryBtn = document.getElementById('servedHistoryBtn');
+    const compactHeaderBtn = document.getElementById('compactHeaderBtn');
     const focusModeBtn = document.getElementById('focusModeBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const hideEmptyColumns = document.getElementById('hideEmptyColumns');
+    const servedHistorySearchInput = document.getElementById('servedHistorySearchInput');
+    const servedHistoryRange = document.getElementById('servedHistoryRange');
+    const servedHistoryClearBtn = document.getElementById('servedHistoryClearBtn');
+    const servedHistoryMeta = document.getElementById('servedHistoryMeta');
+    const servedHistoryList = document.getElementById('servedHistoryList');
+    const servedHistoryModalEl = document.getElementById('servedHistoryModal');
+    const servedHistoryModal = servedHistoryModalEl ? new bootstrap.Modal(servedHistoryModalEl) : null;
     const pollSeconds = <?= (int) ($pollingSeconds ?? 5) ?>;
 
     let lastNewCount = 0;
@@ -627,6 +898,9 @@
     let isLoadingBoard = false;
     let quickFilter = 'all';
     let focusMode = false;
+    let compactMode = false;
+    let servedHistoryRows = [];
+    let lastBoardData = { new: [], preparing: [], ready: [], cancel_request: [], served: [] };
 
     const locale = '<?= esc(service('request')->getLocale()) ?>';
     const isThaiLocale = locale === 'th';
@@ -669,12 +943,20 @@
 		readyHint: isThaiLocale ? 'รายการนี้พร้อมส่งออกแล้ว' : 'This item is ready to go',
 		servedHint: isThaiLocale ? 'ปิดงานรายการนี้แล้ว' : 'This item is completed',
 		preparingHint: isThaiLocale ? 'รายการนี้กำลังทำอยู่' : 'This item is being prepared',
-		cancelRequestLabel: isThaiLocale ? 'รออนุมัติยกเลิก' : 'Cancel request',
-		approveCancel: isThaiLocale ? 'อนุมัติยกเลิก' : 'Approve cancel',
-		rejectCancel: isThaiLocale ? 'ปฏิเสธการยกเลิก' : 'Reject cancel',
-		cancelRequestHint: isThaiLocale ? 'มีคำขอยกเลิกรายการนี้จาก POS' : 'A cancel request was sent from POS',
-		cancelApproveConfirm: isThaiLocale ? 'ยืนยันอนุมัติยกเลิกรายการนี้ใช่หรือไม่?' : 'Approve this cancel request?',
-		cancelRejectConfirm: isThaiLocale ? 'ยืนยันปฏิเสธการยกเลิกรายการนี้ใช่หรือไม่?' : 'Reject this cancel request?'
+		compactEnter: isThaiLocale ? 'ย่อส่วนบน' : 'Compact header',
+		compactExit: isThaiLocale ? 'กลับสู่โหมดปกติ' : 'Back to normal view',
+		servedHistory: isThaiLocale ? 'ย้อนหลังที่เสิร์ฟแล้ว' : 'Served history',
+		servedHistoryEmpty: isThaiLocale ? 'ยังไม่มีข้อมูลย้อนหลังที่เสิร์ฟแล้ว' : 'No served history yet',
+		servedCount: isThaiLocale ? 'จำนวนรายการย้อนหลัง' : 'History items',
+		lastUpdated: isThaiLocale ? 'อัปเดตล่าสุด' : 'Last updated',
+		timeRangeToday: isThaiLocale ? 'วันนี้' : 'Today',
+		timeRange1h: isThaiLocale ? '1 ชั่วโมงล่าสุด' : 'Last 1 hour',
+		timeRange3h: isThaiLocale ? '3 ชั่วโมงล่าสุด' : 'Last 3 hours',
+		timeRangeAll: isThaiLocale ? 'ทั้งหมด' : 'All',
+		noteCashierReview: isThaiLocale ? 'แก้ไขบิลเชิงการเงินให้ทำในหน้าแคชเชียร์' : 'Use cashier screen for bill adjustments',
+		historyTable: isThaiLocale ? 'โต๊ะ' : 'Table',
+		historyServedAt: isThaiLocale ? 'เวลาเสิร์ฟ' : 'Served at',
+		historyReason: isThaiLocale ? 'หมายเหตุ' : 'Note'
 	};
 
     const csrfName = <?= json_encode(csrf_token()) ?>;
@@ -762,8 +1044,13 @@
 
     function normalizeBoardStatus(item) {
         const boardStatus = String(item.board_status || '').toLowerCase().trim();
-        if (['new', 'preparing', 'ready', 'served'].includes(boardStatus)) {
+        if (['new', 'preparing', 'ready', 'served', 'cancel_request'].includes(boardStatus)) {
             return boardStatus;
+        }
+
+        const requestStatus = String(item.cancel_request_status || '').toLowerCase().trim();
+        if (requestStatus === 'pending' || requestStatus === 'requested' || requestStatus === 'waiting') {
+            return 'cancel_request';
         }
 
         const itemStatus = String(item.item_status || '').toLowerCase().trim();
@@ -777,7 +1064,7 @@
             return 'ready';
         }
 
-        if (itemStatus === 'cooking') {
+        if (itemStatus === 'cooking' || itemStatus === 'preparing' || itemStatus === 'doing') {
             return 'preparing';
         }
 
@@ -837,6 +1124,9 @@
         } else if (boardStatus === 'ready') {
             meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-serve">🛎 ${escapeHtml(i18n.serveNow)}</span>`);
             meta.hint = i18n.readyHint;
+        } else if (boardStatus === 'cancel_request') {
+            meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-danger">🛑 ${escapeHtml(i18n.cancelRequestPending)}</span>`);
+            meta.hint = i18n.cancelRequestHint;
         } else if (boardStatus === 'served') {
             meta.hint = i18n.servedHint;
         }
@@ -854,12 +1144,6 @@
             meta.hint = i18n.waitingHint;
         }
 
-        if (String(item.cancel_request_status || '').toLowerCase().trim() === 'pending') {
-            meta.cardClass += ' kds-attention-alert';
-            meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-alert">❗ ${escapeHtml(i18n.cancelRequestLabel)}</span>`);
-            meta.hint = i18n.cancelRequestHint;
-        }
-
         if (boardStatus === 'served') {
             meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-serve">✅ ${escapeHtml(i18n.doneState)}</span>`);
         }
@@ -870,33 +1154,35 @@
     function renderActionButtons(item) {
         const boardStatus = normalizeBoardStatus(item);
         const action = getActionConfig(boardStatus);
-        const requestStatus = String(item.cancel_request_status || '').toLowerCase().trim();
 
         const itemId = Number(item.order_item_id || item.item_id || 0);
         if (!itemId) {
             return '';
         }
 
+        const requestStatus = String(item.cancel_request_status || '').toLowerCase().trim();
         let html = '';
 
-        if (requestStatus === 'pending') {
+        if (boardStatus === 'cancel_request' && requestStatus === 'pending') {
             html += `
-                <button
-                    type="button"
-                    class="btn btn-danger kitchen-status-btn"
-                    data-item-id="${itemId}"
-                    data-status="cancel_approved">
-                    ❌ ${escapeHtml(i18n.approveCancel)}
-                </button>
-                <button
-                    type="button"
-                    class="btn btn-outline-secondary kitchen-status-btn"
-                    data-item-id="${itemId}"
-                    data-status="cancel_rejected">
-                    ↩ ${escapeHtml(i18n.rejectCancel)}
-                </button>
-            `;
+                <div class="kds-cancel-decision-actions">
+                    <button
+                        type="button"
+                        class="btn btn-danger kds-cancel-decision-btn kitchen-status-btn"
+                        data-item-id="${itemId}"
+                        data-status="cancel_approved">
+                        ${escapeHtml(i18n.cancelRequestApprove)}
+                    </button>
 
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary kds-cancel-decision-btn kitchen-status-btn"
+                        data-item-id="${itemId}"
+                        data-status="cancel_rejected">
+                        ${escapeHtml(i18n.cancelRequestReject)}
+                    </button>
+                </div>
+            `;
             return html;
         }
 
@@ -912,7 +1198,7 @@
             `;
         }
 
-        if (boardStatus !== 'served') {
+        if (boardStatus !== 'served' && boardStatus !== 'cancel_request') {
             html += `
                 <button
                     type="button"
@@ -941,11 +1227,57 @@
 			item.merged_from_table_name || '',
 			item.merged_to_table_name || '',
 			item.merged_target_order_number || '',
-			item.merged_reason || '',
-			item.cancel_request_note || '',
-			item.cancel_request_status || ''
+			item.merged_reason || ''
 		].join(' ').toLowerCase();
 	}
+
+    function renderCancelRequestBox(item, boardStatus) {
+        const requestStatus = String(item.cancel_request_status || '').toLowerCase().trim();
+        if (!requestStatus) {
+            return '';
+        }
+
+        const reason = item.cancel_request_reason || item.cancel_request_note || '';
+        const requestedAt = item.cancel_requested_at || item.requested_at || '';
+        const previousStatus = String(item.cancel_request_prev_status || item.previous_status || item.item_status || '').toLowerCase().trim();
+
+        if (boardStatus === 'cancel_request' || requestStatus === 'pending') {
+            return `
+                <div class="kds-cancel-request-box">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge text-bg-danger">${escapeHtml(i18n.cancelRequestPending)}</span>
+                        <span class="small fw-semibold">${escapeHtml(i18n.previousStatus)}: ${escapeHtml(previousStatus ? previousStatus.toUpperCase() : i18n.servedState)}</span>
+                    </div>
+                    ${reason ? `<div class="small text-muted mt-1">${escapeHtml(i18n.cancelReason)}: ${escapeHtml(reason)}</div>` : ''}
+                    ${requestedAt ? `<div class="small text-muted mt-1">${escapeHtml(i18n.requestedAt)}: ${escapeHtml(formatDateTime(requestedAt))}</div>` : ''}
+                </div>
+            `;
+        }
+
+        if (requestStatus === 'rejected') {
+            return `
+                <div class="kds-cancel-request-box">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge text-bg-danger">${escapeHtml(i18n.cancelRequestRejected)}</span>
+                    </div>
+                    ${reason ? `<div class="small text-muted mt-1">${escapeHtml(i18n.cancelReason)}: ${escapeHtml(reason)}</div>` : ''}
+                </div>
+            `;
+        }
+
+        if (requestStatus === 'approved') {
+            return `
+                <div class="kds-cancel-request-box">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge text-bg-success">${escapeHtml(i18n.cancelRequestApproved)}</span>
+                    </div>
+                    ${reason ? `<div class="small text-muted mt-1">${escapeHtml(i18n.cancelReason)}: ${escapeHtml(reason)}</div>` : ''}
+                </div>
+            `;
+        }
+
+        return '';
+    }
 
     function renderCard(item, indexInColumn) {
         const boardStatus = normalizeBoardStatus(item);
@@ -981,10 +1313,6 @@
 		const mergedTargetOrderNo = item.merged_target_order_number || '';
 		const mergedReason = item.merged_reason || '';
 		const isMerged = Number(item.is_merged || 0) === 1 || (!!mergedFrom && !!mergedTo && mergedFrom !== mergedTo);
-        const requestStatus = String(item.cancel_request_status || '').toLowerCase().trim();
-        const cancelRequestHtml = requestStatus === 'pending'
-            ? `<div class="kds-merge-box"><div class="fw-semibold text-danger">${escapeHtml(i18n.cancelRequestLabel)}</div><div class="small">${escapeHtml(i18n.cancelRequestHint)}</div>${item.cancel_request_note ? `<div class="small text-muted mt-1">${escapeHtml(item.cancel_request_note)}</div>` : ''}</div>`
-            : '';
 
 		const moveInfoHtml = (movedFrom && movedTo && movedFrom !== movedTo) ? `
 			<div class="kds-move-box">
@@ -1046,6 +1374,8 @@
                 ${moveInfoHtml}
 				${mergeInfoHtml}
 
+                ${renderCancelRequestBox(item, boardStatus)}
+
 				<div class="kds-item-title mt-2 mb-2">${escapeHtml(item.product_name || '-')}</div>
 
                 ${item.item_detail ? `<div class="kds-item-sub text-muted mt-1">${escapeHtml(item.item_detail)}</div>` : ''}
@@ -1087,18 +1417,21 @@
         const newCount = (data.new || []).length;
         const preparingCount = (data.preparing || []).length;
         const readyCount = (data.ready || []).length;
+        const cancelRequestCount = (data.cancel_request || []).length;
         const servedCount = (data.served || []).length;
-        const totalActive = newCount + preparingCount + readyCount;
+        const totalActive = newCount + preparingCount + readyCount + cancelRequestCount;
 
         document.getElementById('count-new').textContent = newCount;
         document.getElementById('count-preparing').textContent = preparingCount;
         document.getElementById('count-ready').textContent = readyCount;
+        document.getElementById('count-cancel-request').textContent = cancelRequestCount;
         document.getElementById('count-served').textContent = servedCount;
 
         document.getElementById('summary-total-active').textContent = totalActive;
         document.getElementById('summary-new').textContent = newCount;
         document.getElementById('summary-preparing').textContent = preparingCount;
         document.getElementById('summary-ready').textContent = readyCount;
+        document.getElementById('summary-cancel-request').textContent = cancelRequestCount;
     }
 
     function playBeep() {
@@ -1172,6 +1505,136 @@
         });
     }
 
+
+    function getServedHistoryStorageKey() {
+        const branch = <?= json_encode((string) (session('branch_id') ?? '0')) ?>;
+        const tenant = <?= json_encode((string) (session('tenant_id') ?? '0')) ?>;
+        return `kds_served_history_${tenant}_${branch}`;
+    }
+
+    function restoreServedHistory() {
+        try {
+            const raw = sessionStorage.getItem(getServedHistoryStorageKey());
+            servedHistoryRows = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(servedHistoryRows)) {
+                servedHistoryRows = [];
+            }
+        } catch (e) {
+            servedHistoryRows = [];
+        }
+    }
+
+    function persistServedHistory() {
+        try {
+            sessionStorage.setItem(getServedHistoryStorageKey(), JSON.stringify(servedHistoryRows.slice(0, 200)));
+        } catch (e) {
+            console.error('Served history storage error:', e);
+        }
+    }
+
+    function normalizeServedHistoryItem(row) {
+        const itemId = Number(row.order_item_id || row.item_id || row.id || 0);
+        return {
+            history_key: `${itemId}_${row.served_at || row.updated_at || row.sent_at || ''}`,
+            item_id: itemId,
+            order_number: row.order_number || row.ticket_no || '#',
+            table_name: row.table_name || '-',
+            product_name: row.product_name || '-',
+            item_detail: row.item_detail || '',
+            note: row.note || '',
+            qty: Number(row.qty || 1),
+            station_name: row.station_display_name || row.station_name || i18n.kitchen,
+            served_at: row.served_at || row.updated_at || row.sent_at || '',
+            sent_at: row.sent_at || '',
+            board_status: normalizeBoardStatus(row)
+        };
+    }
+
+    function syncServedHistory(rows) {
+        const incoming = (rows || []).map(normalizeServedHistoryItem);
+        if (!incoming.length) {
+            return;
+        }
+
+        const map = new Map(servedHistoryRows.map((row) => [row.history_key, row]));
+        incoming.forEach((row) => map.set(row.history_key, row));
+
+        servedHistoryRows = Array.from(map.values()).sort((a, b) => {
+            const da = new Date(String(a.served_at || '').replace(' ', 'T')).getTime() || 0;
+            const db = new Date(String(b.served_at || '').replace(' ', 'T')).getTime() || 0;
+            return db - da;
+        }).slice(0, 200);
+
+        persistServedHistory();
+        renderServedHistory();
+    }
+
+    function filterServedHistoryRows() {
+        const keyword = String(servedHistorySearchInput ? servedHistorySearchInput.value : '').trim().toLowerCase();
+        const range = String(servedHistoryRange ? servedHistoryRange.value : 'today');
+        const now = Date.now();
+
+        return servedHistoryRows.filter((row) => {
+            const servedTime = new Date(String(row.served_at || '').replace(' ', 'T')).getTime() || 0;
+            let passRange = true;
+            if (range === 'today') {
+                const d = new Date();
+                const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+                passRange = servedTime >= start;
+            } else if (range === '1h') {
+                passRange = servedTime >= (now - (60 * 60 * 1000));
+            } else if (range === '3h') {
+                passRange = servedTime >= (now - (3 * 60 * 60 * 1000));
+            }
+
+            const hay = [row.table_name, row.order_number, row.product_name, row.item_detail, row.note, row.station_name].join(' ').toLowerCase();
+            const passKeyword = !keyword || hay.includes(keyword);
+            return passRange && passKeyword;
+        });
+    }
+
+    function renderServedHistory() {
+        if (!servedHistoryList || !servedHistoryMeta) {
+            return;
+        }
+
+        const rows = filterServedHistoryRows();
+        const latest = rows.length ? formatDateTime(rows[0].served_at) : '-';
+        servedHistoryMeta.innerHTML = `${escapeHtml(i18n.servedCount)}: <strong>${rows.length}</strong> · ${escapeHtml(i18n.lastUpdated)}: <strong>${escapeHtml(latest)}</strong> · ${escapeHtml(i18n.noteCashierReview)}`;
+
+        if (!rows.length) {
+            servedHistoryList.innerHTML = `<div class="served-history-empty">${escapeHtml(i18n.servedHistoryEmpty)}</div>`;
+            return;
+        }
+
+        servedHistoryList.innerHTML = rows.map((row) => `
+            <div class="served-history-card">
+                <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap mb-2">
+                    <div>
+                        <div class="title">${escapeHtml(row.product_name)}</div>
+                        <div class="sub">${escapeHtml(i18n.historyTable)}: ${escapeHtml(row.table_name)} · ${escapeHtml(i18n.order)}: ${escapeHtml(row.order_number)}</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="served-history-chip">✅ ${escapeHtml(i18n.historyServedAt)}: ${escapeHtml(formatDateTime(row.served_at))}</div>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <span class="served-history-chip">${escapeHtml(i18n.itemCountLabel)} x ${escapeHtml(row.qty)}</span>
+                    <span class="served-history-chip">${escapeHtml(row.station_name)}</span>
+                </div>
+                ${row.item_detail ? `<div class="sub mb-1">${escapeHtml(row.item_detail)}</div>` : ''}
+                ${row.note ? `<div class="sub text-danger fw-semibold">${escapeHtml(i18n.historyReason)}: ${escapeHtml(row.note)}</div>` : ''}
+            </div>
+        `).join('');
+    }
+
+    function openServedHistory() {
+        renderServedHistory();
+        if (servedHistoryModal) {
+            servedHistoryModal.show();
+        }
+    }
+
     async function loadBoard() {
         if (isLoadingBoard) {
             return;
@@ -1198,11 +1661,14 @@
             }
 
             const data = json.data || {};
+            lastBoardData = data;
+            syncServedHistory(data.served || []);
             const newCount = (data.new || []).length;
 
             renderColumn('col-new', data.new || []);
             renderColumn('col-preparing', data.preparing || []);
             renderColumn('col-ready', data.ready || []);
+            renderColumn('col-cancel-request', data.cancel_request || []);
             renderColumn('col-served', data.served || []);
             updateCounts(data);
             applyClientFilters();
@@ -1226,6 +1692,7 @@
         }
 
         const normalizedStatus = String(status).toLowerCase();
+
         if (normalizedStatus === 'cancel') {
             const ok = window.confirm(i18n.cancelConfirm);
             if (!ok) {
@@ -1302,6 +1769,8 @@
                 el.className = 'btn btn-outline-warning kitchen-filter-btn';
             } else if (filter === 'ready') {
                 el.className = 'btn btn-outline-info kitchen-filter-btn';
+            } else if (filter === 'cancel_request') {
+                el.className = 'btn btn-outline-danger kitchen-filter-btn';
             } else if (filter === 'served') {
                 el.className = 'btn btn-outline-success kitchen-filter-btn';
             }
@@ -1320,8 +1789,25 @@
             activeBtn.className = 'btn btn-warning kitchen-filter-btn active';
         } else if (activeFilter === 'ready') {
             activeBtn.className = 'btn btn-info text-dark kitchen-filter-btn active';
+        } else if (activeFilter === 'cancel_request') {
+            activeBtn.className = 'btn btn-danger kitchen-filter-btn active';
         } else if (activeFilter === 'served') {
             activeBtn.className = 'btn btn-success kitchen-filter-btn active';
+        }
+    }
+
+
+    function applyCompactMode(enabled) {
+        compactMode = !!enabled;
+        document.body.classList.toggle('kds-compact', compactMode);
+        if (compactHeaderBtn) {
+            compactHeaderBtn.textContent = compactMode ? i18n.compactExit : i18n.compactEnter;
+            compactHeaderBtn.className = compactMode ? 'btn btn-primary' : 'btn btn-outline-dark';
+        }
+        try {
+            localStorage.setItem('kds_compact_mode', compactMode ? '1' : '0');
+        } catch (e) {
+            console.error('Compact mode storage error:', e);
         }
     }
 
@@ -1403,6 +1889,36 @@
         refreshBoardBtn.addEventListener('click', loadBoard);
     }
 
+    if (servedHistoryBtn) {
+        servedHistoryBtn.addEventListener('click', openServedHistory);
+    }
+
+    if (compactHeaderBtn) {
+        compactHeaderBtn.addEventListener('click', function () {
+            applyCompactMode(!compactMode);
+        });
+    }
+
+    if (servedHistorySearchInput) {
+        servedHistorySearchInput.addEventListener('input', renderServedHistory);
+    }
+
+    if (servedHistoryRange) {
+        servedHistoryRange.addEventListener('change', renderServedHistory);
+    }
+
+    if (servedHistoryClearBtn) {
+        servedHistoryClearBtn.addEventListener('click', function () {
+            if (servedHistorySearchInput) {
+                servedHistorySearchInput.value = '';
+            }
+            if (servedHistoryRange) {
+                servedHistoryRange.value = 'today';
+            }
+            renderServedHistory();
+        });
+    }
+
     if (focusModeBtn) {
         focusModeBtn.addEventListener('click', function () {
             applyFocusMode(!focusMode);
@@ -1423,15 +1939,19 @@
         if (localStorage.getItem('kds_focus_mode') === '1') {
             applyFocusMode(true);
         }
+        if (localStorage.getItem('kds_compact_mode') === '1') {
+            applyCompactMode(true);
+        }
     } catch (e) {
-        console.error('Focus mode restore error:', e);
+        console.error('Mode restore error:', e);
     }
 
+    restoreServedHistory();
+    renderServedHistory();
     applyFilterButtonStyles('all');
     updateFullscreenButton();
     loadBoard();
     setInterval(loadBoard, pollSeconds * 1000);
 })();
 </script>
-
 <?= $this->endSection() ?>

@@ -1018,4 +1018,13 @@ return [
 'merged_bill' => 'Merged Bill',
 'merged_from_to' => 'Merged from {0} to {1}',
 'merged_order_status' => 'Merged into another bill',
+'kds_compact_mode' => 'Compact Mode',
+'kds_focus_mode'   => 'Focus Mode',
+'kds_history'      => 'Served History',
+'kds_toggle_header'=> 'Collapse Header',
+'kds_expand_header'=> 'Expand Header',
+'kds_search'       => 'Search table / order / menu / note',
+'kds_clear'        => 'Clear',
+'kds_served_history'=> 'Served History',
+'kds_no_history'   => 'No history',
 ];

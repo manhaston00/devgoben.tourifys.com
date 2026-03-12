@@ -162,12 +162,15 @@
                     <h5 class="mb-0"><?= esc(lang('app.current_bill')) ?></h5>
                     <span class="small text-muted" id="orderNoLabel">-</span>
 					<div id="mergedNoticeBox" class="mt-2"></div>
-                    <div id="billRequestAlertBox" class="mt-2"></div>
                 </div>
+
+                <div id="billRequestAlertBox" class="mt-2"></div>
 
                 <div id="orderBox">
                     <div class="text-muted"><?= esc(lang('app.no_bill_yet')) ?></div>
                 </div>
+
+                <div id="canceledItemsBox"></div>
 
                 <hr>
 
@@ -489,7 +492,11 @@ $(function () {
         retryCancelRequest: <?= json_encode(service('request')->getLocale() === 'th' ? 'ขอยกเลิกอีกครั้ง' : 'Request cancel again', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         acknowledge: <?= json_encode(service('request')->getLocale() === 'th' ? 'รับทราบ' : 'Acknowledge', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         billHasPendingCancelRequest: <?= json_encode(service('request')->getLocale() === 'th' ? 'มีรายการรออนุมัติยกเลิก' : 'There are items waiting for cancel approval', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        billHasRejectedCancelRequest: <?= json_encode(service('request')->getLocale() === 'th' ? 'มีรายการถูกปฏิเสธการยกเลิก' : 'There are items with rejected cancel requests', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+        billHasRejectedCancelRequest: <?= json_encode(service('request')->getLocale() === 'th' ? 'มีรายการถูกปฏิเสธการยกเลิก' : 'There are items with rejected cancel requests', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        requestCancelToKitchen: <?= json_encode(service('request')->getLocale() === 'th' ? 'ขอยกเลิก' : 'Request cancel', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        requestCancelSentToKitchen: <?= json_encode(service('request')->getLocale() === 'th' ? 'ส่งคำขอยกเลิกไปที่ครัวแล้ว' : 'Cancel request sent to kitchen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        canceledItemsSection: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการที่ยกเลิกแล้ว' : 'Cancelled items', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        canceledItemsNoCharge: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการนี้ไม่คิดเงินแล้ว' : 'This item is no longer billable', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
     };
 
     const productOptionModalEl = document.getElementById('productOptionModal');
@@ -940,23 +947,29 @@ $(function () {
     }
 
     function renderItems(order, items) {
-        let html = '';
+        let activeHtml = '';
+        let canceledHtml = '';
 
         if (!items || items.length === 0) {
-            html = '<div class="text-muted">' + TXT.noItemsYet + '</div>';
+            activeHtml = '<div class="text-muted">' + TXT.noItemsYet + '</div>';
             $('#billRequestAlertBox').html('');
+            $('#canceledItemsBox').html('');
         } else {
             items.forEach(function (item) {
+                const normalizedStatus = String(item.status || 'pending').toLowerCase().trim();
                 const editable = canEditItem(item.status);
                 const requestState = getRequestStateMeta(item);
+                const isCanceled = normalizedStatus === 'cancel' || normalizedStatus === 'cancelled';
+                const canRequestCancel = !editable && !isCanceled && (!requestState || requestState.key === 'rejected');
 
                 let requestHtml = '';
-                let retryButtons = '';
+                let actionButtons = '';
+                let secondaryButtons = '';
 
                 if (requestState) {
                     requestHtml = `
                         <div class="mt-2">
-                            <div class="alert alert-${requestState.key === 'pending' ? 'warning' : requestState.key === 'rejected' ? 'danger' : 'success'} border-0 rounded-4 py-2 px-3 mb-2">
+                            <div class="alert alert-${requestState.key === 'pending' ? 'warning' : requestState.key === 'rejected' ? 'danger' : 'secondary'} border-0 rounded-4 py-2 px-3 mb-2">
                                 <div class="fw-semibold small">${escapeHtml(requestState.title)}</div>
                                 ${requestState.hint ? `<div class="small mt-1">${escapeHtml(requestState.hint)}</div>` : ''}
                             </div>
@@ -964,7 +977,7 @@ $(function () {
                     `;
 
                     if (requestState.key === 'rejected') {
-                        retryButtons = `
+                        secondaryButtons = `
                             <div class="d-flex gap-2 flex-wrap mt-2">
                                 <button type="button" class="btn btn-outline-danger btn-sm btn-retry-cancel-request" data-id="${item.id}">${escapeHtml(TXT.retryCancelRequest)}</button>
                                 <button type="button" class="btn btn-outline-secondary btn-sm btn-ack-cancel-request" data-id="${item.id}">${escapeHtml(TXT.acknowledge)}</button>
@@ -973,8 +986,33 @@ $(function () {
                     }
                 }
 
-                html += `
-                    <div class="border rounded-4 p-2 mb-2" data-item-status="${escapeHtml(item.status ?? 'pending')}" data-cancel-request-status="${escapeHtml(getCancelRequestStatus(item))}">
+                if (editable) {
+                    actionButtons = `
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-secondary btn-qty" data-id="${item.id}" data-type="minus">-</button>
+                            <button type="button" class="btn btn-outline-secondary btn-qty" data-id="${item.id}" data-type="plus">+</button>
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary btn-edit-item"
+                                data-id="${item.id}"
+                                data-product-id="${item.product_id ?? ''}"
+                                data-product-name="${escapeHtml(item.product_name ?? '')}"
+                                data-price="${item.price ?? 0}"
+                                data-item-detail="${escapeHtml(item.item_detail ?? '')}"
+                                data-note="${escapeHtml(item.note ?? '')}"
+                                data-status="${escapeHtml(item.status ?? '')}"
+                            >${TXT.edit}</button>
+                            <button type="button" class="btn btn-outline-danger btn-remove" data-id="${item.id}">${TXT.remove}</button>
+                        </div>
+                    `;
+                } else if (canRequestCancel) {
+                    actionButtons = `
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-request-cancel" data-id="${item.id}">${escapeHtml(TXT.requestCancelToKitchen)}</button>
+                    `;
+                }
+
+                const cardHtml = `
+                    <div class="border rounded-4 p-2 mb-2 ${isCanceled ? 'bg-light' : ''}" data-item-status="${escapeHtml(item.status ?? 'pending')}" data-cancel-request-status="${escapeHtml(getCancelRequestStatus(item))}">
                         <div class="d-flex justify-content-between align-items-start mb-1 gap-2">
                             <div class="fw-bold">${escapeHtml(item.product_name ?? '')}</div>
                             <span class="badge bg-${itemStatusBadge(item.status)}">${escapeHtml(itemStatusText(item.status ?? 'pending'))}</span>
@@ -987,33 +1025,41 @@ $(function () {
 
                         <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
                             <div>${money(item.price)} x ${item.qty}</div>
-                            <div class="btn-group btn-group-sm">
-                                <button type="button" class="btn btn-outline-secondary btn-qty" data-id="${item.id}" data-type="minus" ${editable ? '' : 'disabled'}>-</button>
-                                <button type="button" class="btn btn-outline-secondary btn-qty" data-id="${item.id}" data-type="plus" ${editable ? '' : 'disabled'}>+</button>
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-primary btn-edit-item"
-                                    data-id="${item.id}"
-                                    data-product-id="${item.product_id ?? ''}"
-                                    data-product-name="${escapeHtml(item.product_name ?? '')}"
-                                    data-price="${item.price ?? 0}"
-                                    data-item-detail="${escapeHtml(item.item_detail ?? '')}"
-                                    data-note="${escapeHtml(item.note ?? '')}"
-                                    data-status="${escapeHtml(item.status ?? '')}"
-                                    ${editable ? '' : 'disabled'}
-                                >${TXT.edit}</button>
-                                <button type="button" class="btn btn-outline-danger btn-remove" data-id="${item.id}" ${editable ? '' : 'disabled'}>${TXT.remove}</button>
+                            <div class="d-flex gap-2 flex-wrap">
+                                ${actionButtons}
                             </div>
                         </div>
 
-                        ${retryButtons}
+                        ${isCanceled ? `<div class="small text-danger mt-2 fw-semibold">${escapeHtml(TXT.canceledItemsNoCharge)}</div>` : ''}
+                        ${secondaryButtons}
                     </div>
                 `;
+
+                if (isCanceled) {
+                    canceledHtml += cardHtml;
+                } else {
+                    activeHtml += cardHtml;
+                }
             });
+
             renderBillRequestAlerts(items);
         }
 
-        $('#orderBox').html(html);
+        if (!activeHtml) {
+            activeHtml = '<div class="text-muted">' + TXT.noItemsYet + '</div>';
+        }
+
+        if (canceledHtml) {
+            canceledHtml = `
+                <div class="mt-3 pt-3 border-top">
+                    <div class="fw-bold mb-2 text-danger">${escapeHtml(TXT.canceledItemsSection)}</div>
+                    ${canceledHtml}
+                </div>
+            `;
+        }
+
+        $('#orderBox').html(activeHtml);
+        $('#canceledItemsBox').html(canceledHtml);
         $('#billTotal').text(money(order.total_price || 0));
     }
 
@@ -1347,6 +1393,25 @@ $(function () {
         .fail(function (xhr) {
             console.error('removeItem error:', xhr.responseText);
             alert(TXT.removeItemFailed);
+        });
+    });
+
+    $(document).on('click', '.btn-request-cancel', function () {
+        $.post("<?= site_url('pos/update-item-status') ?>", {
+            item_id: $(this).data('id'),
+            status: 'cancel_requested'
+        })
+        .done(function (res) {
+            if (res && res.status === 'error') {
+                alert(res.message || TXT.updateItemFailed);
+                return;
+            }
+            alert(TXT.requestCancelSentToKitchen);
+            loadOrder();
+        })
+        .fail(function (xhr) {
+            console.error('requestCancel error:', xhr.responseText);
+            alert(TXT.updateItemFailed);
         });
     });
 
