@@ -416,6 +416,44 @@ class POSController extends BaseController
         $this->orderItemOptionModel->deleteByOrderItem($itemId);
     }
 
+    protected function normalizeOrderItemStatus(?string $status): string
+    {
+        $status = strtolower(trim((string) $status));
+
+        $map = [
+            ''           => 'pending',
+            'new'        => 'pending',
+            'open'       => 'pending',
+            'pending'    => 'pending',
+            'sent'       => 'sent',
+            'preparing'  => 'preparing',
+            'cooking'    => 'preparing',
+            'ready'      => 'ready',
+            'served'     => 'served',
+            'cancel'     => 'cancelled',
+            'cancelled'  => 'cancelled',
+            'canceled'   => 'cancelled',
+        ];
+
+        return $map[$status] ?? $status;
+    }
+
+    protected function isNonBillableOrderItemStatus(?string $status): bool
+    {
+        $status = $this->normalizeOrderItemStatus($status);
+
+        return in_array($status, ['pending', 'cancelled'], true);
+    }
+
+    protected function getEffectiveOrderTotal(int $orderId): float
+    {
+        $this->recalculateOrderTotal($orderId);
+
+        $freshOrder = $this->getScopedOrder($orderId);
+
+        return (float) ($freshOrder['total_price'] ?? 0);
+    }
+
     public function index()
     {
         if ($response = $this->denyIfFeatureNotEnabled('pos.access', lang('app.plan_cannot_access_pos'))) {
@@ -637,116 +675,118 @@ class POSController extends BaseController
             'order_id' => $orderId,
         ]);
     }
-	
-	protected function buildMergeNoticeFromRow(array $merge): ?array
-	{
-		$branchId = $this->getCurrentBranchId();
 
-		$sourceTableId = (int) ($merge['source_table_id'] ?? 0);
-		$targetTableId = (int) ($merge['target_table_id'] ?? 0);
-		$targetOrderId = (int) ($merge['target_order_id'] ?? 0);
+    protected function buildMergeNoticeFromRow(array $merge): ?array
+    {
+        $branchId = $this->getCurrentBranchId();
 
-		$sourceTableName = null;
-		$targetTableName = null;
-		$targetOrderNumber = null;
+        $sourceTableId    = (int) ($merge['source_table_id'] ?? 0);
+        $targetTableId    = (int) ($merge['target_table_id'] ?? 0);
+        $targetOrderId    = (int) ($merge['target_order_id'] ?? 0);
+        $sourceTableName  = null;
+        $targetTableName  = null;
+        $targetOrderNo    = null;
 
-		if ($sourceTableId > 0 && method_exists($this->tableModel, 'getTableMapByIds')) {
-			$sourceMap = $this->tableModel->getTableMapByIds([$sourceTableId], $branchId);
-			$sourceTableName = $sourceMap[$sourceTableId]['table_name'] ?? null;
-		}
+        if ($sourceTableId > 0 && method_exists($this->tableModel, 'getTableMapByIds')) {
+            $sourceMap       = $this->tableModel->getTableMapByIds([$sourceTableId], $branchId);
+            $sourceTableName = $sourceMap[$sourceTableId]['table_name'] ?? null;
+        }
 
-		if ($targetTableId > 0 && method_exists($this->tableModel, 'getTableMapByIds')) {
-			$targetMap = $this->tableModel->getTableMapByIds([$targetTableId], $branchId);
-			$targetTableName = $targetMap[$targetTableId]['table_name'] ?? null;
-		}
+        if ($targetTableId > 0 && method_exists($this->tableModel, 'getTableMapByIds')) {
+            $targetMap      = $this->tableModel->getTableMapByIds([$targetTableId], $branchId);
+            $targetTableName = $targetMap[$targetTableId]['table_name'] ?? null;
+        }
 
-		if ($targetOrderId > 0) {
-			$targetOrder = $this->orderModel
-				->where('tenant_id', $this->currentTenantId())
-				->where('branch_id', $branchId)
-				->where('id', $targetOrderId)
-				->first();
+        if ($targetOrderId > 0) {
+            $targetOrder = $this->orderModel
+                ->where('tenant_id', $this->currentTenantId())
+                ->where('branch_id', $branchId)
+                ->where('id', $targetOrderId)
+                ->first();
 
-			if ($targetOrder) {
-				$targetOrderNumber = $targetOrder['order_number'] ?? null;
-			}
-		}
+            if ($targetOrder) {
+                $targetOrderNo = $targetOrder['order_number'] ?? null;
+            }
+        }
 
-		return [
-			'source_order_id'      => (int) ($merge['source_order_id'] ?? 0),
-			'target_order_id'      => $targetOrderId,
-			'source_table_id'      => $sourceTableId,
-			'target_table_id'      => $targetTableId,
-			'source_table_name'    => $sourceTableName,
-			'target_table_name'    => $targetTableName,
-			'target_order_number'  => $targetOrderNumber,
-			'reason'               => $merge['reason'] ?? null,
-			'can_open_new_order'   => true,
-		];
-	}
+        return [
+            'source_order_id'     => (int) ($merge['source_order_id'] ?? 0),
+            'target_order_id'     => $targetOrderId,
+            'source_table_id'     => $sourceTableId,
+            'target_table_id'     => $targetTableId,
+            'source_table_name'   => $sourceTableName,
+            'target_table_name'   => $targetTableName,
+            'target_order_number' => $targetOrderNo,
+            'reason'              => $merge['reason'] ?? null,
+            'can_open_new_order'  => true,
+        ];
+    }
 
-	protected function getLatestMergedNoticeByTable(int $tableId): ?array
-	{
-		if ($tableId <= 0 || ! $this->db->tableExists('order_merges')) {
-			return null;
-		}
+    protected function getLatestMergedNoticeByTable(int $tableId): ?array
+    {
+        if ($tableId <= 0 || ! $this->db->tableExists('order_merges')) {
+            return null;
+        }
 
-		$builder = $this->orderMergeModel
-			->where('tenant_id', $this->currentTenantId())
-			->where('source_table_id', $tableId);
+        $builder = $this->orderMergeModel
+            ->where('tenant_id', $this->currentTenantId())
+            ->where('source_table_id', $tableId);
 
-		$branchId = $this->getCurrentBranchId();
-		if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_merges')) {
-			$builder->groupStart()
-				->where('branch_id', $branchId)
-				->orWhere('branch_id', null)
-				->orWhere('branch_id', 0)
-				->groupEnd();
-		}
+        $branchId = $this->getCurrentBranchId();
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_merges')) {
+            $builder->groupStart()
+                ->where('branch_id', $branchId)
+                ->orWhere('branch_id', null)
+                ->orWhere('branch_id', 0)
+                ->groupEnd();
+        }
 
-		$merge = $builder->orderBy('id', 'DESC')->first();
+        $merge = $builder->orderBy('id', 'DESC')->first();
 
-		if (! $merge) {
-			return null;
-		}
+        if (! $merge) {
+            return null;
+        }
 
-		return $this->buildMergeNoticeFromRow($merge);
-	}
+        return $this->buildMergeNoticeFromRow($merge);
+    }
 
     public function currentOrder($tableId)
-	{
-		if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
-			return $response;
-		}
+    {
+        if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
+            return $response;
+        }
 
-		$tableId = (int) $tableId;
+        $tableId = (int) $tableId;
 
-		$table = $this->getScopedTable($tableId);
-		if (! $table) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.table_not_found'),
-			]);
-		}
+        $table = $this->getScopedTable($tableId);
+        if (! $table) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.table_not_found'),
+            ]);
+        }
 
-		$order = $this->findCurrentOrderByTable($tableId);
+        $order = $this->findCurrentOrderByTable($tableId);
 
-		if (! $order) {
-			return $this->response->setJSON([
-				'status'        => 'empty',
-				'merged_notice' => $this->getLatestMergedNoticeByTable($tableId),
-			]);
-		}
+        if (! $order) {
+            return $this->response->setJSON([
+                'status'        => 'empty',
+                'merged_notice' => $this->getLatestMergedNoticeByTable($tableId),
+            ]);
+        }
 
-		$items = $this->orderItemModel->getByOrder((int) $order['id']);
+        $this->recalculateOrderTotal((int) $order['id']);
+        $order = $this->getScopedOrder((int) $order['id']);
 
-		return $this->response->setJSON([
-			'status'        => 'success',
-			'order'         => $order,
-			'items'         => $items,
-			'merged_notice' => null,
-		]);
-	}
+        $items = $this->orderItemModel->getByOrder((int) $order['id']);
+
+        return $this->response->setJSON([
+            'status'        => 'success',
+            'order'         => $order,
+            'items'         => $items,
+            'merged_notice' => null,
+        ]);
+    }
 
     public function addItem()
     {
@@ -791,20 +831,20 @@ class POSController extends BaseController
             $finalPrice = $basePrice + $optionTotal;
 
             $this->orderItemModel->insert([
-				'tenant_id'      => $this->currentTenantId(),
-				'branch_id'      => $this->getCurrentBranchId() ?: null,
-				'order_id'       => $orderId,
-				'product_id'     => $productId,
-				'product_name'   => $productName,
-				'item_detail'    => $itemDetail !== '' ? $itemDetail : null,
-				'option_price'   => $optionTotal,
-				'option_summary' => $optionSummary !== '' ? $optionSummary : null,
-				'price'          => $finalPrice,
-				'qty'            => 1,
-				'line_total'     => $finalPrice,
-				'note'           => $note !== '' ? $note : null,
-				'status'         => 'pending',
-			]);
+                'tenant_id'      => $this->currentTenantId(),
+                'branch_id'      => $this->getCurrentBranchId() ?: null,
+                'order_id'       => $orderId,
+                'product_id'     => $productId,
+                'product_name'   => $productName,
+                'item_detail'    => $itemDetail !== '' ? $itemDetail : null,
+                'option_price'   => $optionTotal,
+                'option_summary' => $optionSummary !== '' ? $optionSummary : null,
+                'price'          => $finalPrice,
+                'qty'            => 1,
+                'line_total'     => 0,
+                'note'           => $note !== '' ? $note : null,
+                'status'         => 'pending',
+            ]);
 
             $orderItemId = (int) $this->orderItemModel->getInsertID();
 
@@ -883,7 +923,11 @@ class POSController extends BaseController
                 $this->deleteScopedOrderItemOptions($itemId);
                 $this->orderItemModel->deleteScoped($itemId);
             } else {
-                $lineTotal = (float) ($item['price'] ?? 0) * $qty;
+                $status = $this->normalizeOrderItemStatus($item['status'] ?? 'pending');
+
+                $lineTotal = $this->isNonBillableOrderItemStatus($status)
+                    ? 0
+                    : ((float) ($item['price'] ?? 0) * $qty);
 
                 $this->orderItemModel->update($itemId, [
                     'qty'        => $qty,
@@ -1092,6 +1136,7 @@ class POSController extends BaseController
                     'status'            => 'sent',
                     'kitchen_ticket_id' => $ticketId,
                     'sent_at'           => $now,
+                    'line_total'        => ((float) ($item['price'] ?? 0) * (int) ($item['qty'] ?? 0)),
                     'updated_at'        => $now,
                 ]);
 
@@ -1117,6 +1162,8 @@ class POSController extends BaseController
                     ]
                 );
             }
+
+            $this->recalculateOrderTotal($orderId);
 
             if ($db->transStatus() === false) {
                 $db->transRollback();
@@ -1147,156 +1194,151 @@ class POSController extends BaseController
     }
 
     public function pay()
-	{
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
 
-		$orderId       = (int) $this->request->getPost('order_id');
-		$paymentMethod = trim((string) $this->request->getPost('payment_method'));
-		$amount        = (float) $this->request->getPost('amount');
+        $orderId       = (int) $this->request->getPost('order_id');
+        $paymentMethod = trim((string) $this->request->getPost('payment_method'));
+        $amount        = (float) $this->request->getPost('amount');
 
-		$order = $this->getScopedOrder($orderId);
-		if (! $order) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.order_not_found'),
-			]);
-		}
+        $order = $this->getScopedOrder($orderId);
+        if (! $order) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
 
-		if (! in_array(($order['status'] ?? ''), ['open', 'billing'], true)) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.order_cannot_pay'),
-			]);
-		}
+        if (! in_array(($order['status'] ?? ''), ['open', 'billing'], true)) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_cannot_pay'),
+            ]);
+        }
 
-		$pendingItems = $this->orderItemModel->countPendingByOrder($orderId);
-		if ($pendingItems > 0) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.pending_items_must_send_first'),
-			]);
-		}
+        $total = $this->getEffectiveOrderTotal($orderId);
 
-		$total = (float) ($order['total_price'] ?? 0);
-		if ($amount <= 0) {
-			$amount = $total;
-		}
+        if ($amount <= 0) {
+            $amount = $total;
+        }
 
-		if ($amount < $total) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.payment_amount_not_enough'),
-			]);
-		}
+        if ($amount < $total) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.payment_amount_not_enough'),
+            ]);
+        }
 
-		$change = $amount - $total;
+        $change = $amount - $total;
 
-		$db = \Config\Database::connect();
-		$db->transBegin();
+        $db = \Config\Database::connect();
+        $db->transBegin();
 
-		try {
-			$now    = date('Y-m-d H:i:s');
-			$userId = session()->get('user_id') ?: null;
+        try {
+            $now    = date('Y-m-d H:i:s');
+            $userId = session()->get('user_id') ?: null;
 
-			$this->paymentModel->insert([
-				'order_id'       => $orderId,
-				'payment_method' => $paymentMethod ?: 'cash',
-				'amount'         => $amount,
-				'received_by'    => $userId,
-				'change_amount'  => $change,
-				'paid_at'        => $now,
-			]);
+            $this->paymentModel->insert([
+                'order_id'       => $orderId,
+                'payment_method' => $paymentMethod ?: 'cash',
+                'amount'         => $amount,
+                'received_by'    => $userId,
+                'change_amount'  => $change,
+                'paid_at'        => $now,
+            ]);
 
-			$this->orderModel->update($orderId, [
-				'status'     => 'paid',
-				'paid_by'    => $userId,
-				'paid_at'    => $now,
-				'closed_by'  => ! empty($order['closed_by']) ? $order['closed_by'] : $userId,
-				'closed_at'  => ! empty($order['closed_at']) ? $order['closed_at'] : $now,
-				'updated_at' => $now,
-			]);
+            $this->orderModel->update($orderId, [
+                'status'     => 'paid',
+                'subtotal'   => $total,
+                'total_price' => $total,
+                'paid_by'    => $userId,
+                'paid_at'    => $now,
+                'closed_by'  => ! empty($order['closed_by']) ? $order['closed_by'] : $userId,
+                'closed_at'  => ! empty($order['closed_at']) ? $order['closed_at'] : $now,
+                'updated_at' => $now,
+            ]);
 
-			$reservation = null;
+            $reservation = null;
 
-			if (! empty($order['reservation_id'])) {
-				$reservation = $this->reservationModel->getFull((int) $order['reservation_id'], $this->getCurrentBranchId());
+            if (! empty($order['reservation_id'])) {
+                $reservation = $this->reservationModel->getFull((int) $order['reservation_id'], $this->getCurrentBranchId());
 
-				if ($reservation && (int) ($reservation['tenant_id'] ?? 0) !== $this->currentTenantId()) {
-					$reservation = null;
-				}
-			}
+                if ($reservation && (int) ($reservation['tenant_id'] ?? 0) !== $this->currentTenantId()) {
+                    $reservation = null;
+                }
+            }
 
-			if (! $reservation) {
-				$reservation = $this->findScopedReservationByOrder($orderId);
-			}
+            if (! $reservation) {
+                $reservation = $this->findScopedReservationByOrder($orderId);
+            }
 
-			if ($reservation && ! in_array(($reservation['status'] ?? ''), ['completed', 'cancelled', 'no_show'], true)) {
-				$oldStatus = $reservation['status'] ?? null;
+            if ($reservation && ! in_array(($reservation['status'] ?? ''), ['completed', 'cancelled', 'no_show'], true)) {
+                $oldStatus = $reservation['status'] ?? null;
 
-				$updateData = [
-					'status'     => 'completed',
-					'updated_by' => $userId,
-				];
+                $updateData = [
+                    'status'     => 'completed',
+                    'updated_by' => $userId,
+                ];
 
-				if ($this->reservationFieldExists('completed_at')) {
-					$updateData['completed_at'] = $now;
-				}
+                if ($this->reservationFieldExists('completed_at')) {
+                    $updateData['completed_at'] = $now;
+                }
 
-				$this->reservationModel->update((int) $reservation['id'], $updateData);
+                $this->reservationModel->update((int) $reservation['id'], $updateData);
 
-				if (method_exists($this->reservationLogModel, 'addLog')) {
-					$this->reservationLogModel->addLog(
-						(int) $reservation['id'],
-						'complete',
-						$oldStatus,
-						'completed',
-						lang('app.reservation_completed_after_payment')
-					);
-				}
-			}
+                if (method_exists($this->reservationLogModel, 'addLog')) {
+                    $this->reservationLogModel->addLog(
+                        (int) $reservation['id'],
+                        'complete',
+                        $oldStatus,
+                        'completed',
+                        lang('app.reservation_completed_after_payment')
+                    );
+                }
+            }
 
-			if (! empty($order['table_id'])) {
-				$tableId = (int) $order['table_id'];
-				$table   = $this->tableModel->getTableMapByIds([$tableId], $this->getCurrentBranchId())[$tableId] ?? null;
+            if (! empty($order['table_id'])) {
+                $tableId = (int) $order['table_id'];
+                $table   = $this->tableModel->getTableMapByIds([$tableId], $this->getCurrentBranchId())[$tableId] ?? null;
 
-				if ($table) {
-					$tableTenantId = (int) ($table['tenant_id'] ?? 0);
+                if ($table) {
+                    $tableTenantId = (int) ($table['tenant_id'] ?? 0);
 
-					if ($tableTenantId === 0 || $tableTenantId === $this->currentTenantId()) {
-						$newStatus = ((int) ($table['is_active'] ?? 0) === 1) ? 'available' : 'disabled';
-						$this->updateScopedTableStatus($tableId, $newStatus);
-					}
-				}
-			}
+                    if ($tableTenantId === 0 || $tableTenantId === $this->currentTenantId()) {
+                        $newStatus = ((int) ($table['is_active'] ?? 0) === 1) ? 'available' : 'disabled';
+                        $this->updateScopedTableStatus($tableId, $newStatus);
+                    }
+                }
+            }
 
-			if ($db->transStatus() === false) {
-				$db->transRollback();
+            if ($db->transStatus() === false) {
+                $db->transRollback();
 
-				return $this->response->setJSON([
-					'status'  => 'error',
-					'message' => lang('app.payment_failed'),
-				]);
-			}
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.payment_failed'),
+                ]);
+            }
 
-			$db->transCommit();
+            $db->transCommit();
 
-			return $this->response->setJSON([
-				'status'  => 'success',
-				'message' => lang('app.payment_success'),
-				'change'  => $change,
-			]);
-		} catch (\Throwable $e) {
-			$db->transRollback();
-			log_message('error', 'pay error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => lang('app.payment_success'),
+                'change'  => $change,
+            ]);
+        } catch (\Throwable $e) {
+            $db->transRollback();
+            log_message('error', 'pay error: ' . $e->getMessage());
 
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.payment_error'),
-			]);
-		}
-	}
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.payment_error'),
+            ]);
+        }
+    }
 
     protected function recalculateOrder($orderId)
     {
@@ -1312,7 +1354,7 @@ class POSController extends BaseController
         $itemId = (int) ($this->request->getPost('item_id') ?? 0);
         $status = strtolower(trim((string) ($this->request->getPost('status') ?? '')));
 
-        $allowedStatuses = ['sent', 'preparing', 'ready', 'served', 'cancelled'];
+        $allowedStatuses = ['pending', 'sent', 'preparing', 'cooking', 'ready', 'served', 'cancelled', 'cancel'];
 
         if ($itemId <= 0 || ! in_array($status, $allowedStatuses, true)) {
             return $this->response->setJSON([
@@ -1332,21 +1374,44 @@ class POSController extends BaseController
             ]);
         }
 
+        $storedStatus = $status;
+        if ($storedStatus === 'cooking') {
+            $storedStatus = 'preparing';
+        }
+        if (in_array($storedStatus, ['cancel', 'cancelled'], true)) {
+            $storedStatus = 'cancel';
+        }
+
         $data = [
-            'status'     => $status,
+            'status'     => $storedStatus,
             'updated_at' => date('Y-m-d H:i:s'),
         ];
 
-        if ($status === 'preparing') {
+        if ($storedStatus === 'preparing') {
             $data['started_at'] = date('Y-m-d H:i:s');
         }
 
-        if ($status === 'ready') {
+        if ($storedStatus === 'ready') {
             $data['ready_at'] = date('Y-m-d H:i:s');
         }
 
-        if ($status === 'served') {
+        if ($storedStatus === 'served') {
             $data['served_at'] = date('Y-m-d H:i:s');
+        }
+
+        if ($storedStatus === 'cancel') {
+            if ($this->db->fieldExists('cancelled_at', 'order_items')) {
+                $data['cancelled_at'] = date('Y-m-d H:i:s');
+            }
+            if ($this->db->fieldExists('cancelled_by', 'order_items')) {
+                $data['cancelled_by'] = $this->currentUserId();
+            }
+        }
+
+        if ($this->isNonBillableOrderItemStatus($storedStatus)) {
+            $data['line_total'] = 0;
+        } else {
+            $data['line_total'] = ((float) ($item['price'] ?? 0)) * (int) ($item['qty'] ?? 0);
         }
 
         if (! $this->orderItemModel->update($itemId, $data)) {
@@ -1356,28 +1421,38 @@ class POSController extends BaseController
             ]);
         }
 
+        $logType = $storedStatus;
+        if ($logType === 'preparing') {
+            $logType = 'cooking';
+        }
+        if ($logType === 'cancelled') {
+            $logType = 'cancel';
+        }
+
         if (isset($this->kitchenLogModel) && $this->kitchenLogModel) {
             try {
                 if (method_exists($this->kitchenLogModel, 'addLog')) {
                     $this->kitchenLogModel->addLog(
                         $itemId,
-                        $status,
+                        $logType,
                         lang('app.kitchen_status_updated')
                     );
                 } else {
                     $this->kitchenLogModel->insert([
-                        'tenant_id'    => (int) ($item['tenant_id'] ?? current_tenant_id()),
-                        'order_id'     => (int) ($item['order_id'] ?? 0),
-                        'order_item_id'=> $itemId,
-                        'status'       => $status,
-                        'note'         => lang('app.kitchen_status_updated'),
-                        'created_by'   => (int) (session('user_id') ?? 0),
+                        'tenant_id'     => (int) ($item['tenant_id'] ?? current_tenant_id()),
+                        'order_id'      => (int) ($item['order_id'] ?? 0),
+                        'order_item_id' => $itemId,
+                        'status'        => $logType,
+                        'note'          => lang('app.kitchen_status_updated'),
+                        'created_by'    => (int) (session('user_id') ?? 0),
                     ]);
                 }
             } catch (\Throwable $e) {
                 log_message('error', 'updateItemStatus kitchen log error: ' . $e->getMessage());
             }
         }
+
+        $this->recalculateOrderTotal((int) ($item['order_id'] ?? 0));
 
         return $this->response->setJSON([
             'status'  => 'success',
@@ -1408,14 +1483,7 @@ class POSController extends BaseController
             ]);
         }
 
-        $pendingItems = $this->orderItemModel->countPendingByOrder($orderId);
-
-        if ($pendingItems > 0) {
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => lang('app.pending_items_must_send_first'),
-            ]);
-        }
+        $this->recalculateOrderTotal($orderId);
 
         $this->orderModel->update($orderId, [
             'status'     => 'billing',
@@ -1460,14 +1528,7 @@ class POSController extends BaseController
             ]);
         }
 
-        $pendingItems = $this->orderItemModel->countPendingByOrder($orderId);
-
-        if ($pendingItems > 0) {
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => lang('app.pending_items_must_send_first'),
-            ]);
-        }
+        $this->recalculateOrderTotal($orderId);
 
         $this->orderModel->update($orderId, [
             'status'     => 'billing',
@@ -1574,34 +1635,34 @@ class POSController extends BaseController
         $branchId = $this->getCurrentBranchId();
 
         $builder = $this->orderItemModel
-			->where('order_id', $orderId)
-			->where('status !=', 'cancel');
+            ->where('order_id', $orderId);
 
-		if ($this->db->fieldExists('tenant_id', 'order_items')) {
-			$builder->groupStart()
-				->where('tenant_id', $tenantId)
-				->orWhere('tenant_id', null)
-				->orWhere('tenant_id', 0)
-				->groupEnd();
-		}
+        if ($this->db->fieldExists('tenant_id', 'order_items')) {
+            $builder->groupStart()
+                ->where('tenant_id', $tenantId)
+                ->orWhere('tenant_id', null)
+                ->orWhere('tenant_id', 0)
+                ->groupEnd();
+        }
 
-		if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_items')) {
-			$builder->groupStart()
-				->where('branch_id', $branchId)
-				->orWhere('branch_id', null)
-				->orWhere('branch_id', 0)
-				->groupEnd();
-		}
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_items')) {
+            $builder->groupStart()
+                ->where('branch_id', $branchId)
+                ->orWhere('branch_id', null)
+                ->orWhere('branch_id', 0)
+                ->groupEnd();
+        }
 
-		$items = $builder->findAll();
+        $items = $builder->findAll();
 
-        $subtotal = 0;
+        $subtotal = 0.0;
         $now      = date('Y-m-d H:i:s');
 
         foreach ($items as $item) {
-            $qty       = (int) ($item['qty'] ?? 0);
-            $unitPrice = (float) ($item['price'] ?? 0);
-            $lineTotal = $unitPrice * $qty;
+            $qty          = (int) ($item['qty'] ?? 0);
+            $unitPrice    = (float) ($item['price'] ?? 0);
+            $status       = $this->normalizeOrderItemStatus($item['status'] ?? '');
+            $lineTotal    = $this->isNonBillableOrderItemStatus($status) ? 0.0 : ($unitPrice * $qty);
 
             $this->orderItemModel->update((int) $item['id'], [
                 'line_total' => $lineTotal,
@@ -1611,10 +1672,14 @@ class POSController extends BaseController
             $subtotal += $lineTotal;
         }
 
-        $discount = 0;
-        $service  = 0;
-        $vat      = 0;
+        $discount = (float) ($order['discount_amount'] ?? 0);
+        $service  = (float) ($order['service_charge'] ?? 0);
+        $vat      = (float) ($order['vat_amount'] ?? 0);
         $total    = $subtotal - $discount + $service + $vat;
+
+        if ($total < 0) {
+            $total = 0;
+        }
 
         $this->orderModel->update($orderId, [
             'subtotal'        => $subtotal,
@@ -1754,7 +1819,7 @@ class POSController extends BaseController
                 'option_price'   => $optionTotal,
                 'option_summary' => $optionSummary !== '' ? $optionSummary : null,
                 'price'          => $newPrice,
-                'line_total'     => $lineTotal,
+                'line_total'     => 0,
                 'note'           => $note !== '' ? $note : null,
                 'updated_at'     => date('Y-m-d H:i:s'),
             ]);
@@ -1767,6 +1832,13 @@ class POSController extends BaseController
                     'option_group'  => $optRow['option_group'],
                     'option_name'   => $optRow['option_name'],
                     'price_adjust'  => $optRow['price_adjust'],
+                ]);
+            }
+
+            if (! $this->isNonBillableOrderItemStatus($item['status'] ?? 'pending')) {
+                $this->orderItemModel->update($itemId, [
+                    'line_total' => $lineTotal,
+                    'updated_at' => date('Y-m-d H:i:s'),
                 ]);
             }
 
@@ -2174,189 +2246,189 @@ class POSController extends BaseController
     }
 
     public function mergeBill()
-	{
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
 
-		$sourceOrderId = (int) ($this->request->getPost('source_order_id') ?? 0);
-		$sourceTableId = (int) ($this->request->getPost('source_table_id') ?? 0);
-		$targetOrderId = (int) ($this->request->getPost('target_order_id') ?? 0);
-		$reason        = trim((string) ($this->request->getPost('reason') ?? ''));
+        $sourceOrderId = (int) ($this->request->getPost('source_order_id') ?? 0);
+        $sourceTableId = (int) ($this->request->getPost('source_table_id') ?? 0);
+        $targetOrderId = (int) ($this->request->getPost('target_order_id') ?? 0);
+        $reason        = trim((string) ($this->request->getPost('reason') ?? ''));
 
-		$sourceOrder = null;
+        $sourceOrder = null;
 
-		if ($sourceOrderId > 0) {
-			$sourceOrder = $this->getScopedOrder($sourceOrderId, ['open', 'billing']);
-		} elseif ($sourceTableId > 0) {
-			$sourceOrder = $this->findCurrentOrderByTable($sourceTableId, ['open', 'billing']);
-		}
+        if ($sourceOrderId > 0) {
+            $sourceOrder = $this->getScopedOrder($sourceOrderId, ['open', 'billing']);
+        } elseif ($sourceTableId > 0) {
+            $sourceOrder = $this->findCurrentOrderByTable($sourceTableId, ['open', 'billing']);
+        }
 
-		if (! $sourceOrder) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.order_not_found'),
-			]);
-		}
+        if (! $sourceOrder) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
 
-		$targetOrder = $this->getScopedOrder($targetOrderId, ['open', 'billing']);
+        $targetOrder = $this->getScopedOrder($targetOrderId, ['open', 'billing']);
 
-		if (! $targetOrder) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.merge_target_order_not_found'),
-			]);
-		}
+        if (! $targetOrder) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.merge_target_order_not_found'),
+            ]);
+        }
 
-		$sourceOrderId = (int) ($sourceOrder['id'] ?? 0);
-		$targetOrderId = (int) ($targetOrder['id'] ?? 0);
+        $sourceOrderId = (int) ($sourceOrder['id'] ?? 0);
+        $targetOrderId = (int) ($targetOrder['id'] ?? 0);
 
-		if ($sourceOrderId <= 0 || $targetOrderId <= 0) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.invalid_request'),
-			]);
-		}
+        if ($sourceOrderId <= 0 || $targetOrderId <= 0) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.invalid_request'),
+            ]);
+        }
 
-		if ($sourceOrderId === $targetOrderId) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.cannot_merge_same_order'),
-			]);
-		}
+        if ($sourceOrderId === $targetOrderId) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.cannot_merge_same_order'),
+            ]);
+        }
 
-		$fromTableId = (int) ($sourceOrder['table_id'] ?? 0);
-		$toTableId   = (int) ($targetOrder['table_id'] ?? 0);
-		$now         = date('Y-m-d H:i:s');
-		$tenantId    = $this->currentTenantId();
-		$branchId    = $this->getCurrentBranchId();
+        $fromTableId = (int) ($sourceOrder['table_id'] ?? 0);
+        $toTableId   = (int) ($targetOrder['table_id'] ?? 0);
+        $now         = date('Y-m-d H:i:s');
+        $tenantId    = $this->currentTenantId();
+        $branchId    = $this->getCurrentBranchId();
 
-		$db = \Config\Database::connect();
-		$db->transBegin();
+        $db = \Config\Database::connect();
+        $db->transBegin();
 
-		try {
-			$builder = $this->orderItemModel
-				->where('order_id', $sourceOrderId);
+        try {
+            $builder = $this->orderItemModel
+                ->where('order_id', $sourceOrderId);
 
-			if ($this->db->fieldExists('tenant_id', 'order_items')) {
-				$builder->groupStart()
-					->where('tenant_id', $tenantId)
-					->orWhere('tenant_id', null)
-					->orWhere('tenant_id', 0)
-					->groupEnd();
-			}
+            if ($this->db->fieldExists('tenant_id', 'order_items')) {
+                $builder->groupStart()
+                    ->where('tenant_id', $tenantId)
+                    ->orWhere('tenant_id', null)
+                    ->orWhere('tenant_id', 0)
+                    ->groupEnd();
+            }
 
-			if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_items')) {
-				$builder->groupStart()
-					->where('branch_id', $branchId)
-					->orWhere('branch_id', null)
-					->orWhere('branch_id', 0)
-					->groupEnd();
-			}
+            if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_items')) {
+                $builder->groupStart()
+                    ->where('branch_id', $branchId)
+                    ->orWhere('branch_id', null)
+                    ->orWhere('branch_id', 0)
+                    ->groupEnd();
+            }
 
-			$items = $builder->findAll();
+            $items = $builder->findAll();
 
-			if (empty($items)) {
-				$db->transRollback();
+            if (empty($items)) {
+                $db->transRollback();
 
-				return $this->response->setJSON([
-					'status'  => 'error',
-					'message' => lang('app.merge_bill_failed'),
-				]);
-			}
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.merge_bill_failed'),
+                ]);
+            }
 
-			foreach ($items as $item) {
-				$updateItemData = [
-					'order_id'   => $targetOrderId,
-					'updated_at' => $now,
-				];
+            foreach ($items as $item) {
+                $updateItemData = [
+                    'order_id'   => $targetOrderId,
+                    'updated_at' => $now,
+                ];
 
-				if ($this->db->fieldExists('tenant_id', 'order_items')) {
-					$updateItemData['tenant_id'] = $tenantId;
-				}
+                if ($this->db->fieldExists('tenant_id', 'order_items')) {
+                    $updateItemData['tenant_id'] = $tenantId;
+                }
 
-				if ($this->db->fieldExists('branch_id', 'order_items')) {
-					$updateItemData['branch_id'] = $branchId > 0 ? $branchId : null;
-				}
+                if ($this->db->fieldExists('branch_id', 'order_items')) {
+                    $updateItemData['branch_id'] = $branchId > 0 ? $branchId : null;
+                }
 
-				if (! $this->orderItemModel->update((int) $item['id'], $updateItemData)) {
-					log_message('error', 'mergeBill updateItem failed: ' . json_encode($this->orderItemModel->errors()));
-					throw new \RuntimeException('merge item update failed');
-				}
-			}
+                if (! $this->orderItemModel->update((int) $item['id'], $updateItemData)) {
+                    log_message('error', 'mergeBill updateItem failed: ' . json_encode($this->orderItemModel->errors()));
+                    throw new \RuntimeException('merge item update failed');
+                }
+            }
 
-			if ($this->db->fieldExists('merged_into_order_id', 'orders')) {
-				$okOrder = $this->orderModel->update($sourceOrderId, [
-					'status'               => 'merged',
-					'merged_into_order_id' => $targetOrderId,
-					'updated_at'           => $now,
-				]);
-			} else {
-				$okOrder = $this->orderModel->update($sourceOrderId, [
-					'status'     => 'merged',
-					'updated_at' => $now,
-				]);
-			}
+            if ($this->db->fieldExists('merged_into_order_id', 'orders')) {
+                $okOrder = $this->orderModel->update($sourceOrderId, [
+                    'status'               => 'merged',
+                    'merged_into_order_id' => $targetOrderId,
+                    'updated_at'           => $now,
+                ]);
+            } else {
+                $okOrder = $this->orderModel->update($sourceOrderId, [
+                    'status'     => 'merged',
+                    'updated_at' => $now,
+                ]);
+            }
 
-			if (! $okOrder) {
-				log_message('error', 'mergeBill update source order failed: ' . json_encode($this->orderModel->errors()));
-				throw new \RuntimeException('merge source order update failed');
-			}
+            if (! $okOrder) {
+                log_message('error', 'mergeBill update source order failed: ' . json_encode($this->orderModel->errors()));
+                throw new \RuntimeException('merge source order update failed');
+            }
 
-			if ($this->db->tableExists('order_merges')) {
-				$okMerge = $this->orderMergeModel->insert([
-					'tenant_id'       => $tenantId,
-					'branch_id'       => $branchId,
-					'source_order_id' => $sourceOrderId,
-					'target_order_id' => $targetOrderId,
-					'source_table_id' => $fromTableId > 0 ? $fromTableId : null,
-					'target_table_id' => $toTableId > 0 ? $toTableId : null,
-					'merged_by'       => $this->currentUserId(),
-					'reason'          => $reason !== '' ? $reason : null,
-				]);
+            if ($this->db->tableExists('order_merges')) {
+                $okMerge = $this->orderMergeModel->insert([
+                    'tenant_id'       => $tenantId,
+                    'branch_id'       => $branchId,
+                    'source_order_id' => $sourceOrderId,
+                    'target_order_id' => $targetOrderId,
+                    'source_table_id' => $fromTableId > 0 ? $fromTableId : null,
+                    'target_table_id' => $toTableId > 0 ? $toTableId : null,
+                    'merged_by'       => $this->currentUserId(),
+                    'reason'          => $reason !== '' ? $reason : null,
+                ]);
 
-				if (! $okMerge) {
-					log_message('error', 'mergeBill insert merge log failed: ' . json_encode($this->orderMergeModel->errors()));
-					throw new \RuntimeException('merge log insert failed');
-				}
-			}
+                if (! $okMerge) {
+                    log_message('error', 'mergeBill insert merge log failed: ' . json_encode($this->orderMergeModel->errors()));
+                    throw new \RuntimeException('merge log insert failed');
+                }
+            }
 
-			$this->recalculateOrderTotal($targetOrderId);
-			$this->recalculateOrderTotal($sourceOrderId);
+            $this->recalculateOrderTotal($targetOrderId);
+            $this->recalculateOrderTotal($sourceOrderId);
 
-			if ($fromTableId > 0) {
-				$this->refreshTableStatusById($fromTableId);
-			}
+            if ($fromTableId > 0) {
+                $this->refreshTableStatusById($fromTableId);
+            }
 
-			if ($toTableId > 0) {
-				$this->refreshTableStatusById($toTableId);
-			}
+            if ($toTableId > 0) {
+                $this->refreshTableStatusById($toTableId);
+            }
 
-			if ($db->transStatus() === false) {
-				$db->transRollback();
-				log_message('error', 'mergeBill transaction failed: ' . json_encode($db->error()));
+            if ($db->transStatus() === false) {
+                $db->transRollback();
+                log_message('error', 'mergeBill transaction failed: ' . json_encode($db->error()));
 
-				return $this->response->setJSON([
-					'status'  => 'error',
-					'message' => lang('app.merge_bill_failed'),
-				]);
-			}
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.merge_bill_failed'),
+                ]);
+            }
 
-			$db->transCommit();
+            $db->transCommit();
 
-			return $this->response->setJSON([
-				'status'          => 'success',
-				'message'         => lang('app.merge_bill_success'),
-				'target_order_id' => $targetOrderId,
-			]);
-		} catch (\Throwable $e) {
-			$db->transRollback();
-			log_message('error', 'mergeBill error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status'          => 'success',
+                'message'         => lang('app.merge_bill_success'),
+                'target_order_id' => $targetOrderId,
+            ]);
+        } catch (\Throwable $e) {
+            $db->transRollback();
+            log_message('error', 'mergeBill error: ' . $e->getMessage());
 
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.merge_bill_failed'),
-			]);
-		}
-	}
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.merge_bill_failed'),
+            ]);
+        }
+    }
 }
