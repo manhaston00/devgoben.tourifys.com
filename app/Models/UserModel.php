@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
+use App\Models\TenantScopedModel;
 
-class UserModel extends Model
+class UserModel extends TenantScopedModel
 {
     protected $table            = 'users';
     protected $primaryKey       = 'id';
@@ -314,4 +314,32 @@ class UserModel extends Model
 
         return $row ?: null;
     }
+	
+	public function findTenantUser(int $tenantId, int $id): ?array
+	{
+		if ($tenantId <= 0 || $id <= 0) {
+			return null;
+		}
+
+		return $this->builder()
+			->where('users.tenant_id', $tenantId)
+			->where('users.id', $id)
+			->where('users.deleted_at IS NULL', null, false)
+			->get()
+			->getRowArray();
+	}
+
+	public function getTenantUsers(int $tenantId): array
+	{
+		if ($tenantId <= 0) {
+			return [];
+		}
+
+		return $this->builder()
+			->where('users.tenant_id', $tenantId)
+			->where('users.deleted_at IS NULL', null, false)
+			->orderBy('users.id', 'DESC')
+			->get()
+			->getResultArray();
+	}
 }

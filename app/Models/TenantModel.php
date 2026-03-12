@@ -357,30 +357,33 @@ class TenantModel extends Model
     }
 
     protected function datatableBaseBuilder()
-    {
-        $subscriptionSubquery = $this->db->table('subscriptions s1')
-            ->select('MAX(s1.id)', false)
-            ->where('s1.tenant_id = t.id', null, false)
-            ->where('s1.deleted_at', null)
-            ->getCompiledSelect();
+	{
+		$subscriptionSubquery = $this->db->table('subscriptions s1')
+			->select('MAX(s1.id)', false)
+			->where('s1.tenant_id = t.id', null, false)
+			->where('s1.deleted_at', null)
+			->getCompiledSelect();
 
-        return $this->db->table('tenants t')
-            ->select('
-                t.id,
-                t.tenant_code,
-                t.login_prefix,
-                t.tenant_name,
-                t.owner_name,
-                t.phone,
-                t.email,
-                t.status AS tenant_status,
-                COALESCE(sp.plan_name, sp.name_th, sp.name_en, "-") AS plan_name,
-                COALESCE(s.status, "") AS subscription_status
-            ', false)
-            ->join('subscriptions s', 's.id = (' . $subscriptionSubquery . ')', 'left', false)
-            ->join('subscription_plans sp', 'sp.id = s.plan_id', 'left')
-            ->where('t.deleted_at', null);
-    }
+		return $this->db->table('tenants t')
+			->select(
+				'
+				t.id,
+				t.tenant_code,
+				t.login_prefix,
+				t.tenant_name,
+				t.owner_name,
+				t.phone,
+				t.email,
+				t.status AS tenant_status,
+				COALESCE(sp.plan_name, sp.plan_name_th, sp.plan_name_en, "-") AS plan_name,
+				COALESCE(s.status, "") AS subscription_status
+				',
+				false
+			)
+			->join('subscriptions s', 's.id = (' . $subscriptionSubquery . ')', 'left', false)
+			->join('subscription_plans sp', 'sp.id = s.plan_id', 'left')
+			->where('t.deleted_at', null);
+	}
 
     protected function applyDatatableSearch($builder, string $searchValue): void
     {
