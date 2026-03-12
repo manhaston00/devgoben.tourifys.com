@@ -558,26 +558,20 @@ $(function () {
     }
 
     function itemStatusBadge(status) {
-        status = (status || '').toString().toLowerCase();
-
         if (status === 'pending') return 'secondary';
         if (status === 'sent') return 'primary';
-        if (status === 'preparing' || status === 'cooking') return 'warning';
-        if (status === 'ready') return 'info';
+        if (status === 'cooking') return 'warning';
         if (status === 'served') return 'success';
-        if (status === 'cancel' || status === 'cancelled' || status === 'canceled') return 'danger';
+        if (status === 'cancel') return 'danger';
         return 'secondary';
     }
 
     function itemStatusText(status) {
-        status = (status || '').toString().toLowerCase();
-
         if (status === 'pending') return TXT.pending;
         if (status === 'sent') return TXT.sentKitchen;
-        if (status === 'preparing' || status === 'cooking') return TXT.cooking;
-        if (status === 'ready') return <?= json_encode(lang('app.ready'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+        if (status === 'cooking') return TXT.cooking;
         if (status === 'served') return TXT.served;
-        if (status === 'cancel' || status === 'cancelled' || status === 'canceled') return TXT.canceled;
+        if (status === 'cancel') return TXT.canceled;
         return TXT.unknownStatus;
     }
 
@@ -1323,12 +1317,6 @@ $(function () {
 
 		if (CURRENT_ORDER_STATUS !== 'open' && CURRENT_ORDER_STATUS !== 'billing') {
 			alert(TXT.billCannotPay);
-			return;
-		}
-
-		const hasPending = $('#orderBox [data-item-status="pending"]').length > 0;
-		if (hasPending) {
-			alert('<?= esc(lang('app.pending_items_must_send_first')) ?>');
 			return;
 		}
 
