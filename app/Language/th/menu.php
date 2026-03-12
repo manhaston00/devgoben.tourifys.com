@@ -24,4 +24,5 @@ return [
 	'tenants'               => 'Tenants',
 	'back_to_store'         => 'กลับสู่ระบบร้าน',
 	'branches' => 'สาขา',
+	'kitchen_monitor' => 'จอครัว',
 ];

@@ -310,7 +310,9 @@ class UserModel extends TenantScopedModel
 			return null;
 		}
 
-		$row = $this->select('
+		$builder = $this->builder();
+
+		$row = $builder->select('
 				users.*,
 				roles.role_name,
 				roles.role_name_th,
@@ -349,7 +351,9 @@ class UserModel extends TenantScopedModel
 			->where('LOWER(users.username)', $username)
 			->where('users.status', 1)
 			->where('users.deleted_at', null)
-			->first();
+			->limit(1)
+			->get()
+			->getRowArray();
 
 		return $row ?: null;
 	}

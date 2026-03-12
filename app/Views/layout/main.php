@@ -725,6 +725,12 @@
                 </a>
             <?php endif; ?>
 
+            <?php if (function_exists('can') && (can('kitchen.view') || can('kitchen_stations.view'))): ?>
+                <a href="<?= site_url('kitchen-monitor') ?>" class="sidebar-link <?= menu_active(['kitchen-monitor'], $currentPath) ?>">
+                    <?= lang('menu.kitchen_monitor') ?>
+                </a>
+            <?php endif; ?>
+
             <?php if (function_exists('can') && can('products.view')): ?>
                 <a href="<?= site_url('products') ?>" class="sidebar-link <?= menu_active(['products'], $currentPath) ?>">
                     <?= lang('menu.products') ?>
@@ -892,6 +898,12 @@
             <?php if (function_exists('can') && can('kitchen_stations.view')): ?>
                 <a href="<?= site_url('kitchen-stations') ?>" class="sidebar-link <?= menu_active(['kitchen-stations'], $currentPath) ?>">
                     <?= lang('menu.kitchen_stations') ?>
+                </a>
+            <?php endif; ?>
+
+            <?php if (function_exists('can') && (can('kitchen.view') || can('kitchen_stations.view'))): ?>
+                <a href="<?= site_url('kitchen-monitor') ?>" class="sidebar-link <?= menu_active(['kitchen-monitor'], $currentPath) ?>">
+                    <?= lang('menu.kitchen_monitor') ?>
                 </a>
             <?php endif; ?>
 

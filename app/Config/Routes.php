@@ -288,6 +288,20 @@ $routes->group('super-admin', ['filter' => 'super_admin'], static function ($rou
     $routes->post('subscription-plans/restore/(:num)', 'SuperAdmin\SubscriptionPlans::restore/$1', ['filter' => 'permission:plans.delete']);
 });
 
+$routes->group('kitchen-monitor', ['filter' => 'auth_subscription'], static function ($routes) {
+    $routes->get('/', 'KitchenMonitorController::index', [
+        'filter' => 'permission:kitchen.view,feature_gate:pos.access'
+    ]);
+
+    $routes->get('feed', 'KitchenMonitorController::feed', [
+        'filter' => 'permission:kitchen.view,feature_gate:pos.access'
+    ]);
+
+    $routes->post('update-status', 'KitchenMonitorController::updateStatus', [
+        'filter' => 'permission:kitchen.update_status,feature_gate:pos.access'
+    ]);
+});
+
 
 /*
  * --------------------------------------------------------------------
