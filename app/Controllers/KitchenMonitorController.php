@@ -2,11 +2,10 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
-use App\Models\KitchenTicketModel;
-use App\Models\KitchenStationModel;
-use App\Models\OrderItemModel;
 use App\Models\KitchenLogModel;
+use App\Models\KitchenStationModel;
+use App\Models\KitchenTicketModel;
+use App\Models\OrderItemModel;
 
 class KitchenMonitorController extends BaseController
 {
@@ -51,19 +50,46 @@ class KitchenMonitorController extends BaseController
         $status = strtolower(trim($status));
 
         $map = [
-            'new'        => 'pending',
-            'pending'    => 'pending',
-            'sent'       => 'sent',
-            'preparing'  => 'cooking',
-            'cooking'    => 'cooking',
-            'ready'      => 'ready',
-            'served'     => 'served',
-            'cancelled'  => 'cancelled',
-            'canceled'   => 'cancelled',
+            'new'       => 'pending',
+            'pending'   => 'pending',
+            'sent'      => 'sent',
+            'preparing' => 'cooking',
+            'cooking'   => 'cooking',
+            'ready'     => 'ready',
+            'served'    => 'served',
+            'cancelled' => 'cancel',
+            'canceled'  => 'cancel',
+            'cancel'    => 'cancel',
         ];
 
         return $map[$status] ?? '';
     }
+
+    protected function mapStatusToLogType(string $status): string
+	{
+		$status = strtolower(trim($status));
+
+		switch ($status) {
+			case 'pending':
+			case 'sent':
+				return 'new';
+
+			case 'cooking':
+				return 'cooking';
+
+			case 'ready':
+				return 'ready';
+
+			case 'served':
+				return 'served';
+
+			case 'cancel':
+				return 'cancel';
+
+			default:
+				return '';
+		}
+	}
 
     protected function resolveBoardStatus(array $row): string
     {
@@ -72,7 +98,7 @@ class KitchenMonitorController extends BaseController
             return $displayStatus;
         }
 
-        $itemStatus   = strtolower((string) ($row['item_status'] ?? ''));
+        $itemStatus = strtolower((string) ($row['item_status'] ?? ''));
         $ticketStatus = strtolower((string) ($row['ticket_status'] ?? ''));
 
         if ($itemStatus === 'served') {
@@ -111,7 +137,6 @@ class KitchenMonitorController extends BaseController
     public function index()
     {
         $stationId = (int) ($this->request->getGet('station_id') ?? 0);
-
         $stations = method_exists($this->kitchenStationModel, 'getVisibleStations')
             ? $this->kitchenStationModel->getVisibleStations(true)
             : $this->kitchenStationModel->findAll();
@@ -128,8 +153,8 @@ class KitchenMonitorController extends BaseController
     public function feed()
     {
         $stationId = (int) ($this->request->getGet('station_id') ?? 0);
-        $mode      = trim((string) ($this->request->getGet('mode') ?? 'all'));
-        $locale    = $this->currentLocale();
+        $mode = trim((string) ($this->request->getGet('mode') ?? 'all'));
+        $locale = $this->currentLocale();
 
         $rows = $this->kitchenTicketModel->getMonitorBoardRows(
             $this->currentTenantId(),
@@ -147,9 +172,9 @@ class KitchenMonitorController extends BaseController
         ];
 
         foreach ($rows as $row) {
-            $boardStatus          = $this->resolveBoardStatus($row);
-            $row['board_status']  = $boardStatus;
-            $row['status_label']  = $this->statusLabels()[$boardStatus] ?? ucfirst($boardStatus);
+            $boardStatus = $this->resolveBoardStatus($row);
+            $row['board_status'] = $boardStatus;
+            $row['status_label'] = $this->statusLabels()[$boardStatus] ?? ucfirst($boardStatus);
             $grouped[$boardStatus][] = $row;
         }
 
@@ -165,9 +190,9 @@ class KitchenMonitorController extends BaseController
 
     public function updateStatus()
     {
-        $itemId          = (int) ($this->request->getPost('item_id') ?? 0);
+        $itemId = (int) ($this->request->getPost('item_id') ?? 0);
         $requestedStatus = (string) ($this->request->getPost('status') ?? '');
-        $status          = $this->normalizeRequestedStatus($requestedStatus);
+        $status = $this->normalizeRequestedStatus($requestedStatus);
 
         if ($itemId <= 0 || $status === '') {
             return $this->response->setJSON([
@@ -187,7 +212,9 @@ class KitchenMonitorController extends BaseController
             ]);
         }
 
-        $now  = date('Y-m-d H:i:s');
+        $fromStatus = (string) ($item['status'] ?? '');
+        $now = date('Y-m-d H:i:s');
+
         $data = [
             'status'     => $status,
             'updated_at' => $now,
@@ -201,7 +228,7 @@ class KitchenMonitorController extends BaseController
             $data['served_at'] = $now;
         }
 
-        if ($status === 'cancelled') {
+        if ($status === 'cancel') {
             $data['cancelled_at'] = $now;
             $data['cancelled_by'] = (int) (session('user_id') ?? 0);
         }
@@ -213,31 +240,48 @@ class KitchenMonitorController extends BaseController
             ]);
         }
 
-        try {
-            if (method_exists($this->kitchenLogModel, 'addLog')) {
+        $logType = $this->mapStatusToLogType($status);
+
+        if ($logType !== '') {
+            try {
                 $this->kitchenLogModel->addLog(
                     $itemId,
-                    $status,
-                    lang('app.kitchen_status_updated')
+                    $logType,
+                    lang('app.kitchen_status_updated'),
+                    [
+                        'branch_id'     => $this->currentBranchId(),
+                        'order_id'      => (int) ($item['order_id'] ?? 0),
+                        'ticket_id'     => (int) ($item['kitchen_ticket_id'] ?? 0),
+                        'from_status'   => $fromStatus,
+                        'to_status'     => $status,
+                        'action_by'     => (int) (session('user_id') ?? 0),
+                        'action_source' => 'kitchen.monitor',
+                    ]
                 );
+            } catch (\Throwable $e) {
+                log_message('error', 'Kitchen monitor addLog error: ' . $e->getMessage());
             }
-        } catch (\Throwable $e) {
-            log_message('error', 'Kitchen monitor addLog error: ' . $e->getMessage());
+        }
+
+        $ticketId = (int) ($item['kitchen_ticket_id'] ?? 0);
+        if ($ticketId > 0) {
+            $this->kitchenTicketModel->refreshStatusByTicketId($this->currentTenantId(), $ticketId);
         }
 
         return $this->response->setJSON([
-            'status'  => 'success',
-            'message' => lang('app.save_success'),
-            'data'    => [
-                'item_id'        => $itemId,
-                'requested'      => strtolower(trim($requestedStatus)),
-                'stored_status'  => $status,
-                'display_status' => $this->resolveBoardStatus([
-                    'item_status'    => $status,
-                    'ticket_status'  => '',
-                    'display_status' => '',
-                ]),
-            ],
-        ]);
+		'status'  => 'success',
+		'message' => lang('app.save_success'),
+		'token'   => csrf_hash(),
+		'data'    => [
+			'item_id'        => $itemId,
+			'requested'      => strtolower(trim($requestedStatus)),
+			'stored_status'  => $status,
+			'display_status' => $this->resolveBoardStatus([
+				'item_status'    => $status,
+				'ticket_status'  => '',
+				'display_status' => '',
+			]),
+		],
+	]);
     }
 }

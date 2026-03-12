@@ -1034,29 +1034,82 @@ $(function () {
         });
     });
 
-    $(document).on('click', '#btnSendKitchen', function () {
-        if (!TABLE_IS_ACTIVE) {
-            alert(TXT.tableDisabled);
-            return;
-        }
+    let SEND_KITCHEN_BUSY = false;
 
-        if (!CURRENT_ORDER_ID) {
-            alert(TXT.noBillYet);
-            return;
-        }
+	function generateRequestUuid() {
+		if (window.crypto && window.crypto.randomUUID) {
+			return window.crypto.randomUUID();
+		}
+		return 'rk-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+	}
 
-        $.post("<?= site_url('pos/send-kitchen') ?>", {
-            order_id: CURRENT_ORDER_ID
-        })
-        .done(function (res) {
-            alert(res.message || <?= json_encode(lang('app.sent_to_kitchen_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
-            loadOrder();
-        })
-        .fail(function (xhr) {
-            console.error('sendKitchen error:', xhr.responseText);
-            alert(TXT.sendKitchenFailed);
-        });
-    });
+	$(document).off('click', '#btnSendKitchen');
+
+	$(document).on('click', '#btnSendKitchen', function () {
+
+		if (SEND_KITCHEN_BUSY) {
+			return;
+		}
+
+		if (!TABLE_IS_ACTIVE) {
+			alert(TXT.tableDisabled);
+			return;
+		}
+
+		if (!CURRENT_ORDER_ID) {
+			alert(TXT.noBillYet);
+			return;
+		}
+
+		SEND_KITCHEN_BUSY = true;
+
+		const $btn = $('#btnSendKitchen');
+		const originalText = $btn.text();
+
+		$btn.prop('disabled', true);
+		$btn.text('...');
+
+		const requestUuid = generateRequestUuid();
+
+		$.ajax({
+			url: "<?= site_url('pos/send-kitchen') ?>",
+			type: "POST",
+			dataType: "json",
+			data: {
+				order_id: CURRENT_ORDER_ID,
+				request_uuid: requestUuid
+			},
+
+			complete: function () {
+				SEND_KITCHEN_BUSY = false;
+				$btn.prop('disabled', false);
+				$btn.text(originalText);
+			},
+
+			success: function (res) {
+
+				if (res && res.status === 'success') {
+
+					alert(res.message || <?= json_encode(lang('app.sent_to_kitchen_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
+
+					loadOrder();
+
+				} else {
+
+					alert(res.message || TXT.sendKitchenFailed);
+
+				}
+			},
+
+			error: function (xhr) {
+
+				console.error('sendKitchen error:', xhr.responseText);
+				alert(TXT.sendKitchenFailed);
+
+			}
+		});
+
+	});
 
     $(document).on('click', '#btnPay', function () {
         if (!TABLE_IS_ACTIVE) {

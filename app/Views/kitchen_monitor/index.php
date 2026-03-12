@@ -702,24 +702,18 @@
     }
 
     function renderColumn(targetId, rows) {
-        const el = document.getElementById(targetId);
-        if (!el) {
-            return;
-        }
+		const el = document.getElementById(targetId);
+		if (!el) {
+			return;
+		}
 
-        if (!rows || !rows.length) {
-            el.innerHTML = `<div class="text-muted small kds-empty">${escapeHtml(i18n.noItems)}</div>`;
-            return;
-        }
+		if (!rows || !rows.length) {
+			el.innerHTML = `<div class="text-muted small kds-empty">${escapeHtml(i18n.noItems)}</div>`;
+			return;
+		}
 
-        const sortedRows = [...rows].sort((a, b) => {
-            const aAge = getAgeMinutes(a.sent_at || '');
-            const bAge = getAgeMinutes(b.sent_at || '');
-            return bAge - aAge;
-        });
-
-        el.innerHTML = sortedRows.map((row, index) => renderCard(row, index)).join('');
-    }
+		el.innerHTML = rows.map((row, index) => renderCard(row, index)).join('');
+	}
 
     function updateCounts(data) {
         const newCount = (data.new || []).length;

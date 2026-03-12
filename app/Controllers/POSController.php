@@ -904,8 +904,12 @@ class POSController extends BaseController
 		}
 
 		$orderId = (int) $this->request->getPost('order_id');
+		$tenantId = $this->currentTenantId();
+		$branchId = $this->getCurrentBranchId();
+		$requestUuid = trim((string) ($this->request->getPost('request_uuid') ?: $this->request->getHeaderLine('X-Idempotency-Key')));
 
 		$order = $this->getScopedOrder($orderId);
+
 		if (! $order) {
 			return $this->response->setJSON([
 				'status'  => 'error',
@@ -920,49 +924,116 @@ class POSController extends BaseController
 			]);
 		}
 
-		$pendingItems = $this->orderItemModel->getPendingByOrder($orderId);
-
-		if (empty($pendingItems)) {
-			return $this->response->setJSON([
-				'status'  => 'warning',
-				'message' => lang('app.no_pending_items_to_kitchen'),
-			]);
-		}
-
 		$db = \Config\Database::connect();
 		$db->transBegin();
 
 		try {
-			$ticketNo = 'KT' . date('YmdHis') . rand(10, 99);
+			// Lock order row first
+			$params = [$orderId, $tenantId];
+			$sql = "SELECT id
+					FROM orders
+					WHERE id = ?
+					  AND tenant_id = ?";
+
+			if ($branchId > 0) {
+				$sql .= " AND branch_id = ?";
+				$params[] = $branchId;
+			}
+
+			$sql .= " AND status = 'open' FOR UPDATE";
+
+			$lockedOrder = $db->query($sql, $params)->getRowArray();
+
+			if (! $lockedOrder) {
+				$db->transRollback();
+
+				return $this->response->setJSON([
+					'status'  => 'error',
+					'message' => lang('app.order_not_found'),
+				]);
+			}
+
+			// Idempotency guard
+			if ($requestUuid !== '') {
+				$existingTicket = $this->kitchenTicketModel->findByRequestUuid($tenantId, $orderId, $requestUuid);
+
+				if ($existingTicket) {
+					$db->transCommit();
+
+					return $this->response->setJSON([
+						'status'    => 'success',
+						'message'   => lang('app.send_kitchen_success'),
+						'ticket_no' => $existingTicket['ticket_no'] ?? '',
+						'duplicate' => true,
+					]);
+				}
+			}
+
+			// Important: fetch pending items only inside transaction with FOR UPDATE
+			$pendingItems = $this->orderItemModel->lockPendingByOrder($tenantId, $orderId);
+
+			if (empty($pendingItems)) {
+				$db->transRollback();
+
+				return $this->response->setJSON([
+					'status'  => 'warning',
+					'message' => lang('app.no_pending_items_to_kitchen'),
+				]);
+			}
+
+			$batchNo = $this->kitchenTicketModel->getNextBatchNo($tenantId, $orderId);
+			$ticketNo = 'KT' . date('YmdHis') . str_pad((string) $batchNo, 2, '0', STR_PAD_LEFT);
 
 			$this->kitchenTicketModel->insert([
-				'tenant_id' => $this->currentTenantId(),
-				'order_id'  => $orderId,
-				'ticket_no' => $ticketNo,
-				'status'    => 'new',
+				'tenant_id'           => $tenantId,
+				'branch_id'           => $branchId > 0 ? $branchId : null,
+				'order_id'            => $orderId,
+				'ticket_no'           => $ticketNo,
+				'status'              => 'new',
+				'source_request_uuid' => $requestUuid !== '' ? $requestUuid : null,
+				'dispatch_batch_no'   => $batchNo,
+				'item_count'          => count($pendingItems),
+				'created_by'          => $this->currentUserId(),
 			]);
 
+			$ticketId = (int) $this->kitchenTicketModel->getInsertID();
 			$now = date('Y-m-d H:i:s');
 
 			foreach ($pendingItems as $item) {
 				$itemId = (int) ($item['id'] ?? 0);
+
 				if ($itemId <= 0) {
 					continue;
 				}
 
 				$this->orderItemModel->update($itemId, [
-					'status'     => 'sent',
-					'sent_at'    => $now,
-					'updated_at' => $now,
+					'status'           => 'sent',
+					'kitchen_ticket_id'=> $ticketId,
+					'sent_at'          => $now,
+					'updated_at'       => $now,
 				]);
 
-				if (isset($this->kitchenLogModel) && method_exists($this->kitchenLogModel, 'addLog')) {
-					try {
-						$this->kitchenLogModel->addLog($itemId, 'new', lang('app.sent_to_kitchen_log'));
-					} catch (\Throwable $e) {
-						log_message('error', 'KitchenLog addLog error: ' . $e->getMessage());
-					}
-				}
+				$this->kitchenLogModel->addLog(
+					$itemId,
+					'new',
+					lang('app.sent_to_kitchen_log'),
+					[
+						'tenant_id'     => $tenantId,
+						'branch_id'     => $branchId > 0 ? $branchId : null,
+						'order_id'      => $orderId,
+						'ticket_id'     => $ticketId,
+						'from_status'   => (string) ($item['status'] ?? 'pending'),
+						'to_status'     => 'sent',
+						'action_by'     => $this->currentUserId(),
+						'action_source' => 'pos.send_kitchen',
+						'request_uuid'  => $requestUuid !== '' ? $requestUuid : null,
+						'meta_json'     => [
+							'product_id'   => (int) ($item['product_id'] ?? 0),
+							'product_name' => (string) ($item['product_name'] ?? ''),
+							'qty'          => (int) ($item['qty'] ?? 0),
+						],
+					]
+				);
 			}
 
 			if ($db->transStatus() === false) {
@@ -980,6 +1051,7 @@ class POSController extends BaseController
 				'status'    => 'success',
 				'message'   => lang('app.send_kitchen_success'),
 				'ticket_no' => $ticketNo,
+				'ticket_id' => $ticketId,
 			]);
 		} catch (\Throwable $e) {
 			$db->transRollback();
@@ -1728,4 +1800,9 @@ class POSController extends BaseController
             return false;
         }
     }
+	
+	protected function currentUserId(): int
+	{
+		return (int) (session('user_id') ?? 0);
+	}
 }

@@ -4,11 +4,11 @@ namespace App\Models;
 
 class OrderItemModel extends TenantScopedModel
 {
-    protected $table            = 'order_items';
-    protected $primaryKey       = 'id';
-    protected $returnType       = 'array';
+    protected $table = 'order_items';
+    protected $primaryKey = 'id';
+    protected $returnType = 'array';
     protected $useAutoIncrement = true;
-    protected $useTimestamps    = true;
+    protected $useTimestamps = true;
 
     protected $allowedFields = [
         'tenant_id',
@@ -23,6 +23,7 @@ class OrderItemModel extends TenantScopedModel
         'line_total',
         'note',
         'status',
+        'kitchen_ticket_id',
         'sent_at',
         'served_at',
         'cancelled_at',
@@ -59,6 +60,31 @@ class OrderItemModel extends TenantScopedModel
         return (int) $this->scoped()
             ->where('order_id', $orderId)
             ->where('status', 'pending')
+            ->countAllResults();
+    }
+
+    public function lockPendingByOrder(int $tenantId, int $orderId): array
+    {
+        if ($tenantId <= 0 || $orderId <= 0) {
+            return [];
+        }
+
+        $sql = "SELECT *
+                FROM order_items
+                WHERE tenant_id = ?
+                  AND order_id = ?
+                  AND status = 'pending'
+                ORDER BY id ASC
+                FOR UPDATE";
+
+        return $this->db->query($sql, [$tenantId, $orderId])->getResultArray();
+    }
+
+    public function countActiveByTicket(int $tenantId, int $ticketId): int
+    {
+        return (int) $this->where('tenant_id', $tenantId)
+            ->where('kitchen_ticket_id', $ticketId)
+            ->whereNotIn('status', ['served', 'cancel'])
             ->countAllResults();
     }
 }
