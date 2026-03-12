@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
+use App\Models\TenantScopedModel;
 
-class ProductModel extends Model
+class ProductModel extends TenantScopedModel
 {
     protected $table            = 'products';
     protected $primaryKey       = 'id';
@@ -35,52 +35,52 @@ class ProductModel extends Model
     ];
 
     public function findTenantProduct(int $tenantId, int $id): ?array
-    {
-        if ($tenantId <= 0 || $id <= 0) {
-            return null;
-        }
+	{
+		if ($tenantId <= 0 || $id <= 0) {
+			return null;
+		}
 
-        $row = $this->builder()
-            ->select('products.*')
-            ->where('products.tenant_id', $tenantId)
-            ->where('products.id', $id)
-            ->where('products.deleted_at IS NULL', null, false)
-            ->get()
-            ->getRowArray();
+		$row = $this->builder()
+			->select('products.*')
+			->where('products.tenant_id', $tenantId)
+			->where('products.id', $id)
+			->where('products.deleted_at IS NULL', null, false)
+			->get()
+			->getRowArray();
 
-        return is_array($row) ? $row : null;
-    }
+		return is_array($row) ? $row : null;
+	}
 
     public function getTenantProducts(int $tenantId): array
-    {
-        if ($tenantId <= 0) {
-            return [];
-        }
+	{
+		if ($tenantId <= 0) {
+			return [];
+		}
 
-        return $this->builder()
-            ->select('products.*')
-            ->where('products.tenant_id', $tenantId)
-            ->where('products.deleted_at IS NULL', null, false)
-            ->orderBy('products.sort_order', 'ASC')
-            ->orderBy('products.id', 'DESC')
-            ->get()
-            ->getResultArray();
-    }
+		return $this->builder()
+			->select('products.*')
+			->where('products.tenant_id', $tenantId)
+			->where('products.deleted_at IS NULL', null, false)
+			->orderBy('products.sort_order', 'ASC')
+			->orderBy('products.id', 'DESC')
+			->get()
+			->getResultArray();
+	}
 
-    public function getProductsByCategory(int $tenantId, int $categoryId): array
-    {
-        if ($tenantId <= 0 || $categoryId <= 0) {
-            return [];
-        }
+	public function getProductsByCategory(int $tenantId, int $categoryId): array
+	{
+		if ($tenantId <= 0 || $categoryId <= 0) {
+			return [];
+		}
 
-        return $this->builder()
-            ->select('products.*')
-            ->where('products.tenant_id', $tenantId)
-            ->where('products.category_id', $categoryId)
-            ->where('products.deleted_at IS NULL', null, false)
-            ->orderBy('products.sort_order', 'ASC')
-            ->orderBy('products.id', 'DESC')
-            ->get()
-            ->getResultArray();
-    }
+		return $this->builder()
+			->select('products.*')
+			->where('products.tenant_id', $tenantId)
+			->where('products.category_id', $categoryId)
+			->where('products.deleted_at IS NULL', null, false)
+			->orderBy('products.sort_order', 'ASC')
+			->orderBy('products.id', 'DESC')
+			->get()
+			->getResultArray();
+	}
 }
