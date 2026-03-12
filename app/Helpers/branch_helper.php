@@ -63,35 +63,11 @@ if (! function_exists('current_branch_code')) {
     }
 }
 
-if (! function_exists('is_super_admin')) {
-    function is_super_admin(): bool
-    {
-        if ((int) (session('is_super_admin') ?? 0) === 1) {
-            return true;
-        }
-
-        $candidates = [
-            session('role_code'),
-            session('role_name'),
-            session('role'),
-        ];
-
-        foreach ($candidates as $value) {
-            $role = strtolower(trim((string) $value));
-
-            if (in_array($role, ['super_admin', 'super admin', 'superadmin', 'platform_admin', 'platform admin'], true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-}
-
 if (! function_exists('can_manage_all_branches')) {
     function can_manage_all_branches(): bool
     {
-        return is_super_admin() || (function_exists('can') && can('branches.switch'));
+        return (function_exists('is_super_admin') && is_super_admin())
+            || (function_exists('can') && can('branches.switch'));
     }
 }
 
