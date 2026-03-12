@@ -2,6 +2,7 @@
 
 namespace App\Filters;
 
+use App\Services\AccessService;
 use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
@@ -45,29 +46,9 @@ class AuthSubscriptionFilter implements FilterInterface
             return $this->fail(lang('app.please_login'));
         }
 
-        $db = $this->db();
-
-        $tenant = $db->table('tenants')
-            ->select('id, status, deleted_at')
-            ->where('id', $tenantId)
-            ->where('deleted_at', null)
-            ->get()
-            ->getRowArray();
-
-        if (! $tenant) {
-            return $this->fail(lang('app.tenant_inactive'));
-        }
-
-        $tenantStatus = strtolower((string) ($tenant['status'] ?? ''));
-
-        if (! in_array($tenantStatus, ['active', 'demo'], true)) {
-            return redirect()
-                ->to(site_url('/'))
-                ->with('error', lang('app.tenant_inactive'));
-        }
-
+        // Keep branch ownership/status check here because it is request/session specific.
         if ($branchId > 0) {
-            $branch = $db->table('branches')
+            $branch = $this->db()->table('branches')
                 ->select('id, tenant_id, status, deleted_at')
                 ->where('id', $branchId)
                 ->where('deleted_at', null)
@@ -87,13 +68,15 @@ class AuthSubscriptionFilter implements FilterInterface
             }
         }
 
-        if (! function_exists('tenant_active') || ! tenant_active()) {
+        $access = new AccessService();
+
+        if (! $access->tenantIsActive()) {
             return redirect()
                 ->to(site_url('/'))
                 ->with('error', lang('app.tenant_inactive'));
         }
 
-        if (! function_exists('subscription_active') || ! subscription_active()) {
+        if (! $access->subscriptionIsActive()) {
             return redirect()
                 ->to(site_url('subscription/expired'))
                 ->with('error', lang('app.subscription_expired'));
