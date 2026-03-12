@@ -178,25 +178,54 @@ class TableModel extends TenantScopedModel
     }
 
     public function getTableMapByIds(array $tableIds, ?int $branchId = null): array
-    {
-        $tableIds = array_values(array_unique(array_filter(array_map('intval', $tableIds), static fn ($id) => $id > 0)));
+	{
+		$tableIds = array_values(array_unique(array_filter(
+			array_map('intval', $tableIds),
+			static fn ($id) => $id > 0
+		)));
 
-        if ($tableIds === []) {
-            return [];
-        }
+		if ($tableIds === []) {
+			return [];
+		}
 
-        $rows = $this->getTablesFull($branchId);
-        $map  = [];
+		$builder = $this->db->table('restaurant_tables');
+		$zoneNameSelect = $this->getZoneNameSelect('zones');
 
-        foreach ($rows as $row) {
-            $id = (int) ($row['id'] ?? 0);
-            if ($id > 0 && in_array($id, $tableIds, true)) {
-                $map[$id] = $row;
-            }
-        }
+		$builder->select("
+			restaurant_tables.*,
+			{$zoneNameSelect},
+			branches.branch_code,
+			branches.branch_name_th,
+			branches.branch_name_en
+		");
 
-        return $map;
-    }
+		$this->applyTenantFilters($builder);
+
+		$builder->whereIn('restaurant_tables.id', $tableIds);
+
+		if ($branchId !== null && $branchId > 0) {
+			$builder->where('restaurant_tables.branch_id', $branchId);
+		}
+
+		$rows = $builder
+			->orderBy('restaurant_tables.zone_id', 'ASC')
+			->orderBy('restaurant_tables.sort_order', 'ASC')
+			->orderBy('restaurant_tables.id', 'ASC')
+			->get()
+			->getResultArray();
+
+		$map = [];
+
+		foreach ($rows as $row) {
+			$id = (int) ($row['id'] ?? 0);
+
+			if ($id > 0) {
+				$map[$id] = $row;
+			}
+		}
+
+		return $map;
+	}
 
     public function getActiveTablesByBranch(int $branchId): array
     {
