@@ -955,28 +955,37 @@ $(function () {
     }
 
     function loadMergeTargets() {
-        if (!CURRENT_ORDER_ID) {
-            return;
-        }
+		if (!CURRENT_ORDER_ID) {
+			return;
+		}
 
-        $('#mergeTargetOrderId').html('<option value="">' + TXT.selectTargetBill + '</option>');
+		$('#mergeTargetOrderId').html('<option value="">' + TXT.selectTargetBill + '</option>');
 
-        $.get("<?= site_url('pos/merge-targets') ?>/" + CURRENT_ORDER_ID)
-            .done(function (res) {
-                if (!res || res.status !== 'success') {
-                    return;
-                }
+		$.get("<?= site_url('pos/merge-targets') ?>/" + CURRENT_ORDER_ID)
+			.done(function (res) {
+				if (!res || res.status !== 'success') {
+					return;
+				}
 
-                let html = '<option value="">' + TXT.selectTargetBill + '</option>';
+				let html = '<option value="">' + TXT.selectTargetBill + '</option>';
 
-                (res.orders || []).forEach(function (row) {
-                    const label = row.order_number + ' / ' + row.table_name + ' / ฿' + Number(row.total_price || 0).toFixed(2);
-                    html += '<option value="' + row.id + '">' + label + '</option>';
-                });
+				(res.targets || []).forEach(function (row) {
+					const orderId = Number(row.order_id || row.id || 0);
+					const orderNumber = row.order_number || ('#' + orderId);
+					const tableName = row.table_name || '-';
+					const totalPrice = Number(row.total_price || 0).toFixed(2);
 
-                $('#mergeTargetOrderId').html(html);
-            });
-    }
+					const label = tableName + ' / ' + orderNumber + ' / ฿' + totalPrice;
+					html += '<option value="' + orderId + '">' + label + '</option>';
+				});
+
+				$('#mergeTargetOrderId').html(html);
+			})
+			.fail(function (xhr) {
+				console.error('loadMergeTargets error:', xhr.responseText);
+				$('#mergeTargetOrderId').html('<option value="">' + TXT.selectTargetBill + '</option>');
+			});
+	}
 
     $(document).on('click', '#btnOpenOrder', function () {
         if (!TABLE_IS_ACTIVE) {

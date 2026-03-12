@@ -23,49 +23,50 @@ use App\Models\OrderMergeModel;
 class POSController extends BaseController
 {
     protected $orderModel;
-	protected $orderItemModel;
-	protected $productModel;
-	protected $tableModel;
-	protected $categoryModel;
-	protected $paymentModel;
-	protected $kitchenTicketModel;
-	protected $kitchenLogModel;
-	protected $orderItemOptionModel;
-	protected $productQuickOptionModel;
-	protected $quickNoteModel;
-	protected $reservationModel;
-	protected $reservationLogModel;
-	protected $reservationTableModel;
-	protected $orderMergeModel;
-	protected $db;
+    protected $orderItemModel;
+    protected $productModel;
+    protected $tableModel;
+    protected $categoryModel;
+    protected $paymentModel;
+    protected $kitchenTicketModel;
+    protected $kitchenLogModel;
+    protected $orderItemOptionModel;
+    protected $productQuickOptionModel;
+    protected $quickNoteModel;
+    protected $reservationModel;
+    protected $reservationLogModel;
+    protected $reservationTableModel;
+    protected $orderTableMoveModel;
+    protected $orderMergeModel;
+    protected $db;
 
     public function __construct()
-	{
-		$this->orderModel              = new OrderModel();
-		$this->orderItemModel          = new OrderItemModel();
-		$this->productModel            = new ProductModel();
-		$this->tableModel              = new TableModel();
-		$this->categoryModel           = new CategoryModel();
-		$this->paymentModel            = new PaymentModel();
-		$this->kitchenTicketModel      = new KitchenTicketModel();
-		$this->kitchenLogModel         = new KitchenLogModel();
-		$this->orderItemOptionModel    = new OrderItemOptionModel();
-		$this->productQuickOptionModel = new ProductQuickOptionModel();
-		$this->quickNoteModel          = new QuickNoteModel();
-		$this->reservationModel        = new ReservationModel();
-		$this->reservationLogModel     = new ReservationLogModel();
-		$this->reservationTableModel   = new ReservationTableModel();
-		$this->db                      = \Config\Database::connect();
-		$this->orderTableMoveModel = new OrderTableMoveModel();
-		$this->orderMergeModel = new OrderMergeModel();
-	}
+    {
+        $this->orderModel              = new OrderModel();
+        $this->orderItemModel          = new OrderItemModel();
+        $this->productModel            = new ProductModel();
+        $this->tableModel              = new TableModel();
+        $this->categoryModel           = new CategoryModel();
+        $this->paymentModel            = new PaymentModel();
+        $this->kitchenTicketModel      = new KitchenTicketModel();
+        $this->kitchenLogModel         = new KitchenLogModel();
+        $this->orderItemOptionModel    = new OrderItemOptionModel();
+        $this->productQuickOptionModel = new ProductQuickOptionModel();
+        $this->quickNoteModel          = new QuickNoteModel();
+        $this->reservationModel        = new ReservationModel();
+        $this->reservationLogModel     = new ReservationLogModel();
+        $this->reservationTableModel   = new ReservationTableModel();
+        $this->db                      = \Config\Database::connect();
+        $this->orderTableMoveModel     = new OrderTableMoveModel();
+        $this->orderMergeModel         = new OrderMergeModel();
+    }
 
     protected function getActiveOrderStatuses(): array
-	{
-		return ['open', 'billing'];
-	}
-	
-	    protected function jsonFeatureDenied(string $featureKey, ?string $messageKey = null)
+    {
+        return ['open', 'billing'];
+    }
+
+    protected function jsonFeatureDenied(string $featureKey, ?string $messageKey = null)
     {
         if (function_exists('tenant_subscription_expired') && tenant_subscription_expired()) {
             return $this->response->setJSON([
@@ -112,7 +113,6 @@ class POSController extends BaseController
         return null;
     }
 
-
     protected function getCurrentBranchId(): int
     {
         if (function_exists('current_branch_id')) {
@@ -134,32 +134,32 @@ class POSController extends BaseController
     }
 
     protected function getScopedOrder(int $orderId, array $statuses = []): ?array
-	{
-		if ($orderId <= 0) {
-			return null;
-		}
+    {
+        if ($orderId <= 0) {
+            return null;
+        }
 
-		$branchId = $this->getCurrentBranchId();
-		$tenantId = function_exists('current_tenant_id') ? current_tenant_id() : null;
+        $branchId = $this->getCurrentBranchId();
+        $tenantId = function_exists('current_tenant_id') ? current_tenant_id() : null;
 
-		$builder = $this->orderModel->where('id', $orderId);
+        $builder = $this->orderModel->where('id', $orderId);
 
-		if ($tenantId) {
-			$builder->where('tenant_id', $tenantId);
-		}
+        if ($tenantId) {
+            $builder->where('tenant_id', $tenantId);
+        }
 
-		if ($branchId > 0) {
-			$builder->where('branch_id', $branchId);
-		}
+        if ($branchId > 0) {
+            $builder->where('branch_id', $branchId);
+        }
 
-		if (! empty($statuses)) {
-			$builder->whereIn('status', $statuses);
-		}
+        if (! empty($statuses)) {
+            $builder->whereIn('status', $statuses);
+        }
 
-		return $builder->first();
-	}
-	
-	protected function currentTenantId(): int
+        return $builder->first();
+    }
+
+    protected function currentTenantId(): int
     {
         $tenantId = 0;
 
@@ -173,15 +173,15 @@ class POSController extends BaseController
 
         return $tenantId;
     }
-	
-	protected function getScopedProduct(int $productId): ?array
-	{
-		if ($productId <= 0) {
-			return null;
-		}
 
-		return $this->productModel->findTenantProduct($this->currentTenantId(), $productId);
-	}
+    protected function getScopedProduct(int $productId): ?array
+    {
+        if ($productId <= 0) {
+            return null;
+        }
+
+        return $this->productModel->findTenantProduct($this->currentTenantId(), $productId);
+    }
 
     protected function scopedOrderQuery(?array $statuses = null)
     {
@@ -253,113 +253,113 @@ class POSController extends BaseController
     }
 
     protected function getTenantQuickNotesForPos(): array
-	{
-		if (method_exists($this->quickNoteModel, 'scopedBuilder')) {
-			return $this->quickNoteModel
-				->scopedBuilder()
-				->where('quick_notes.deleted_at IS NULL', null, false)
-				->where('quick_notes.status', 1)
-				->orderBy('quick_notes.sort_order', 'ASC')
-				->orderBy('quick_notes.id', 'ASC')
-				->get()
-				->getResultArray();
-		}
+    {
+        if (method_exists($this->quickNoteModel, 'scopedBuilder')) {
+            return $this->quickNoteModel
+                ->scopedBuilder()
+                ->where('quick_notes.deleted_at IS NULL', null, false)
+                ->where('quick_notes.status', 1)
+                ->orderBy('quick_notes.sort_order', 'ASC')
+                ->orderBy('quick_notes.id', 'ASC')
+                ->get()
+                ->getResultArray();
+        }
 
-		if (method_exists($this->quickNoteModel, 'scopeTenant')) {
-			return $this->quickNoteModel
-				->scopeTenant()
-				->where('quick_notes.deleted_at IS NULL', null, false)
-				->where('quick_notes.status', 1)
-				->orderBy('quick_notes.sort_order', 'ASC')
-				->orderBy('quick_notes.id', 'ASC')
-				->get()
-				->getResultArray();
-		}
+        if (method_exists($this->quickNoteModel, 'scopeTenant')) {
+            return $this->quickNoteModel
+                ->scopeTenant()
+                ->where('quick_notes.deleted_at IS NULL', null, false)
+                ->where('quick_notes.status', 1)
+                ->orderBy('quick_notes.sort_order', 'ASC')
+                ->orderBy('quick_notes.id', 'ASC')
+                ->get()
+                ->getResultArray();
+        }
 
-		return $this->quickNoteModel
-			->where('quick_notes.tenant_id', $this->currentTenantId())
-			->where('quick_notes.deleted_at IS NULL', null, false)
-			->where('quick_notes.status', 1)
-			->orderBy('quick_notes.sort_order', 'ASC')
-			->orderBy('quick_notes.id', 'ASC')
-			->findAll();
-	}
-	
-	protected function decodePostedOptions($optionsRaw): array
-	{
-		$options = [];
+        return $this->quickNoteModel
+            ->where('quick_notes.tenant_id', $this->currentTenantId())
+            ->where('quick_notes.deleted_at IS NULL', null, false)
+            ->where('quick_notes.status', 1)
+            ->orderBy('quick_notes.sort_order', 'ASC')
+            ->orderBy('quick_notes.id', 'ASC')
+            ->findAll();
+    }
 
-		if (is_string($optionsRaw) && $optionsRaw !== '') {
-			$decoded = json_decode($optionsRaw, true);
-			if (is_array($decoded)) {
-				$options = $decoded;
-			}
-		} elseif (is_array($optionsRaw)) {
-			$options = $optionsRaw;
-		}
+    protected function decodePostedOptions($optionsRaw): array
+    {
+        $options = [];
 
-		return $options;
-	}
+        if (is_string($optionsRaw) && $optionsRaw !== '') {
+            $decoded = json_decode($optionsRaw, true);
+            if (is_array($decoded)) {
+                $options = $decoded;
+            }
+        } elseif (is_array($optionsRaw)) {
+            $options = $optionsRaw;
+        }
 
-	protected function buildOrderItemOptionPayload(array $options, string $itemDetail = ''): array
-	{
-		$optionRows        = [];
-		$optionSummaryList = [];
-		$optionTotal       = 0.0;
+        return $options;
+    }
 
-		foreach ($options as $opt) {
-			$group       = trim((string) ($opt['group'] ?? ''));
-			$name        = trim((string) ($opt['name'] ?? ''));
-			$priceAdjust = (float) ($opt['price_adjust'] ?? 0);
+    protected function buildOrderItemOptionPayload(array $options, string $itemDetail = ''): array
+    {
+        $optionRows        = [];
+        $optionSummaryList = [];
+        $optionTotal       = 0.0;
 
-			if ($name === '') {
-				continue;
-			}
+        foreach ($options as $opt) {
+            $group       = trim((string) ($opt['group'] ?? ''));
+            $name        = trim((string) ($opt['name'] ?? ''));
+            $priceAdjust = (float) ($opt['price_adjust'] ?? 0);
 
-			$optionRows[] = [
-				'option_group' => $group !== '' ? $group : lang('app.options'),
-				'option_name'  => $name,
-				'price_adjust' => $priceAdjust,
-			];
+            if ($name === '') {
+                continue;
+            }
 
-			$optionSummaryList[] = $priceAdjust > 0
-				? ($name . ' (+' . number_format($priceAdjust, 2) . ')')
-				: $name;
+            $optionRows[] = [
+                'option_group' => $group !== '' ? $group : lang('app.options'),
+                'option_name'  => $name,
+                'price_adjust' => $priceAdjust,
+            ];
 
-			$optionTotal += $priceAdjust;
-		}
+            $optionSummaryList[] = $priceAdjust > 0
+                ? ($name . ' (+' . number_format($priceAdjust, 2) . ')')
+                : $name;
 
-		if ($itemDetail !== '') {
-			$detailParts = array_filter(array_map('trim', explode(',', $itemDetail)));
+            $optionTotal += $priceAdjust;
+        }
 
-			foreach ($detailParts as $detailText) {
-				$exists = false;
+        if ($itemDetail !== '') {
+            $detailParts = array_filter(array_map('trim', explode(',', $itemDetail)));
 
-				foreach ($optionRows as $optRow) {
-					if (trim((string) ($optRow['option_name'] ?? '')) === $detailText) {
-						$exists = true;
-						break;
-					}
-				}
+            foreach ($detailParts as $detailText) {
+                $exists = false;
 
-				if (! $exists) {
-					$optionRows[] = [
-						'option_group' => lang('app.food_detail_label'),
-						'option_name'  => $detailText,
-						'price_adjust' => 0,
-					];
+                foreach ($optionRows as $optRow) {
+                    if (trim((string) ($optRow['option_name'] ?? '')) === $detailText) {
+                        $exists = true;
+                        break;
+                    }
+                }
 
-					$optionSummaryList[] = $detailText;
-				}
-			}
-		}
+                if (! $exists) {
+                    $optionRows[] = [
+                        'option_group' => lang('app.food_detail_label'),
+                        'option_name'  => $detailText,
+                        'price_adjust' => 0,
+                    ];
 
-		return [
-			'rows'          => $optionRows,
-			'summary'       => implode(', ', $optionSummaryList),
-			'total_adjust'  => $optionTotal,
-		];
-	}
+                    $optionSummaryList[] = $detailText;
+                }
+            }
+        }
+
+        return [
+            'rows'         => $optionRows,
+            'summary'      => implode(', ', $optionSummaryList),
+            'total_adjust' => $optionTotal,
+        ];
+    }
 
     protected function updateScopedTableStatus(int $tableId, string $status): bool
     {
@@ -397,8 +397,8 @@ class POSController extends BaseController
             ->orderBy('id', 'DESC')
             ->first();
     }
-	
-	    protected function getScopedOrderItem(int $itemId): ?array
+
+    protected function getScopedOrderItem(int $itemId): ?array
     {
         if ($itemId <= 0) {
             return null;
@@ -415,7 +415,6 @@ class POSController extends BaseController
 
         $this->orderItemOptionModel->deleteByOrderItem($itemId);
     }
-
 
     public function index()
     {
@@ -471,112 +470,112 @@ class POSController extends BaseController
     }
 
     public function table($tableId)
-	{
-		if ($response = $this->denyIfFeatureNotEnabled('pos.access', lang('app.plan_cannot_access_pos'))) {
-			return $response;
-		}
+    {
+        if ($response = $this->denyIfFeatureNotEnabled('pos.access', lang('app.plan_cannot_access_pos'))) {
+            return $response;
+        }
 
-		$tableId = (int) $tableId;
+        $tableId = (int) $tableId;
 
-		$table = $this->getScopedTable($tableId);
-		if (! $table) {
-			return redirect()->to(site_url('pos'))
-				->with('error', lang('app.table_not_found'));
-		}
+        $table = $this->getScopedTable($tableId);
+        if (! $table) {
+            return redirect()->to(site_url('pos'))
+                ->with('error', lang('app.table_not_found'));
+        }
 
-		if ((int) ($table['is_active'] ?? 0) !== 1 || ($table['status'] ?? '') === 'disabled') {
-			return redirect()->to(site_url('pos'))
-				->with('error', lang('app.table_disabled'));
-		}
+        if ((int) ($table['is_active'] ?? 0) !== 1 || ($table['status'] ?? '') === 'disabled') {
+            return redirect()->to(site_url('pos'))
+                ->with('error', lang('app.table_disabled'));
+        }
 
-		if (($table['status'] ?? '') === 'cleaning') {
-			return redirect()->to(site_url('pos'))
-				->with('error', lang('app.table_cleaning'));
-		}
+        if (($table['status'] ?? '') === 'cleaning') {
+            return redirect()->to(site_url('pos'))
+                ->with('error', lang('app.table_cleaning'));
+        }
 
-		$categories   = $this->getTenantCategoriesForPos();
-		$products     = $this->getTenantProductsForPos();
-		$currentOrder = $this->findCurrentOrderByTable($tableId);
-		$quickNotes   = $this->getTenantQuickNotesForPos();
+        $categories   = $this->getTenantCategoriesForPos();
+        $products     = $this->getTenantProductsForPos();
+        $currentOrder = $this->findCurrentOrderByTable($tableId);
+        $quickNotes   = $this->getTenantQuickNotesForPos();
 
-		return view('pos/table', [
-			'table'        => $table,
-			'categories'   => $categories,
-			'products'     => $products,
-			'currentOrder' => $currentOrder,
-			'quickNotes'   => $quickNotes,
-		]);
-	}
+        return view('pos/table', [
+            'table'        => $table,
+            'categories'   => $categories,
+            'products'     => $products,
+            'currentOrder' => $currentOrder,
+            'quickNotes'   => $quickNotes,
+        ]);
+    }
 
     public function getProductQuickOptions($productId = null)
-	{
-		if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
-			return $response;
-		}
+    {
+        if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
+            return $response;
+        }
 
-		$productId = (int) $productId;
+        $productId = (int) $productId;
 
-		if ($productId <= 0) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.product_not_found'),
-			]);
-		}
+        if ($productId <= 0) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.product_not_found'),
+            ]);
+        }
 
-		$product = $this->getScopedProduct($productId);
-		if (! $product) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.product_not_found'),
-			]);
-		}
+        $product = $this->getScopedProduct($productId);
+        if (! $product) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.product_not_found'),
+            ]);
+        }
 
-		$categoryId = (int) ($product['category_id'] ?? 0);
-		$locale     = service('request')->getLocale();
+        $categoryId = (int) ($product['category_id'] ?? 0);
+        $locale     = service('request')->getLocale();
 
-		$rows = $this->productQuickOptionModel->getOptionsForPos($productId, $categoryId);
+        $rows = $this->productQuickOptionModel->getOptionsForPos($productId, $categoryId);
 
-		$options = [];
-		foreach ($rows as $row) {
-			$optionName = '';
+        $options = [];
+        foreach ($rows as $row) {
+            $optionName = '';
 
-			if ($locale === 'en') {
-				$optionName = trim((string) ($row['option_name_en'] ?? ''));
-				if ($optionName === '') {
-					$optionName = trim((string) ($row['option_name_th'] ?? ''));
-				}
-			} else {
-				$optionName = trim((string) ($row['option_name_th'] ?? ''));
-				if ($optionName === '') {
-					$optionName = trim((string) ($row['option_name_en'] ?? ''));
-				}
-			}
+            if ($locale === 'en') {
+                $optionName = trim((string) ($row['option_name_en'] ?? ''));
+                if ($optionName === '') {
+                    $optionName = trim((string) ($row['option_name_th'] ?? ''));
+                }
+            } else {
+                $optionName = trim((string) ($row['option_name_th'] ?? ''));
+                if ($optionName === '') {
+                    $optionName = trim((string) ($row['option_name_en'] ?? ''));
+                }
+            }
 
-			if ($optionName === '') {
-				$optionName = trim((string) ($row['option_name'] ?? ''));
-			}
+            if ($optionName === '') {
+                $optionName = trim((string) ($row['option_name'] ?? ''));
+            }
 
-			if ($optionName === '') {
-				continue;
-			}
+            if ($optionName === '') {
+                continue;
+            }
 
-			$options[] = [
-				'id'           => (int) ($row['id'] ?? 0),
-				'option_name'  => $optionName,
-				'price_adjust' => (float) ($row['price_adjust'] ?? 0),
-				'sort_order'   => (int) ($row['sort_order'] ?? 0),
-				'status'       => (int) ($row['status'] ?? 1),
-			];
-		}
+            $options[] = [
+                'id'           => (int) ($row['id'] ?? 0),
+                'option_name'  => $optionName,
+                'price_adjust' => (float) ($row['price_adjust'] ?? 0),
+                'sort_order'   => (int) ($row['sort_order'] ?? 0),
+                'status'       => (int) ($row['status'] ?? 1),
+            ];
+        }
 
-		return $this->response->setJSON([
-			'status'  => 'success',
-			'type'    => 'product',
-			'options' => $options,
-		]);
-	}
+        return $this->response->setJSON([
+            'status'  => 'success',
+            'type'    => 'product',
+            'options' => $options,
+        ]);
+    }
 
-	public function openOrder()
+    public function openOrder()
     {
         if ($response = $this->jsonPosWriteDenied()) {
             return $response;
@@ -673,121 +672,122 @@ class POSController extends BaseController
     }
 
     public function addItem()
-	{
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
 
-		$orderId    = (int) $this->request->getPost('order_id');
-		$productId  = (int) $this->request->getPost('product_id');
-		$note       = trim((string) $this->request->getPost('note'));
-		$itemDetail = trim((string) $this->request->getPost('item_detail'));
-		$options    = $this->decodePostedOptions($this->request->getPost('options'));
+        $orderId    = (int) $this->request->getPost('order_id');
+        $productId  = (int) $this->request->getPost('product_id');
+        $note       = trim((string) $this->request->getPost('note'));
+        $itemDetail = trim((string) $this->request->getPost('item_detail'));
+        $options    = $this->decodePostedOptions($this->request->getPost('options'));
 
-		$order = $this->getScopedOrder($orderId, ['open', 'billing']);
-		if (! $order || ! in_array(($order['status'] ?? ''), ['open', 'billing'], true)) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.open_order_not_found'),
-			]);
-		}
+        $order = $this->getScopedOrder($orderId, ['open', 'billing']);
+        if (! $order || ! in_array(($order['status'] ?? ''), ['open', 'billing'], true)) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.open_order_not_found'),
+            ]);
+        }
 
-		$product = $this->getScopedProduct($productId);
-		if (! $product) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.product_not_found'),
-			]);
-		}
+        $product = $this->getScopedProduct($productId);
+        if (! $product) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.product_not_found'),
+            ]);
+        }
 
-		$db = \Config\Database::connect();
-		$db->transBegin();
+        $db = \Config\Database::connect();
+        $db->transBegin();
 
-		try {
-			$productName = $product['product_name'] ?? $product['name'] ?? '';
-			$basePrice   = (float) ($product['price'] ?? 0);
+        try {
+            $productName = $product['product_name'] ?? $product['name'] ?? '';
+            $basePrice   = (float) ($product['price'] ?? 0);
 
-			$optionData    = $this->buildOrderItemOptionPayload($options, $itemDetail);
-			$optionRows    = $optionData['rows'];
-			$optionSummary = (string) $optionData['summary'];
-			$optionTotal   = (float) $optionData['total_adjust'];
+            $optionData    = $this->buildOrderItemOptionPayload($options, $itemDetail);
+            $optionRows    = $optionData['rows'];
+            $optionSummary = (string) $optionData['summary'];
+            $optionTotal   = (float) $optionData['total_adjust'];
 
-			$finalPrice = $basePrice + $optionTotal;
+            $finalPrice = $basePrice + $optionTotal;
 
-			$this->orderItemModel->insert([
-				'order_id'       => $orderId,
-				'product_id'     => $productId,
-				'product_name'   => $productName,
-				'item_detail'    => $itemDetail !== '' ? $itemDetail : null,
-				'option_price'   => $optionTotal,
-				'option_summary' => $optionSummary !== '' ? $optionSummary : null,
-				'price'          => $finalPrice,
-				'qty'            => 1,
-				'line_total'     => $finalPrice,
-				'note'           => $note !== '' ? $note : null,
-				'status'         => 'pending',
-			]);
+            $this->orderItemModel->insert([
+                'order_id'       => $orderId,
+                'product_id'     => $productId,
+                'product_name'   => $productName,
+                'item_detail'    => $itemDetail !== '' ? $itemDetail : null,
+                'option_price'   => $optionTotal,
+                'option_summary' => $optionSummary !== '' ? $optionSummary : null,
+                'price'          => $finalPrice,
+                'qty'            => 1,
+                'line_total'     => $finalPrice,
+                'note'           => $note !== '' ? $note : null,
+                'status'         => 'pending',
+            ]);
 
-			$orderItemId = (int) $this->orderItemModel->getInsertID();
+            $orderItemId = (int) $this->orderItemModel->getInsertID();
 
-			foreach ($optionRows as $optRow) {
-				$this->orderItemOptionModel->insert([
-					'order_item_id' => $orderItemId,
-					'option_group'  => $optRow['option_group'],
-					'option_name'   => $optRow['option_name'],
-					'price_adjust'  => $optRow['price_adjust'],
-				]);
-			}
+            foreach ($optionRows as $optRow) {
+                $this->orderItemOptionModel->insert([
+                    'order_item_id' => $orderItemId,
+                    'option_group'  => $optRow['option_group'],
+                    'option_name'   => $optRow['option_name'],
+                    'price_adjust'  => $optRow['price_adjust'],
+                ]);
+            }
 
-			$this->recalculateOrderTotal($orderId);
+            $this->recalculateOrderTotal($orderId);
 
-			if ($db->transStatus() === false) {
-				$db->transRollback();
+            if ($db->transStatus() === false) {
+                $db->transRollback();
 
-				return $this->response->setJSON([
-					'status'  => 'error',
-					'message' => lang('app.add_item_failed'),
-				]);
-			}
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.add_item_failed'),
+                ]);
+            }
 
-			$db->transCommit();
+            $db->transCommit();
 
-			return $this->response->setJSON([
-				'status'  => 'success',
-				'message' => lang('app.add_item_success'),
-			]);
-		} catch (\Throwable $e) {
-			$db->transRollback();
-			log_message('error', 'addItem error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => lang('app.add_item_success'),
+            ]);
+        } catch (\Throwable $e) {
+            $db->transRollback();
+            log_message('error', 'addItem error: ' . $e->getMessage());
 
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.add_item_error'),
-			]);
-		}
-	}
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.add_item_error'),
+            ]);
+        }
+    }
 
     public function updateItemQty()
     {
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
+
         $itemId = (int) ($this->request->getPost('item_id') ?? 0);
         $type   = trim((string) ($this->request->getPost('type') ?? ''));
 
-        if ($itemId <= 0 || !in_array($type, ['plus', 'minus'], true)) {
+        if ($itemId <= 0 || ! in_array($type, ['plus', 'minus'], true)) {
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => lang('app.invalid_data')
+                'message' => lang('app.invalid_data'),
             ]);
         }
 
         $check = $this->validateEditableItem($itemId);
 
-        if (!$check['ok']) {
+        if (! $check['ok']) {
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => $check['message']
+                'message' => $check['message'],
             ]);
         }
 
@@ -802,7 +802,7 @@ class POSController extends BaseController
         try {
             if ($qty <= 0) {
                 $this->deleteScopedOrderItemOptions($itemId);
-				$this->orderItemModel->deleteScoped($itemId);
+                $this->orderItemModel->deleteScoped($itemId);
             } else {
                 $lineTotal = (float) ($item['price'] ?? 0) * $qty;
 
@@ -820,7 +820,7 @@ class POSController extends BaseController
 
                 return $this->response->setJSON([
                     'status'  => 'error',
-                    'message' => lang('app.save_failed')
+                    'message' => lang('app.save_failed'),
                 ]);
             }
 
@@ -828,7 +828,7 @@ class POSController extends BaseController
 
             return $this->response->setJSON([
                 'status'  => 'success',
-                'message' => lang('app.update_item_success')
+                'message' => lang('app.update_item_success'),
             ]);
         } catch (\Throwable $e) {
             $db->transRollback();
@@ -836,31 +836,32 @@ class POSController extends BaseController
 
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => lang('app.save_error')
+                'message' => lang('app.save_error'),
             ]);
         }
     }
 
     public function removeItem()
     {
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
+
         $itemId = (int) ($this->request->getPost('item_id') ?? 0);
 
         if ($itemId <= 0) {
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => lang('app.invalid_data')
+                'message' => lang('app.invalid_data'),
             ]);
         }
 
         $check = $this->validateEditableItem($itemId);
 
-        if (!$check['ok']) {
+        if (! $check['ok']) {
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => $check['message']
+                'message' => $check['message'],
             ]);
         }
 
@@ -872,7 +873,7 @@ class POSController extends BaseController
 
         try {
             $this->deleteScopedOrderItemOptions($itemId);
-			$this->orderItemModel->deleteScoped($itemId);
+            $this->orderItemModel->deleteScoped($itemId);
 
             $this->recalculateOrderTotal($orderId);
 
@@ -881,7 +882,7 @@ class POSController extends BaseController
 
                 return $this->response->setJSON([
                     'status'  => 'error',
-                    'message' => lang('app.remove_item_failed')
+                    'message' => lang('app.remove_item_failed'),
                 ]);
             }
 
@@ -889,7 +890,7 @@ class POSController extends BaseController
 
             return $this->response->setJSON([
                 'status'  => 'success',
-                'message' => lang('app.remove_item_success')
+                'message' => lang('app.remove_item_success'),
             ]);
         } catch (\Throwable $e) {
             $db->transRollback();
@@ -897,177 +898,174 @@ class POSController extends BaseController
 
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => lang('app.remove_item_error')
+                'message' => lang('app.remove_item_error'),
             ]);
         }
     }
 
     public function sendKitchen()
-	{
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
 
-		$orderId = (int) $this->request->getPost('order_id');
-		$tenantId = $this->currentTenantId();
-		$branchId = $this->getCurrentBranchId();
-		$requestUuid = trim((string) ($this->request->getPost('request_uuid') ?: $this->request->getHeaderLine('X-Idempotency-Key')));
+        $orderId     = (int) $this->request->getPost('order_id');
+        $tenantId    = $this->currentTenantId();
+        $branchId    = $this->getCurrentBranchId();
+        $requestUuid = trim((string) ($this->request->getPost('request_uuid') ?: $this->request->getHeaderLine('X-Idempotency-Key')));
 
-		$order = $this->getScopedOrder($orderId);
+        $order = $this->getScopedOrder($orderId);
 
-		if (! $order) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.order_not_found'),
-			]);
-		}
+        if (! $order) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
 
-		if (($order['status'] ?? '') !== 'open') {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.order_cannot_send_kitchen'),
-			]);
-		}
+        if (($order['status'] ?? '') !== 'open') {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_cannot_send_kitchen'),
+            ]);
+        }
 
-		$db = \Config\Database::connect();
-		$db->transBegin();
+        $db = \Config\Database::connect();
+        $db->transBegin();
 
-		try {
-			// Lock order row first
-			$params = [$orderId, $tenantId];
-			$sql = "SELECT id
-					FROM orders
-					WHERE id = ?
-					  AND tenant_id = ?";
+        try {
+            $params = [$orderId, $tenantId];
+            $sql = "SELECT id
+                    FROM orders
+                    WHERE id = ?
+                      AND tenant_id = ?";
 
-			if ($branchId > 0) {
-				$sql .= " AND branch_id = ?";
-				$params[] = $branchId;
-			}
+            if ($branchId > 0) {
+                $sql .= " AND branch_id = ?";
+                $params[] = $branchId;
+            }
 
-			$sql .= " AND status = 'open' FOR UPDATE";
+            $sql .= " AND status = 'open' FOR UPDATE";
 
-			$lockedOrder = $db->query($sql, $params)->getRowArray();
+            $lockedOrder = $db->query($sql, $params)->getRowArray();
 
-			if (! $lockedOrder) {
-				$db->transRollback();
+            if (! $lockedOrder) {
+                $db->transRollback();
 
-				return $this->response->setJSON([
-					'status'  => 'error',
-					'message' => lang('app.order_not_found'),
-				]);
-			}
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.order_not_found'),
+                ]);
+            }
 
-			// Idempotency guard
-			if ($requestUuid !== '') {
-				$existingTicket = $this->kitchenTicketModel->findByRequestUuid($tenantId, $orderId, $requestUuid);
+            if ($requestUuid !== '') {
+                $existingTicket = $this->kitchenTicketModel->findByRequestUuid($tenantId, $orderId, $requestUuid);
 
-				if ($existingTicket) {
-					$db->transCommit();
+                if ($existingTicket) {
+                    $db->transCommit();
 
-					return $this->response->setJSON([
-						'status'    => 'success',
-						'message'   => lang('app.send_kitchen_success'),
-						'ticket_no' => $existingTicket['ticket_no'] ?? '',
-						'duplicate' => true,
-					]);
-				}
-			}
+                    return $this->response->setJSON([
+                        'status'    => 'success',
+                        'message'   => lang('app.send_kitchen_success'),
+                        'ticket_no' => $existingTicket['ticket_no'] ?? '',
+                        'duplicate' => true,
+                    ]);
+                }
+            }
 
-			// Important: fetch pending items only inside transaction with FOR UPDATE
-			$pendingItems = $this->orderItemModel->lockPendingByOrder($tenantId, $orderId);
+            $pendingItems = $this->orderItemModel->lockPendingByOrder($tenantId, $orderId);
 
-			if (empty($pendingItems)) {
-				$db->transRollback();
+            if (empty($pendingItems)) {
+                $db->transRollback();
 
-				return $this->response->setJSON([
-					'status'  => 'warning',
-					'message' => lang('app.no_pending_items_to_kitchen'),
-				]);
-			}
+                return $this->response->setJSON([
+                    'status'  => 'warning',
+                    'message' => lang('app.no_pending_items_to_kitchen'),
+                ]);
+            }
 
-			$batchNo = $this->kitchenTicketModel->getNextBatchNo($tenantId, $orderId);
-			$ticketNo = 'KT' . date('YmdHis') . str_pad((string) $batchNo, 2, '0', STR_PAD_LEFT);
+            $batchNo  = $this->kitchenTicketModel->getNextBatchNo($tenantId, $orderId);
+            $ticketNo = 'KT' . date('YmdHis') . str_pad((string) $batchNo, 2, '0', STR_PAD_LEFT);
 
-			$this->kitchenTicketModel->insert([
-				'tenant_id'           => $tenantId,
-				'branch_id'           => $branchId > 0 ? $branchId : null,
-				'order_id'            => $orderId,
-				'ticket_no'           => $ticketNo,
-				'status'              => 'new',
-				'source_request_uuid' => $requestUuid !== '' ? $requestUuid : null,
-				'dispatch_batch_no'   => $batchNo,
-				'item_count'          => count($pendingItems),
-				'created_by'          => $this->currentUserId(),
-			]);
+            $this->kitchenTicketModel->insert([
+                'tenant_id'           => $tenantId,
+                'branch_id'           => $branchId > 0 ? $branchId : null,
+                'order_id'            => $orderId,
+                'ticket_no'           => $ticketNo,
+                'status'              => 'new',
+                'source_request_uuid' => $requestUuid !== '' ? $requestUuid : null,
+                'dispatch_batch_no'   => $batchNo,
+                'item_count'          => count($pendingItems),
+                'created_by'          => $this->currentUserId(),
+            ]);
 
-			$ticketId = (int) $this->kitchenTicketModel->getInsertID();
-			$now = date('Y-m-d H:i:s');
+            $ticketId = (int) $this->kitchenTicketModel->getInsertID();
+            $now      = date('Y-m-d H:i:s');
 
-			foreach ($pendingItems as $item) {
-				$itemId = (int) ($item['id'] ?? 0);
+            foreach ($pendingItems as $item) {
+                $itemId = (int) ($item['id'] ?? 0);
 
-				if ($itemId <= 0) {
-					continue;
-				}
+                if ($itemId <= 0) {
+                    continue;
+                }
 
-				$this->orderItemModel->update($itemId, [
-					'status'           => 'sent',
-					'kitchen_ticket_id'=> $ticketId,
-					'sent_at'          => $now,
-					'updated_at'       => $now,
-				]);
+                $this->orderItemModel->update($itemId, [
+                    'status'            => 'sent',
+                    'kitchen_ticket_id' => $ticketId,
+                    'sent_at'           => $now,
+                    'updated_at'        => $now,
+                ]);
 
-				$this->kitchenLogModel->addLog(
-					$itemId,
-					'new',
-					lang('app.sent_to_kitchen_log'),
-					[
-						'tenant_id'     => $tenantId,
-						'branch_id'     => $branchId > 0 ? $branchId : null,
-						'order_id'      => $orderId,
-						'ticket_id'     => $ticketId,
-						'from_status'   => (string) ($item['status'] ?? 'pending'),
-						'to_status'     => 'sent',
-						'action_by'     => $this->currentUserId(),
-						'action_source' => 'pos.send_kitchen',
-						'request_uuid'  => $requestUuid !== '' ? $requestUuid : null,
-						'meta_json'     => [
-							'product_id'   => (int) ($item['product_id'] ?? 0),
-							'product_name' => (string) ($item['product_name'] ?? ''),
-							'qty'          => (int) ($item['qty'] ?? 0),
-						],
-					]
-				);
-			}
+                $this->kitchenLogModel->addLog(
+                    $itemId,
+                    'new',
+                    lang('app.sent_to_kitchen_log'),
+                    [
+                        'tenant_id'     => $tenantId,
+                        'branch_id'     => $branchId > 0 ? $branchId : null,
+                        'order_id'      => $orderId,
+                        'ticket_id'     => $ticketId,
+                        'from_status'   => (string) ($item['status'] ?? 'pending'),
+                        'to_status'     => 'sent',
+                        'action_by'     => $this->currentUserId(),
+                        'action_source' => 'pos.send_kitchen',
+                        'request_uuid'  => $requestUuid !== '' ? $requestUuid : null,
+                        'meta_json'     => [
+                            'product_id'   => (int) ($item['product_id'] ?? 0),
+                            'product_name' => (string) ($item['product_name'] ?? ''),
+                            'qty'          => (int) ($item['qty'] ?? 0),
+                        ],
+                    ]
+                );
+            }
 
-			if ($db->transStatus() === false) {
-				$db->transRollback();
+            if ($db->transStatus() === false) {
+                $db->transRollback();
 
-				return $this->response->setJSON([
-					'status'  => 'error',
-					'message' => lang('app.send_kitchen_failed'),
-				]);
-			}
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.send_kitchen_failed'),
+                ]);
+            }
 
-			$db->transCommit();
+            $db->transCommit();
 
-			return $this->response->setJSON([
-				'status'    => 'success',
-				'message'   => lang('app.send_kitchen_success'),
-				'ticket_no' => $ticketNo,
-				'ticket_id' => $ticketId,
-			]);
-		} catch (\Throwable $e) {
-			$db->transRollback();
-			log_message('error', 'sendKitchen error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status'    => 'success',
+                'message'   => lang('app.send_kitchen_success'),
+                'ticket_no' => $ticketNo,
+                'ticket_id' => $ticketId,
+            ]);
+        } catch (\Throwable $e) {
+            $db->transRollback();
+            log_message('error', 'sendKitchen error: ' . $e->getMessage());
 
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.send_kitchen_error'),
-			]);
-		}
-	}
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.send_kitchen_error'),
+            ]);
+        }
+    }
 
     public function pay()
     {
@@ -1219,96 +1217,97 @@ class POSController extends BaseController
     }
 
     public function updateItemStatus()
-	{
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
 
-		$itemId = (int) ($this->request->getPost('item_id') ?? 0);
-		$status = strtolower(trim((string) ($this->request->getPost('status') ?? '')));
+        $itemId = (int) ($this->request->getPost('item_id') ?? 0);
+        $status = strtolower(trim((string) ($this->request->getPost('status') ?? '')));
 
-		$allowedStatuses = ['sent', 'preparing', 'ready', 'served', 'cancelled'];
+        $allowedStatuses = ['sent', 'preparing', 'ready', 'served', 'cancelled'];
 
-		if ($itemId <= 0 || ! in_array($status, $allowedStatuses, true)) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.invalid_request'),
-			]);
-		}
+        if ($itemId <= 0 || ! in_array($status, $allowedStatuses, true)) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.invalid_request'),
+            ]);
+        }
 
-		$item = method_exists($this->orderItemModel, 'findScoped')
-			? $this->orderItemModel->findScoped($itemId)
-			: $this->orderItemModel->find($itemId);
+        $item = method_exists($this->orderItemModel, 'findScoped')
+            ? $this->orderItemModel->findScoped($itemId)
+            : $this->orderItemModel->find($itemId);
 
-		if (! $item) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.item_not_found'),
-			]);
-		}
+        if (! $item) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.item_not_found'),
+            ]);
+        }
 
-		$data = [
-			'status'     => $status,
-			'updated_at' => date('Y-m-d H:i:s'),
-		];
+        $data = [
+            'status'     => $status,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
 
-		if ($status === 'preparing') {
-			$data['started_at'] = date('Y-m-d H:i:s');
-		}
+        if ($status === 'preparing') {
+            $data['started_at'] = date('Y-m-d H:i:s');
+        }
 
-		if ($status === 'ready') {
-			$data['ready_at'] = date('Y-m-d H:i:s');
-		}
+        if ($status === 'ready') {
+            $data['ready_at'] = date('Y-m-d H:i:s');
+        }
 
-		if ($status === 'served') {
-			$data['served_at'] = date('Y-m-d H:i:s');
-		}
+        if ($status === 'served') {
+            $data['served_at'] = date('Y-m-d H:i:s');
+        }
 
-		if (! $this->orderItemModel->update($itemId, $data)) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.save_failed'),
-			]);
-		}
+        if (! $this->orderItemModel->update($itemId, $data)) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.save_failed'),
+            ]);
+        }
 
-		if (isset($this->kitchenLogModel) && $this->kitchenLogModel) {
-			try {
-				if (method_exists($this->kitchenLogModel, 'addLog')) {
-					$this->kitchenLogModel->addLog(
-						$itemId,
-						$status,
-						lang('app.kitchen_status_updated')
-					);
-				} else {
-					$this->kitchenLogModel->insert([
-						'tenant_id'   => (int) ($item['tenant_id'] ?? current_tenant_id()),
-						'order_id'    => (int) ($item['order_id'] ?? 0),
-						'order_item_id'=> $itemId,
-						'status'      => $status,
-						'note'        => lang('app.kitchen_status_updated'),
-						'created_by'  => (int) (session('user_id') ?? 0),
-					]);
-				}
-			} catch (\Throwable $e) {
-				log_message('error', 'updateItemStatus kitchen log error: ' . $e->getMessage());
-			}
-		}
+        if (isset($this->kitchenLogModel) && $this->kitchenLogModel) {
+            try {
+                if (method_exists($this->kitchenLogModel, 'addLog')) {
+                    $this->kitchenLogModel->addLog(
+                        $itemId,
+                        $status,
+                        lang('app.kitchen_status_updated')
+                    );
+                } else {
+                    $this->kitchenLogModel->insert([
+                        'tenant_id'    => (int) ($item['tenant_id'] ?? current_tenant_id()),
+                        'order_id'     => (int) ($item['order_id'] ?? 0),
+                        'order_item_id'=> $itemId,
+                        'status'       => $status,
+                        'note'         => lang('app.kitchen_status_updated'),
+                        'created_by'   => (int) (session('user_id') ?? 0),
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'updateItemStatus kitchen log error: ' . $e->getMessage());
+            }
+        }
 
-		return $this->response->setJSON([
-			'status'  => 'success',
-			'message' => lang('app.save_success'),
-		]);
-	}
+        return $this->response->setJSON([
+            'status'  => 'success',
+            'message' => lang('app.save_success'),
+        ]);
+    }
 
     public function requestBill()
     {
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
+
         $orderId = (int) $this->request->getPost('order_id');
 
         $order = $this->getScopedOrder($orderId);
-        if (!$order) {
+        if (! $order) {
             return $this->response->setJSON([
                 'status'  => 'error',
                 'message' => lang('app.order_not_found'),
@@ -1346,13 +1345,14 @@ class POSController extends BaseController
 
     public function closeBill()
     {
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
+
         $orderId = (int) $this->request->getPost('order_id');
 
         $order = $this->getScopedOrder($orderId);
-        if (!$order) {
+        if (! $order) {
             return $this->response->setJSON([
                 'status'  => 'error',
                 'message' => lang('app.order_not_found'),
@@ -1398,32 +1398,32 @@ class POSController extends BaseController
     protected function validateEditableItem(int $itemId): array
     {
         $item = $this->getScopedOrderItem($itemId);
-        if (!$item) {
+        if (! $item) {
             return [
                 'ok'      => false,
-                'message' => lang('app.item_not_found')
+                'message' => lang('app.item_not_found'),
             ];
         }
 
         $order = $this->getScopedOrder((int) $item['order_id']);
-        if (!$order) {
+        if (! $order) {
             return [
                 'ok'      => false,
-                'message' => lang('app.order_not_found')
+                'message' => lang('app.order_not_found'),
             ];
         }
 
         if (($order['status'] ?? '') !== 'open') {
             return [
                 'ok'      => false,
-                'message' => lang('app.order_cannot_edit_items')
+                'message' => lang('app.order_cannot_edit_items'),
             ];
         }
 
         if (($item['status'] ?? '') !== 'pending') {
             return [
                 'ok'      => false,
-                'message' => lang('app.item_not_pending_cannot_edit')
+                'message' => lang('app.item_not_pending_cannot_edit'),
             ];
         }
 
@@ -1438,7 +1438,7 @@ class POSController extends BaseController
     {
         $table = $this->getScopedTable($tableId);
 
-        if (!$table) {
+        if (! $table) {
             return [
                 'ok'      => false,
                 'message' => lang('app.table_not_found'),
@@ -1483,11 +1483,19 @@ class POSController extends BaseController
             return;
         }
 
-        $items = $this->orderItemModel
-            ->scoped()
+        $tenantId = $this->currentTenantId();
+        $branchId = $this->getCurrentBranchId();
+
+        $builder = $this->orderItemModel
+            ->where('tenant_id', $tenantId)
             ->where('order_id', $orderId)
-            ->where('status !=', 'cancel')
-            ->findAll();
+            ->where('status !=', 'cancel');
+
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_items')) {
+            $builder->where('branch_id', $branchId);
+        }
+
+        $items = $builder->findAll();
 
         $subtotal = 0;
         $now      = date('Y-m-d H:i:s');
@@ -1522,25 +1530,26 @@ class POSController extends BaseController
 
     public function updateItemNote()
     {
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
+
         $itemId = (int) ($this->request->getPost('item_id') ?? 0);
         $note   = trim((string) ($this->request->getPost('note') ?? ''));
 
         if ($itemId <= 0) {
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => lang('app.invalid_data')
+                'message' => lang('app.invalid_data'),
             ]);
         }
 
         $check = $this->validateEditableItem($itemId);
 
-        if (!$check['ok']) {
+        if (! $check['ok']) {
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => $check['message']
+                'message' => $check['message'],
             ]);
         }
 
@@ -1551,31 +1560,32 @@ class POSController extends BaseController
 
         return $this->response->setJSON([
             'status'  => 'success',
-            'message' => lang('app.update_note_success')
+            'message' => lang('app.update_note_success'),
         ]);
     }
 
     public function updateItemDetail()
     {
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
+
         $itemId     = (int) ($this->request->getPost('item_id') ?? 0);
         $itemDetail = trim((string) ($this->request->getPost('item_detail') ?? ''));
 
         if ($itemId <= 0) {
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => lang('app.invalid_data')
+                'message' => lang('app.invalid_data'),
             ]);
         }
 
         $check = $this->validateEditableItem($itemId);
 
-        if (!$check['ok']) {
+        if (! $check['ok']) {
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => $check['message']
+                'message' => $check['message'],
             ]);
         }
 
@@ -1586,109 +1596,109 @@ class POSController extends BaseController
 
         return $this->response->setJSON([
             'status'  => 'success',
-            'message' => lang('app.update_detail_success')
+            'message' => lang('app.update_detail_success'),
         ]);
     }
 
     public function updateItem()
-	{
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
 
-		$itemId     = (int) $this->request->getPost('item_id');
-		$itemDetail = trim((string) $this->request->getPost('item_detail'));
-		$note       = trim((string) $this->request->getPost('note'));
-		$options    = $this->decodePostedOptions($this->request->getPost('options'));
+        $itemId     = (int) $this->request->getPost('item_id');
+        $itemDetail = trim((string) $this->request->getPost('item_detail'));
+        $note       = trim((string) $this->request->getPost('note'));
+        $options    = $this->decodePostedOptions($this->request->getPost('options'));
 
-		if ($itemId <= 0) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.item_not_found')
-			]);
-		}
+        if ($itemId <= 0) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.item_not_found'),
+            ]);
+        }
 
-		$check = $this->validateEditableItem($itemId);
-		if (! $check['ok']) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => $check['message']
-			]);
-		}
+        $check = $this->validateEditableItem($itemId);
+        if (! $check['ok']) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => $check['message'],
+            ]);
+        }
 
-		$item = $check['item'];
+        $item = $check['item'];
 
-		$product = $this->getScopedProduct((int) $item['product_id']);
-		if (! $product) {
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.product_not_found')
-			]);
-		}
+        $product = $this->getScopedProduct((int) $item['product_id']);
+        if (! $product) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.product_not_found'),
+            ]);
+        }
 
-		$qty       = (int) ($item['qty'] ?? 1);
-		$basePrice = (float) ($product['price'] ?? 0);
+        $qty       = (int) ($item['qty'] ?? 1);
+        $basePrice = (float) ($product['price'] ?? 0);
 
-		$db = \Config\Database::connect();
-		$db->transBegin();
+        $db = \Config\Database::connect();
+        $db->transBegin();
 
-		try {
-			$optionData    = $this->buildOrderItemOptionPayload($options, $itemDetail);
-			$optionRows    = $optionData['rows'];
-			$optionSummary = (string) $optionData['summary'];
-			$optionTotal   = (float) $optionData['total_adjust'];
+        try {
+            $optionData    = $this->buildOrderItemOptionPayload($options, $itemDetail);
+            $optionRows    = $optionData['rows'];
+            $optionSummary = (string) $optionData['summary'];
+            $optionTotal   = (float) $optionData['total_adjust'];
 
-			$newPrice  = $basePrice + $optionTotal;
-			$lineTotal = $newPrice * $qty;
+            $newPrice  = $basePrice + $optionTotal;
+            $lineTotal = $newPrice * $qty;
 
-			$this->orderItemModel->update($itemId, [
-				'item_detail'    => $itemDetail !== '' ? $itemDetail : null,
-				'option_price'   => $optionTotal,
-				'option_summary' => $optionSummary !== '' ? $optionSummary : null,
-				'price'          => $newPrice,
-				'line_total'     => $lineTotal,
-				'note'           => $note !== '' ? $note : null,
-				'updated_at'     => date('Y-m-d H:i:s'),
-			]);
+            $this->orderItemModel->update($itemId, [
+                'item_detail'    => $itemDetail !== '' ? $itemDetail : null,
+                'option_price'   => $optionTotal,
+                'option_summary' => $optionSummary !== '' ? $optionSummary : null,
+                'price'          => $newPrice,
+                'line_total'     => $lineTotal,
+                'note'           => $note !== '' ? $note : null,
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ]);
 
-			$this->deleteScopedOrderItemOptions($itemId);
+            $this->deleteScopedOrderItemOptions($itemId);
 
-			foreach ($optionRows as $optRow) {
-				$this->orderItemOptionModel->insert([
-					'order_item_id' => $itemId,
-					'option_group'  => $optRow['option_group'],
-					'option_name'   => $optRow['option_name'],
-					'price_adjust'  => $optRow['price_adjust'],
-				]);
-			}
+            foreach ($optionRows as $optRow) {
+                $this->orderItemOptionModel->insert([
+                    'order_item_id' => $itemId,
+                    'option_group'  => $optRow['option_group'],
+                    'option_name'   => $optRow['option_name'],
+                    'price_adjust'  => $optRow['price_adjust'],
+                ]);
+            }
 
-			$this->recalculateOrderTotal((int) $item['order_id']);
+            $this->recalculateOrderTotal((int) $item['order_id']);
 
-			if ($db->transStatus() === false) {
-				$db->transRollback();
+            if ($db->transStatus() === false) {
+                $db->transRollback();
 
-				return $this->response->setJSON([
-					'status'  => 'error',
-					'message' => lang('app.update_item_failed')
-				]);
-			}
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.update_item_failed'),
+                ]);
+            }
 
-			$db->transCommit();
+            $db->transCommit();
 
-			return $this->response->setJSON([
-				'status'  => 'success',
-				'message' => lang('app.updated_success')
-			]);
-		} catch (\Throwable $e) {
-			$db->transRollback();
-			log_message('error', 'updateItem error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => lang('app.updated_success'),
+            ]);
+        } catch (\Throwable $e) {
+            $db->transRollback();
+            log_message('error', 'updateItem error: ' . $e->getMessage());
 
-			return $this->response->setJSON([
-				'status'  => 'error',
-				'message' => lang('app.update_item_failed')
-			]);
-		}
-	}
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.update_item_failed'),
+            ]);
+        }
+    }
 
     protected function getReservationLockMinutes(): int
     {
@@ -1701,65 +1711,65 @@ class POSController extends BaseController
     }
 
     protected function findUpcomingReservationByTable(int $tableId)
-	{
-		$tenantId = (int) (session('tenant_id') ?? 0);
-		$branchId = (int) (session('branch_id') ?? 0);
+    {
+        $tenantId = (int) (session('tenant_id') ?? 0);
+        $branchId = (int) (session('branch_id') ?? 0);
 
-		if ($tenantId <= 0 || $branchId <= 0 || $tableId <= 0) {
-			return null;
-		}
+        if ($tenantId <= 0 || $branchId <= 0 || $tableId <= 0) {
+            return null;
+        }
 
-		$rows = $this->reservationTableModel
-			->select('
-				reservations.id,
-				reservations.reservation_date,
-				reservations.reservation_time,
-				reservations.status,
-				reservations.customer_name,
-				reservations.customer_phone,
-				NULL AS total_guest,
-				reservation_tables.table_id
-			')
-			->join('reservations', 'reservations.id = reservation_tables.reservation_id', 'inner')
-			->where('reservation_tables.table_id', $tableId)
-			->where('reservations.tenant_id', $tenantId)
-			->where('reservations.branch_id', $branchId)
-			->whereIn('reservations.status', $this->getReservationActiveStatuses())
-			->orderBy('reservations.reservation_date', 'ASC')
-			->orderBy('reservations.reservation_time', 'ASC')
-			->get()
-			->getResultArray();
+        $rows = $this->reservationTableModel
+            ->select('
+                reservations.id,
+                reservations.reservation_date,
+                reservations.reservation_time,
+                reservations.status,
+                reservations.customer_name,
+                reservations.customer_phone,
+                NULL AS total_guest,
+                reservation_tables.table_id
+            ')
+            ->join('reservations', 'reservations.id = reservation_tables.reservation_id', 'inner')
+            ->where('reservation_tables.table_id', $tableId)
+            ->where('reservations.tenant_id', $tenantId)
+            ->where('reservations.branch_id', $branchId)
+            ->whereIn('reservations.status', $this->getReservationActiveStatuses())
+            ->orderBy('reservations.reservation_date', 'ASC')
+            ->orderBy('reservations.reservation_time', 'ASC')
+            ->get()
+            ->getResultArray();
 
-		if (empty($rows)) {
-			return null;
-		}
+        if (empty($rows)) {
+            return null;
+        }
 
-		foreach ($rows as $row) {
-			$reservationDate = trim((string) ($row['reservation_date'] ?? ''));
-			$reservationTime = trim((string) ($row['reservation_time'] ?? ''));
+        foreach ($rows as $row) {
+            $reservationDate = trim((string) ($row['reservation_date'] ?? ''));
+            $reservationTime = trim((string) ($row['reservation_time'] ?? ''));
 
-			if ($reservationDate === '' || $reservationTime === '') {
-				continue;
-			}
+            if ($reservationDate === '' || $reservationTime === '') {
+                continue;
+            }
 
-			$reservationDateTime = strtotime($reservationDate . ' ' . $reservationTime);
-			if ($reservationDateTime === false) {
-				continue;
-			}
+            $reservationDateTime = strtotime($reservationDate . ' ' . $reservationTime);
+            if ($reservationDateTime === false) {
+                continue;
+            }
 
-			if ($reservationDateTime >= time()) {
-				return $row;
-			}
-		}
+            if ($reservationDateTime >= time()) {
+                return $row;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
     protected function getUpcomingReservationLockInfo(int $tableId): array
     {
         $reservation = $this->findUpcomingReservationByTable($tableId);
 
-        if (!$reservation) {
+        if (! $reservation) {
             return [
                 'locked'       => false,
                 'message'      => null,
@@ -1783,7 +1793,7 @@ class POSController extends BaseController
 
         $message = lang('app.table_locked_for_reservation');
 
-        if (!empty($reservation['customer_name']) || !empty($reservation['reservation_time'])) {
+        if (! empty($reservation['customer_name']) || ! empty($reservation['reservation_time'])) {
             $message .= ' (' .
                 trim(($reservation['customer_name'] ?: '-') . ' ' . lang('app.time') . ' ' . ($reservation['reservation_time'] ?: '-')) .
                 ')';
@@ -1805,192 +1815,420 @@ class POSController extends BaseController
             return false;
         }
     }
-	
-	protected function currentUserId(): int
-	{
-		return (int) (session('user_id') ?? 0);
-	}
 
-	protected function refreshTableStatusById(int $tableId): void
-	{
-		if ($tableId <= 0) {
-			return;
-		}
+    protected function currentUserId(): int
+    {
+        return (int) (session('user_id') ?? 0);
+    }
 
-		$activeOrder = $this->findCurrentOrderByTable($tableId, ['open', 'billing']);
+    protected function refreshTableStatusById(int $tableId): void
+    {
+        if ($tableId <= 0) {
+            return;
+        }
 
-		$this->tableModel->update($tableId, [
-			'status' => $activeOrder ? 'occupied' : 'available',
-		]);
-	}
-	
-	public function availableMoveTables(int $orderId = 0)
-	{
-		$order = $this->getScopedOrder($orderId, ['open', 'billing']);
+        $activeOrder = $this->findCurrentOrderByTable($tableId, ['open', 'billing']);
 
-		if (! $order) {
-			return $this->response->setJSON([
-				'status' => 'error',
-				'message' => lang('app.order_not_found'),
-			]);
-		}
+        $this->tableModel->update($tableId, [
+            'status' => $activeOrder ? 'occupied' : 'available',
+        ]);
+    }
 
-		$branchId = $this->getCurrentBranchId();
+    public function availableMoveTables(int $orderId = 0)
+    {
+        $order = $this->getScopedOrder($orderId, ['open', 'billing']);
 
-		$rows = $this->tableModel
-			->where('tenant_id', $this->currentTenantId())
-			->where('branch_id', $branchId)
-			->where('deleted_at', null)
-			->where('is_active', 1)
-			->where('id !=', (int) $order['table_id'])
-			->orderBy('table_name', 'ASC')
-			->findAll();
+        if (! $order) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
 
-		$data = [];
+        $branchId = $this->getCurrentBranchId();
 
-		foreach ($rows as $row) {
-			$otherOpen = $this->findCurrentOrderByTable((int) $row['id'], ['open', 'billing']);
+        $rows = $this->tableModel
+            ->where('tenant_id', $this->currentTenantId())
+            ->where('branch_id', $branchId)
+            ->where('deleted_at', null)
+            ->where('is_active', 1)
+            ->where('id !=', (int) $order['table_id'])
+            ->orderBy('table_name', 'ASC')
+            ->findAll();
 
-			$data[] = [
-				'id' => (int) $row['id'],
-				'table_name' => (string) ($row['table_name'] ?? '-'),
-				'status' => (string) ($row['status'] ?? 'available'),
-				'has_open_order' => $otherOpen ? 1 : 0,
-			];
-		}
+        $data = [];
 
-		return $this->response->setJSON([
-			'status' => 'success',
-			'tables' => $data,
-		]);
-	}
-	
-	public function moveTable()
-	{
-		if ($response = $this->jsonPosWriteDenied()) {
-			return $response;
-		}
+        foreach ($rows as $row) {
+            $otherOpen = $this->findCurrentOrderByTable((int) $row['id'], ['open', 'billing']);
 
-		$orderId = (int) $this->request->getPost('order_id');
-		$toTableId = (int) $this->request->getPost('to_table_id');
-		$reason = trim((string) $this->request->getPost('reason'));
+            $data[] = [
+                'id'             => (int) $row['id'],
+                'table_name'     => (string) ($row['table_name'] ?? '-'),
+                'status'         => (string) ($row['status'] ?? 'available'),
+                'has_open_order' => $otherOpen ? 1 : 0,
+            ];
+        }
 
-		$order = $this->getScopedOrder($orderId, ['open', 'billing']);
+        return $this->response->setJSON([
+            'status' => 'success',
+            'tables' => $data,
+        ]);
+    }
 
-		if (! $order) {
-			return $this->response->setJSON([
-				'status' => 'error',
-				'message' => lang('app.order_not_found'),
-			]);
-		}
+    public function moveTable()
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
 
-		$fromTableId = (int) ($order['table_id'] ?? 0);
+        $orderId   = (int) $this->request->getPost('order_id');
+        $toTableId = (int) $this->request->getPost('to_table_id');
+        $reason    = trim((string) $this->request->getPost('reason'));
 
-		if ($fromTableId <= 0 || $toTableId <= 0 || $fromTableId === $toTableId) {
-			return $this->response->setJSON([
-				'status' => 'error',
-				'message' => lang('app.invalid_request'),
-			]);
-		}
+        $order = $this->getScopedOrder($orderId, ['open', 'billing']);
 
-		$toTable = $this->getScopedTable($toTableId);
+        if (! $order) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
 
-		if (! $toTable) {
-			return $this->response->setJSON([
-				'status' => 'error',
-				'message' => lang('app.table_not_found'),
-			]);
-		}
+        $fromTableId = (int) ($order['table_id'] ?? 0);
 
-		if ((int) ($toTable['is_active'] ?? 0) !== 1 || strtolower((string) ($toTable['status'] ?? '')) === 'disabled') {
-			return $this->response->setJSON([
-				'status' => 'error',
-				'message' => lang('app.table_disabled'),
-			]);
-		}
+        if ($fromTableId <= 0 || $toTableId <= 0 || $fromTableId === $toTableId) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.invalid_request'),
+            ]);
+        }
 
-		$existingAtDestination = $this->findCurrentOrderByTable($toTableId, ['open', 'billing']);
-		if ($existingAtDestination) {
-			return $this->response->setJSON([
-				'status' => 'error',
-				'code' => 'DESTINATION_HAS_OPEN_ORDER',
-				'message' => lang('app.destination_table_has_open_bill'),
-			]);
-		}
+        $toTable = $this->getScopedTable($toTableId);
 
-		$db = \Config\Database::connect();
-		$db->transBegin();
+        if (! $toTable) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.table_not_found'),
+            ]);
+        }
 
-		try {
-			$this->orderModel->update($orderId, [
-				'table_id' => $toTableId,
-				'updated_at' => date('Y-m-d H:i:s'),
-			]);
+        if ((int) ($toTable['is_active'] ?? 0) !== 1 || strtolower((string) ($toTable['status'] ?? '')) === 'disabled') {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.table_disabled'),
+            ]);
+        }
 
-			$this->refreshTableStatusById($fromTableId);
-			$this->refreshTableStatusById($toTableId);
+        $existingAtDestination = $this->findCurrentOrderByTable($toTableId, ['open', 'billing']);
+        if ($existingAtDestination) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'code'    => 'DESTINATION_HAS_OPEN_ORDER',
+                'message' => lang('app.destination_table_has_open_bill'),
+            ]);
+        }
 
-			$this->orderTableMoveModel->insert([
-				'tenant_id' => $this->currentTenantId(),
-				'branch_id' => $this->getCurrentBranchId(),
-				'order_id' => $orderId,
-				'from_table_id' => $fromTableId,
-				'to_table_id' => $toTableId,
-				'moved_by' => $this->currentUserId(),
-				'reason' => $reason !== '' ? $reason : null,
-			]);
+        $db = \Config\Database::connect();
+        $db->transBegin();
 
-			$latestTickets = $this->kitchenTicketModel->getByOrder($orderId);
-			foreach ($latestTickets as $ticket) {
-				$this->kitchenLogModel->addLog(
-					0,
-					'new',
-					'ย้ายโต๊ะจาก #' . $fromTableId . ' ไป #' . $toTableId,
-					[
-						'branch_id'     => $this->getCurrentBranchId(),
-						'order_id'      => $orderId,
-						'ticket_id'     => (int) ($ticket['id'] ?? 0),
-						'from_status'   => 'table:' . $fromTableId,
-						'to_status'     => 'table:' . $toTableId,
-						'action_by'     => $this->currentUserId(),
-						'action_source' => 'pos.move_table',
-						'meta_json'     => [
-							'from_table_id' => $fromTableId,
-							'to_table_id'   => $toTableId,
-							'reason'        => $reason,
-						],
-					]
-				);
-			}
+        try {
+            $this->orderModel->update($orderId, [
+                'table_id'   => $toTableId,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
 
-			if ($db->transStatus() === false) {
-				$db->transRollback();
+            $this->refreshTableStatusById($fromTableId);
+            $this->refreshTableStatusById($toTableId);
 
-				return $this->response->setJSON([
-					'status' => 'error',
-					'message' => lang('app.save_failed'),
-				]);
-			}
+            $this->orderTableMoveModel->insert([
+                'tenant_id'     => $this->currentTenantId(),
+                'branch_id'     => $this->getCurrentBranchId(),
+                'order_id'      => $orderId,
+                'from_table_id' => $fromTableId,
+                'to_table_id'   => $toTableId,
+                'moved_by'      => $this->currentUserId(),
+                'reason'        => $reason !== '' ? $reason : null,
+            ]);
 
-			$db->transCommit();
+            $latestTickets = $this->kitchenTicketModel->getByOrder($orderId);
+            foreach ($latestTickets as $ticket) {
+                $this->kitchenLogModel->addLog(
+                    0,
+                    'new',
+                    'ย้ายโต๊ะจาก #' . $fromTableId . ' ไป #' . $toTableId,
+                    [
+                        'branch_id'     => $this->getCurrentBranchId(),
+                        'order_id'      => $orderId,
+                        'ticket_id'     => (int) ($ticket['id'] ?? 0),
+                        'from_status'   => 'table:' . $fromTableId,
+                        'to_status'     => 'table:' . $toTableId,
+                        'action_by'     => $this->currentUserId(),
+                        'action_source' => 'pos.move_table',
+                        'meta_json'     => [
+                            'from_table_id' => $fromTableId,
+                            'to_table_id'   => $toTableId,
+                            'reason'        => $reason,
+                        ],
+                    ]
+                );
+            }
 
-			return $this->response->setJSON([
-				'status' => 'success',
-				'message' => lang('app.move_table_success'),
-				'data' => [
-					'order_id' => $orderId,
-					'from_table_id' => $fromTableId,
-					'to_table_id' => $toTableId,
-				],
-			]);
-		} catch (\Throwable $e) {
-			$db->transRollback();
-			log_message('error', 'moveTable error: ' . $e->getMessage());
+            if ($db->transStatus() === false) {
+                $db->transRollback();
 
-			return $this->response->setJSON([
-				'status' => 'error',
-				'message' => lang('app.save_failed'),
-			]);
-		}
-	}
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.save_failed'),
+                ]);
+            }
+
+            $db->transCommit();
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => lang('app.move_table_success'),
+                'data'    => [
+                    'order_id'      => $orderId,
+                    'from_table_id' => $fromTableId,
+                    'to_table_id'   => $toTableId,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            $db->transRollback();
+            log_message('error', 'moveTable error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.save_failed'),
+            ]);
+        }
+    }
+
+    public function availableMergeTargets(int $orderId = 0)
+    {
+        $order = $this->getScopedOrder($orderId, ['open', 'billing']);
+
+        if (! $order) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
+
+        $branchId = $this->getCurrentBranchId();
+        $tenantId = $this->currentTenantId();
+
+        $builder = $this->orderModel
+            ->where('tenant_id', $tenantId)
+            ->where('branch_id', $branchId)
+            ->whereIn('status', ['open', 'billing'])
+            ->where('id !=', (int) $order['id']);
+
+        if ($this->db->fieldExists('merged_into_order_id', 'orders')) {
+            $builder->groupStart()
+                ->where('merged_into_order_id', null)
+                ->orWhere('merged_into_order_id', 0)
+                ->groupEnd();
+        }
+
+        $rows = $builder
+            ->orderBy('id', 'DESC')
+            ->findAll();
+
+        $tableIds = [];
+        foreach ($rows as $row) {
+            $tableId = (int) ($row['table_id'] ?? 0);
+            if ($tableId > 0) {
+                $tableIds[] = $tableId;
+            }
+        }
+
+        $tableMap = [];
+        if (! empty($tableIds) && method_exists($this->tableModel, 'getTableMapByIds')) {
+            $tableMap = $this->tableModel->getTableMapByIds(array_values(array_unique($tableIds)), $branchId);
+        }
+
+        $targets = [];
+
+        foreach ($rows as $row) {
+            $tableId   = (int) ($row['table_id'] ?? 0);
+            $tableName = '-';
+
+            if ($tableId > 0 && isset($tableMap[$tableId])) {
+                $tableName = (string) ($tableMap[$tableId]['table_name'] ?? '-');
+            }
+
+            $targets[] = [
+                'id'           => (int) ($row['id'] ?? 0),
+                'order_id'     => (int) ($row['id'] ?? 0),
+                'order_number' => (string) ($row['order_number'] ?? ''),
+                'table_id'     => $tableId,
+                'table_name'   => $tableName,
+                'status'       => (string) ($row['status'] ?? 'open'),
+                'total_price'  => (float) ($row['total_price'] ?? 0),
+            ];
+        }
+
+        return $this->response->setJSON([
+            'status'  => 'success',
+            'targets' => $targets,
+        ]);
+    }
+
+    public function mergeBill()
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
+
+        $sourceOrderId = (int) ($this->request->getPost('source_order_id') ?? 0);
+        $sourceTableId = (int) ($this->request->getPost('source_table_id') ?? 0);
+        $targetOrderId = (int) ($this->request->getPost('target_order_id') ?? 0);
+        $reason        = trim((string) ($this->request->getPost('reason') ?? ''));
+
+        $sourceOrder = null;
+
+        if ($sourceOrderId > 0) {
+            $sourceOrder = $this->getScopedOrder($sourceOrderId, ['open', 'billing']);
+        } elseif ($sourceTableId > 0) {
+            $sourceOrder = $this->findCurrentOrderByTable($sourceTableId, ['open', 'billing']);
+        }
+
+        if (! $sourceOrder) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
+
+        $targetOrder = $this->getScopedOrder($targetOrderId, ['open', 'billing']);
+
+        if (! $targetOrder) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.merge_target_order_not_found'),
+            ]);
+        }
+
+        $sourceOrderId = (int) ($sourceOrder['id'] ?? 0);
+        $targetOrderId = (int) ($targetOrder['id'] ?? 0);
+
+        if ($sourceOrderId <= 0 || $targetOrderId <= 0) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.invalid_request'),
+            ]);
+        }
+
+        if ($sourceOrderId === $targetOrderId) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.cannot_merge_same_order'),
+            ]);
+        }
+
+        $fromTableId = (int) ($sourceOrder['table_id'] ?? 0);
+        $toTableId   = (int) ($targetOrder['table_id'] ?? 0);
+        $now         = date('Y-m-d H:i:s');
+        $tenantId    = $this->currentTenantId();
+        $branchId    = $this->getCurrentBranchId();
+
+        $db = \Config\Database::connect();
+        $db->transBegin();
+
+        try {
+            $builder = $this->orderItemModel
+                ->where('tenant_id', $tenantId)
+                ->where('order_id', $sourceOrderId);
+
+            if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_items')) {
+                $builder->where('branch_id', $branchId);
+            }
+
+            $items = $builder->findAll();
+
+            log_message('debug', 'mergeBill sourceOrderId=' . $sourceOrderId);
+            log_message('debug', 'mergeBill targetOrderId=' . $targetOrderId);
+            log_message('debug', 'mergeBill tenantId=' . $tenantId);
+            log_message('debug', 'mergeBill branchId=' . $branchId);
+            log_message('debug', 'mergeBill items=' . json_encode($items));
+
+            if (empty($items)) {
+                $db->transRollback();
+
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.merge_bill_failed'),
+                ]);
+            }
+
+            foreach ($items as $item) {
+                $this->orderItemModel->update((int) $item['id'], [
+                    'order_id'    => $targetOrderId,
+                    'updated_at'  => $now,
+                ]);
+            }
+
+            if ($this->db->fieldExists('merged_into_order_id', 'orders')) {
+                $this->orderModel->update($sourceOrderId, [
+                    'status'               => 'merged',
+                    'merged_into_order_id' => $targetOrderId,
+                    'updated_at'           => $now,
+                ]);
+            } else {
+                $this->orderModel->update($sourceOrderId, [
+                    'status'     => 'merged',
+                    'updated_at' => $now,
+                ]);
+            }
+
+            $this->orderMergeModel->insert([
+                'tenant_id'       => $tenantId,
+                'branch_id'       => $branchId,
+                'source_order_id' => $sourceOrderId,
+                'target_order_id' => $targetOrderId,
+                'source_table_id' => $fromTableId > 0 ? $fromTableId : null,
+                'target_table_id' => $toTableId > 0 ? $toTableId : null,
+                'merged_by'       => $this->currentUserId(),
+                'reason'          => $reason !== '' ? $reason : null,
+            ]);
+
+            $this->recalculateOrderTotal($targetOrderId);
+            $this->recalculateOrderTotal($sourceOrderId);
+
+            if ($fromTableId > 0) {
+                $this->refreshTableStatusById($fromTableId);
+            }
+
+            if ($toTableId > 0) {
+                $this->refreshTableStatusById($toTableId);
+            }
+
+            if ($db->transStatus() === false) {
+                $db->transRollback();
+
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.merge_bill_failed'),
+                ]);
+            }
+
+            $db->transCommit();
+
+            return $this->response->setJSON([
+                'status'          => 'success',
+                'message'         => lang('app.merge_bill_success'),
+                'target_order_id' => $targetOrderId,
+            ]);
+        } catch (\Throwable $e) {
+            $db->transRollback();
+
+            log_message('error', 'mergeBill error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.merge_bill_failed'),
+            ]);
+        }
+    }
 }
