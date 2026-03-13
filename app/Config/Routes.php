@@ -101,7 +101,7 @@ $routes->group('', ['filter' => 'auth_subscription'], static function ($routes) 
     $routes->post('product-quick-options/update/(:num)', 'ProductQuickOptionController::update/$1', ['filter' => 'permission:product_quick_options.edit']);
     $routes->post('product-quick-options/delete/(:num)', 'ProductQuickOptionController::delete/$1', ['filter' => 'permission:product_quick_options.delete']);
 
-    $routes->group('quick-options', ['filter' => 'permission:products.manage,feature_gate:pos.access'], static function ($routes) {
+    $routes->group('quick-options', ['filter' => 'permission:product_quick_options.view,feature_gate:pos.access'], static function ($routes) {
         $routes->get('/', 'QuickOptionController::index');
         $routes->get('create', 'QuickOptionController::create');
         $routes->post('store', 'QuickOptionController::store');
@@ -160,11 +160,11 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
     ]);
 
     $routes->get('cashier', 'POSController::cashier', [
-        'filter' => 'permission:cashier.checkout,feature_gate:pos.access'
+        'filter' => 'permission:cashier.view,feature_gate:pos.access'
     ]);
 
     $routes->get('cashier-order/(:num)', 'POSController::cashierOrder/$1', [
-        'filter' => 'permission:cashier.checkout,feature_gate:pos.access'
+        'filter' => 'permission:cashier.view,feature_gate:pos.access'
     ]);
 
     $routes->get('current-order/(:num)', 'POSController::currentOrder/$1', [
@@ -220,19 +220,19 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
     ]);
 
     $routes->post('request-bill', 'POSController::requestBill', [
-        'filter' => 'feature_gate:pos.sell'
+        'filter' => 'permission:cashier.request_bill,cashier.manager_override,feature_gate:pos.sell'
     ]);
 
     $routes->post('close-bill', 'POSController::closeBill', [
-        'filter' => 'feature_gate:pos.sell'
+        'filter' => 'permission:cashier.close_bill,cashier.manager_override,feature_gate:pos.sell'
     ]);
 
     $routes->post('pay', 'POSController::pay', [
-        'filter' => 'feature_gate:pos.sell'
+        'filter' => 'permission:cashier.pay,cashier.manager_override,feature_gate:pos.sell'
     ]);
 
     $routes->post('manager-override', 'POSController::managerOverride', [
-        'filter' => 'feature_gate:pos.access'
+        'filter' => 'permission:cashier.manager_override,feature_gate:pos.access'
     ]);
 });
 

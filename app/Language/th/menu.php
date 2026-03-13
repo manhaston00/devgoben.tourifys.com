@@ -27,4 +27,6 @@ return [
 	'kitchen_monitor' => 'จอครัว',
     'reports' => 'รายงาน',
     'audit_logs' => 'รายงานตรวจสอบย้อนหลัง',
+    'cashier'               => 'แคชเชียร์',
+    'branch_settings'       => 'ตั้งค่าสาขา',
 ];

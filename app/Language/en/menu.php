@@ -26,4 +26,6 @@ return [
 	'kitchen_monitor' => 'Kitchen Monitor',
     'reports' => 'Reports',
     'audit_logs' => 'Audit Logs',
+    'cashier'               => 'Cashier',
+    'branch_settings'       => 'Branch Settings',
 ];

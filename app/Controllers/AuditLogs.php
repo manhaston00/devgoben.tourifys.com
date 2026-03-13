@@ -19,6 +19,15 @@ class AuditLogs extends BaseController
         $this->userModel     = new UserModel();
     }
 
+    protected function writeAuditLog(array $payload): void
+    {
+        try {
+            $this->auditLogModel->add($payload);
+        } catch (\Throwable $e) {
+            log_message('error', 'AuditLogs writeAuditLog error: ' . $e->getMessage());
+        }
+    }
+
     public function index()
     {
         $filters = [
@@ -38,6 +47,15 @@ class AuditLogs extends BaseController
         if ($filters['date_to'] === '') {
             $filters['date_to'] = date('Y-m-d');
         }
+
+        $this->writeAuditLog([
+            'target_type'  => 'audit_logs',
+            'action_key'   => 'audit_logs.view',
+            'action_label' => lang('app.audit_log_access'),
+            'meta_json'    => [
+                'filters' => array_filter($filters, static fn ($value) => $value !== '' && $value !== 0),
+            ],
+        ]);
 
         $rows = $this->auditLogModel->search($filters, 500);
         foreach ($rows as &$row) {
@@ -60,6 +78,18 @@ class AuditLogs extends BaseController
     public function orderTimeline($orderId = null)
     {
         $orderId = (int) $orderId;
+
+        $this->writeAuditLog([
+            'target_type'  => 'order',
+            'target_id'    => $orderId,
+            'order_id'     => $orderId,
+            'action_key'   => 'audit_logs.view',
+            'action_label' => lang('app.audit_log_access'),
+            'meta_json'    => [
+                'screen' => 'order_timeline',
+            ],
+        ]);
+
         $rows = $this->auditLogModel->getTimelineByOrderId($orderId);
 
         foreach ($rows as &$row) {

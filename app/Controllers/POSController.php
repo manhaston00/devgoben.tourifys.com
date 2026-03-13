@@ -94,6 +94,28 @@ class POSController extends BaseController
         return ['open', 'billing'];
     }
 
+    protected function denyCashierViewAccess()
+    {
+        if (! $this->userHasPermissionKey('cashier.view')) {
+            return redirect()->to(site_url('/'))->with('error', lang('app.no_permission'));
+        }
+
+        return null;
+    }
+
+    protected function jsonDenyCashierViewAccess()
+    {
+        if ($this->userHasPermissionKey('cashier.view')) {
+            return null;
+        }
+
+        return $this->response->setJSON([
+            'status'  => 'error',
+            'message' => lang('app.no_permission'),
+            'code'    => 'NO_PERMISSION',
+        ]);
+    }
+
     protected function jsonFeatureDenied(string $featureKey, ?string $messageKey = null)
     {
         if (function_exists('tenant_subscription_expired') && tenant_subscription_expired()) {
@@ -933,6 +955,20 @@ class POSController extends BaseController
             return $response;
         }
 
+        if ($response = $this->denyCashierViewAccess()) {
+            return $response;
+        }
+
+        $this->writeAuditLog([
+            'target_type'  => 'cashier_screen',
+            'action_key'   => 'cashier.view',
+            'action_label' => lang('app.audit_log_cashier_access'),
+            'meta_json'    => [
+                'screen'    => 'cashier',
+                'branch_id' => $this->getCurrentBranchId(),
+            ],
+        ]);
+
         $orders = $this->getCashierOrdersForBranch();
 
         $summary = [
@@ -955,12 +991,23 @@ class POSController extends BaseController
         return view('pos/cashier', [
             'cashierOrders' => $orders,
             'cashierSummary' => $summary,
+            'cashierPermissions' => [
+                'view'             => $this->userHasPermissionKey('cashier.view'),
+                'request_bill'     => $this->userHasPermissionKey('cashier.request_bill'),
+                'close_bill'       => $this->userHasPermissionKey('cashier.close_bill'),
+                'pay'              => $this->userHasPermissionKey('cashier.pay'),
+                'manager_override' => $this->userHasPermissionKey('cashier.manager_override'),
+            ],
         ]);
     }
 
     public function cashierOrder($orderId = null)
     {
         if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
+            return $response;
+        }
+
+        if ($response = $this->jsonDenyCashierViewAccess()) {
             return $response;
         }
 
@@ -981,6 +1028,18 @@ class POSController extends BaseController
                 'message' => lang('app.order_not_found'),
             ]);
         }
+
+        $this->writeAuditLog([
+            'target_type'  => 'order',
+            'target_id'    => $orderId,
+            'order_id'     => $orderId,
+            'action_key'   => 'cashier.view',
+            'action_label' => lang('app.audit_log_cashier_order_access'),
+            'meta_json'    => [
+                'screen'    => 'cashier_order',
+                'branch_id' => $this->getCurrentBranchId(),
+            ],
+        ]);
 
         return $this->response->setJSON([
             'status' => 'success',

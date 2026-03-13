@@ -624,6 +624,10 @@
 		|| $sessionRoleName === 'super admin'
 		|| $sessionRoleName === 'super-admin'
 		|| $sessionRoleCode === 'super_admin';
+
+    $canCashierMenu = function_exists('can') && (can('cashier.view') || can('cashier.request_bill') || can('cashier.close_bill') || can('cashier.pay'));
+    $canAuditLogsMenu = function_exists('can') && can('audit_logs.view');
+    $canBranchMenu = function_exists('can') && (can('branches.view') || can('branches.settings'));
 ?>
 <div class="app-shell">
 
@@ -682,8 +686,14 @@
             <?php endif; ?>
 
             <?php if (function_exists('can') && can('pos.view')): ?>
-                <a href="<?= site_url('pos') ?>" class="sidebar-link <?= menu_active(['pos'], $currentPath) ?>">
+                <a href="<?= site_url('pos') ?>" class="sidebar-link <?= menu_active(['pos'], $currentPath) === 'active' && !menu_active(['pos/cashier'], $currentPath) ? 'active' : '' ?>">
                     <?= lang('menu.pos') ?>
+                </a>
+            <?php endif; ?>
+
+            <?php if ($canCashierMenu): ?>
+                <a href="<?= site_url('pos/cashier') ?>" class="sidebar-link <?= menu_active(['pos/cashier'], $currentPath) ?>">
+                    <?= lang('menu.cashier') ?>
                 </a>
             <?php endif; ?>
 
@@ -707,7 +717,7 @@
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && can('branches.view')): ?>
+            <?php if ($canBranchMenu): ?>
                 <a href="<?= site_url('branches') ?>" class="sidebar-link <?= menu_active(['branches'], $currentPath) ?>">
                     <?= lang('menu.branches') ?>
                 </a>
@@ -758,6 +768,18 @@
             <?php if (function_exists('can') && can('tables.view')): ?>
                 <a href="<?= site_url('tables') ?>" class="sidebar-link <?= menu_active(['tables'], $currentPath) ?>">
                     <?= lang('menu.tables') ?>
+                </a>
+            <?php endif; ?>
+
+            <?php if ($canAuditLogsMenu): ?>
+                <a href="<?= site_url('audit-logs') ?>" class="sidebar-link <?= menu_active(['audit-logs'], $currentPath) ?>">
+                    <?= lang('menu.audit_logs') ?>
+                </a>
+            <?php endif; ?>
+
+            <?php if ($canAuditLogsMenu): ?>
+                <a href="<?= site_url('audit-logs') ?>" class="sidebar-link <?= menu_active(['audit-logs'], $currentPath) ?>">
+                    <?= lang('menu.audit_logs') ?>
                 </a>
             <?php endif; ?>
 
@@ -858,8 +880,14 @@
             <?php endif; ?>
 
             <?php if (function_exists('can') && can('pos.view')): ?>
-                <a href="<?= site_url('pos') ?>" class="sidebar-link <?= menu_active(['pos'], $currentPath) ?>">
+                <a href="<?= site_url('pos') ?>" class="sidebar-link <?= menu_active(['pos'], $currentPath) === 'active' && !menu_active(['pos/cashier'], $currentPath) ? 'active' : '' ?>">
                     <?= lang('menu.pos') ?>
+                </a>
+            <?php endif; ?>
+
+            <?php if ($canCashierMenu): ?>
+                <a href="<?= site_url('pos/cashier') ?>" class="sidebar-link <?= menu_active(['pos/cashier'], $currentPath) ?>">
+                    <?= lang('menu.cashier') ?>
                 </a>
             <?php endif; ?>
 
@@ -883,7 +911,7 @@
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && can('branches.view')): ?>
+            <?php if ($canBranchMenu): ?>
                 <a href="<?= site_url('branches') ?>" class="sidebar-link <?= menu_active(['branches'], $currentPath) ?>">
                     <?= lang('menu.branches') ?>
                 </a>

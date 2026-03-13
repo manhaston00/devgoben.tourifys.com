@@ -3,16 +3,28 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\AuditLogModel;
 use App\Models\BranchModel;
 use App\Models\TenantModel;
 
 class Branches extends BaseController
 {
     protected $branchModel;
+    protected $auditLogModel;
 
     public function __construct()
     {
-        $this->branchModel = new BranchModel();
+        $this->branchModel   = new BranchModel();
+        $this->auditLogModel = new AuditLogModel();
+    }
+
+    protected function writeAuditLog(array $payload): void
+    {
+        try {
+            $this->auditLogModel->add($payload);
+        } catch (\Throwable $e) {
+            log_message('error', 'Branches writeAuditLog error: ' . $e->getMessage());
+        }
     }
 
     protected function denyIfNoPermission(string $permissionKey)
@@ -294,6 +306,8 @@ class Branches extends BaseController
             $tenantName = trim((string) ($tenant['tenant_name'] ?? ''));
         }
 
+        $oldBranchId = (int) (session('branch_id') ?? 0);
+
         session()->set([
             'tenant_id'      => $tenantId,
             'tenant_name'    => $tenantName,
@@ -303,6 +317,21 @@ class Branches extends BaseController
             'branch_name_th' => $branchNameTh,
             'branch_name_en' => $branchNameEn,
             'site_locale'    => $siteLocale,
+        ]);
+
+        $this->writeAuditLog([
+            'branch_id'    => (int) ($branch['id'] ?? 0),
+            'target_type'  => 'branch',
+            'target_id'    => (int) ($branch['id'] ?? 0),
+            'action_key'   => 'branches.switch',
+            'action_label' => lang('app.audit_log_branch_switch'),
+            'meta_json'    => [
+                'from_branch_id'    => $oldBranchId,
+                'to_branch_id'      => (int) ($branch['id'] ?? 0),
+                'to_branch_code'    => (string) ($branch['branch_code'] ?? ''),
+                'to_branch_name_th' => (string) ($branch['branch_name_th'] ?? ''),
+                'to_branch_name_en' => (string) ($branch['branch_name_en'] ?? ''),
+            ],
         ]);
 
         return redirect()->back()->with('success', lang('app.branch_switched_successfully'));

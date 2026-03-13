@@ -639,6 +639,14 @@
         by: <?= json_encode(lang('app.by'), JSON_UNESCAPED_UNICODE) ?>,
     };
 
+    const cashierPermissions = <?= json_encode([
+        'view' => (bool) ($cashierPermissions['view'] ?? false),
+        'request_bill' => (bool) ($cashierPermissions['request_bill'] ?? false),
+        'close_bill' => (bool) ($cashierPermissions['close_bill'] ?? false),
+        'pay' => (bool) ($cashierPermissions['pay'] ?? false),
+        'manager_override' => (bool) ($cashierPermissions['manager_override'] ?? false),
+    ], JSON_UNESCAPED_UNICODE) ?>;
+
     const managerOverrideModalEl = document.getElementById('managerOverrideModal');
     const managerOverrideModal = managerOverrideModalEl ? new bootstrap.Modal(managerOverrideModalEl) : null;
     let managerOverrideResolver = null;
@@ -871,7 +879,9 @@
         const summary = payload.summary || {};
         const total = Number(summary.display_total || summary.total_price || 0);
         const openedAt = order.opened_at || order.created_at || '';
-        const canMarkBilling = String(order.status || '') === 'open';
+        const canMarkBilling = String(order.status || '') === 'open'
+            && (cashierPermissions.request_bill || cashierPermissions.manager_override);
+        const canPay = cashierPermissions.pay || cashierPermissions.manager_override;
 
         els.detailRoot.className = 'cashier-detail-wrap';
         els.detailRoot.innerHTML = `
@@ -1007,12 +1017,16 @@
                         </div>
 
                         <div class="cashier-action-grid">
-                            <button type="button" class="btn btn-outline-warning" id="cashierMarkBillingBtn" ${canMarkBilling ? '' : 'disabled'}>
-                                ${escapeHtml(lang.cashierMarkBilling)}
-                            </button>
-                            <button type="button" class="btn btn-success" id="cashierPayBtn">
-                                ${escapeHtml(lang.closeBillPay)}
-                            </button>
+                            ${canMarkBilling ? `
+                                <button type="button" class="btn btn-outline-warning" id="cashierMarkBillingBtn">
+                                    ${escapeHtml(lang.cashierMarkBilling)}
+                                </button>
+                            ` : ''}
+                            ${canPay ? `
+                                <button type="button" class="btn btn-success" id="cashierPayBtn">
+                                    ${escapeHtml(lang.closeBillPay)}
+                                </button>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
