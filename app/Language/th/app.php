@@ -1060,4 +1060,6 @@ return [
 'cancel_request_reject' => 'ปฏิเสธ',
 'cancel_request_approved' => 'อนุมัติยกเลิกแล้ว',
 'cancel_request_rejected' => 'ปฏิเสธการยกเลิกแล้ว',
+'cancel_request_pending' => 'คำขอยกเลิก',
+'cancel_request_pending_desc' => 'รายการที่รอครัวอนุมัติหรือปฏิเสธ',
 ];

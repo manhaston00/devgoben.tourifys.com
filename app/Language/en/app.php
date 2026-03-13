@@ -1063,4 +1063,6 @@ return [
 'cancel_request_reject' => 'Reject',
 'cancel_request_approved' => 'Cancel approved',
 'cancel_request_rejected' => 'Cancel rejected',
+'cancel_request_pending' => 'Cancel requests',
+'cancel_request_pending_desc' => 'Items waiting for kitchen approval or rejection',
 ];

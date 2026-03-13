@@ -47,7 +47,7 @@
                 </button>
 
                 <button type="button" class="btn btn-outline-secondary" id="servedHistoryBtn">
-                    <?= esc(service('request')->getLocale() === 'th' ? 'ย้อนหลังที่เสิร์ฟแล้ว' : 'Served history') ?>
+                    <?= esc(service('request')->getLocale() === 'th' ? 'ประวัติย้อนหลัง' : 'History') ?>
                 </button>
 
                 <button type="button" class="btn btn-outline-dark" id="compactHeaderBtn">
@@ -125,9 +125,6 @@
                 <button type="button" class="btn btn-outline-danger kitchen-filter-btn" data-filter="cancel_request">
                     <?= esc(service('request')->getLocale() === 'th' ? 'คำขอยกเลิก' : 'Cancel requests') ?>
                 </button>
-                <button type="button" class="btn btn-outline-success kitchen-filter-btn" data-filter="served">
-                    <?= esc(lang('app.status_served')) ?>
-                </button>
             </div>
 
             <div class="form-check form-switch">
@@ -178,27 +175,16 @@
                     <div class="card-body bg-light kds-column-body" id="col-cancel-request"></div>
                 </div>
             </div>
-
-            <div class="col-xxl kds-col-wrap" data-col="served">
-                <div class="card border-0 shadow-sm h-100 kds-column-card">
-                    <div class="card-header kds-col-header d-flex justify-content-between align-items-center">
-                        <span><?= esc(lang('app.status_served')) ?></span>
-                        <span class="badge bg-success kds-col-count" id="count-served">0</span>
-                    </div>
-                    <div class="card-body bg-light kds-column-body" id="col-served"></div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
-
 
 <div class="modal fade" id="servedHistoryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content border-0 rounded-4 shadow-lg">
             <div class="modal-header">
                 <div>
-                    <h5 class="modal-title mb-1" id="servedHistoryTitle"><?= esc(service('request')->getLocale() === 'th' ? 'ย้อนหลังที่เสิร์ฟแล้ว' : 'Served history') ?></h5>
+                    <h5 class="modal-title mb-1" id="servedHistoryTitle"><?= esc(service('request')->getLocale() === 'th' ? 'ประวัติย้อนหลัง' : 'History') ?></h5>
                     <div class="small text-muted" id="servedHistorySubTitle"><?= esc(lang('app.kitchen_monitor_desc')) ?></div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -219,7 +205,15 @@
                             <option value="all"><?= esc(lang('app.all') ?? 'All') ?></option>
                         </select>
                     </div>
-                    <div class="col-lg-3 d-flex gap-2">
+                    <div class="col-lg-3">
+                        <select class="form-select" id="servedHistoryStatusFilter">
+                            <option value="all"><?= esc(service('request')->getLocale() === 'th' ? 'ทุกสถานะ' : 'All statuses') ?></option>
+                            <option value="served"><?= esc(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served') ?></option>
+                            <option value="cancelled"><?= esc(service('request')->getLocale() === 'th' ? 'ยกเลิกแล้ว' : 'Cancelled') ?></option>
+                            <option value="cancel_rejected"><?= esc(service('request')->getLocale() === 'th' ? 'ปฏิเสธยกเลิก' : 'Cancel rejected') ?></option>
+                        </select>
+                    </div>
+                    <div class="col-lg-12 d-flex gap-2">
                         <button type="button" class="btn btn-outline-secondary w-100" id="servedHistoryClearBtn"><?= esc(lang('app.clear')) ?></button>
                     </div>
                 </div>
@@ -438,7 +432,6 @@
         color: #fff;
     }
 
-
     .kds-card.kds-new-attention {
         border: 2px solid #2563eb;
         background: #eff6ff;
@@ -589,7 +582,6 @@
         padding: 0 0 6px;
     }
 
-
     .kds-focus-mode .sidebar,
     .kds-focus-mode .app-sidebar,
     .kds-focus-mode aside,
@@ -633,14 +625,14 @@
         padding: 8px 10px;
         margin-top: 10px;
     }
-	
-	.kds-merge-box {
-		border: 1px dashed rgba(13, 110, 253, 0.55);
-		background: rgba(13, 110, 253, 0.08);
-		border-radius: 10px;
-		padding: 8px 10px;
-		margin-top: 10px;
-	}
+
+    .kds-merge-box {
+        border: 1px dashed rgba(13, 110, 253, 0.55);
+        background: rgba(13, 110, 253, 0.08);
+        border-radius: 10px;
+        padding: 8px 10px;
+        margin-top: 10px;
+    }
 
     .kds-cancel-request-box {
         border: 1px dashed rgba(220, 53, 69, 0.55);
@@ -749,7 +741,6 @@
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
-
 
     .kds-top-toolbar {
         transition: all .2s ease;
@@ -866,11 +857,9 @@
         color: #6b7280;
         background: #fafafa;
     }
-
 </style>
 
 <?= $this->endSection() ?>
-
 
 <?= $this->section('scripts') ?>
 <script>
@@ -886,6 +875,7 @@
     const hideEmptyColumns = document.getElementById('hideEmptyColumns');
     const servedHistorySearchInput = document.getElementById('servedHistorySearchInput');
     const servedHistoryRange = document.getElementById('servedHistoryRange');
+    const servedHistoryStatusFilter = document.getElementById('servedHistoryStatusFilter');
     const servedHistoryClearBtn = document.getElementById('servedHistoryClearBtn');
     const servedHistoryMeta = document.getElementById('servedHistoryMeta');
     const servedHistoryList = document.getElementById('servedHistoryList');
@@ -906,62 +896,69 @@
     const isThaiLocale = locale === 'th';
 
     const i18n = {
-		kitchen: '<?= esc(lang('app.kitchen')) ?>',
-		table: '<?= esc(lang('app.table')) ?>',
-		order: '<?= esc(lang('app.order')) ?>',
-		noItems: '<?= esc(lang('app.no_items')) ?>',
-		saveFailed: '<?= esc(lang('app.save_failed')) ?>',
-		sentLabel: '<?= esc(lang('app.sent')) ?>',
-		servedLabel: '<?= esc(lang('app.served')) ?>',
-		queueLabel: '<?= esc(lang('app.kitchen_queue')) ?>',
-		itemCountLabel: '<?= esc(lang('app.kitchen_item_count')) ?>',
-		focusModeEnter: '<?= esc(lang('app.kitchen_focus_mode')) ?>',
-		focusModeExit: '<?= esc(lang('app.kitchen_exit_focus_mode')) ?>',
-		fullscreenEnter: '<?= esc(lang('app.kitchen_fullscreen')) ?>',
-		fullscreenExit: '<?= esc(lang('app.kitchen_exit_fullscreen')) ?>',
-		actionStart: '<?= esc(lang('app.kitchen_action_start')) ?>',
-		actionReady: '<?= esc(lang('app.kitchen_action_ready')) ?>',
-		actionServed: '<?= esc(lang('app.kitchen_action_served')) ?>',
-		movedTable: '<?= esc(lang('app.moved_table')) ?>',
-		moveNote: '<?= esc(lang('app.move_note')) ?>',
-		mergedBill: '<?= esc(lang('app.merged_bill')) ?>',
-		serveToTable: '<?= esc(lang('app.serve_to_table')) ?>',
-		mergedFromTable: '<?= esc(lang('app.merged_from_table')) ?>',
-		mergedTargetOrder: '<?= esc(lang('app.merged_target_order')) ?>',
-		mergeReason: '<?= esc(lang('app.merge_reason')) ?>',
-		cancelAction: '<?= esc(lang('app.cancel')) ?>',
-		cancelConfirm: '<?= esc(lang('app.cancel_confirm')) ?>',
-		newItem: '<?= esc(lang('app.new_item')) ?>',
-		waitingLong: '<?= esc(lang('app.waiting_long')) ?>',
-		veryLate: '<?= esc(lang('app.very_late')) ?>',
-		doNow: '<?= esc(lang('app.do_now')) ?>',
-		rushNow: '<?= esc(lang('app.rush_now')) ?>',
-		serveNow: '<?= esc(lang('app.serve_now')) ?>',
-		doneState: '<?= esc(lang('app.done_state')) ?>',
-		waitingHint: '<?= esc(lang('app.waiting_hint')) ?>',
-		newHint: '<?= esc(lang('app.new_hint')) ?>',
-		readyHint: '<?= esc(lang('app.ready_hint')) ?>',
-		servedHint: '<?= esc(lang('app.served_hint')) ?>',
-		preparingHint: '<?= esc(lang('app.preparing_hint')) ?>',
-		compactEnter: '<?= esc(lang('app.compact_enter')) ?>',
-		compactExit: '<?= esc(lang('app.compact_exit')) ?>',
-		servedHistory: '<?= esc(lang('app.served_history')) ?>',
-		servedHistoryEmpty: '<?= esc(lang('app.served_history_empty')) ?>',
-		servedCount: '<?= esc(lang('app.served_count')) ?>',
-		lastUpdated: '<?= esc(lang('app.last_updated')) ?>',
-		timeRangeToday: '<?= esc(lang('app.time_range_today')) ?>',
-		timeRange1h: '<?= esc(lang('app.time_range_1h')) ?>',
-		timeRange3h: '<?= esc(lang('app.time_range_3h')) ?>',
-		timeRangeAll: '<?= esc(lang('app.time_range_all')) ?>',
-		noteCashierReview: '<?= esc(lang('app.note_cashier_review')) ?>',
-		historyTable: '<?= esc(lang('app.history_table')) ?>',
-		historyServedAt: '<?= esc(lang('app.history_served_at')) ?>',
-		cancelRequestApprove: '<?= esc(lang('app.cancel_request_approve')) ?>',
-		cancelRequestReject: '<?= esc(lang('app.cancel_request_reject')) ?>',
-		cancelRequestApproved: '<?= esc(lang('app.cancel_request_approved')) ?>',
-		cancelRequestRejected: '<?= esc(lang('app.cancel_request_rejected')) ?>',
-		historyReason: '<?= esc(lang('app.history_reason')) ?>'
-	};
+        kitchen: '<?= esc(lang('app.kitchen')) ?>',
+        table: '<?= esc(lang('app.table')) ?>',
+        order: '<?= esc(lang('app.order')) ?>',
+        noItems: '<?= esc(lang('app.no_items')) ?>',
+        saveFailed: '<?= esc(lang('app.save_failed')) ?>',
+        sentLabel: '<?= esc(lang('app.sent')) ?>',
+        servedLabel: '<?= esc(lang('app.served')) ?>',
+        queueLabel: '<?= esc(lang('app.kitchen_queue')) ?>',
+        itemCountLabel: '<?= esc(lang('app.kitchen_item_count')) ?>',
+        focusModeEnter: '<?= esc(lang('app.kitchen_focus_mode')) ?>',
+        focusModeExit: '<?= esc(lang('app.kitchen_exit_focus_mode')) ?>',
+        fullscreenEnter: '<?= esc(lang('app.kitchen_fullscreen')) ?>',
+        fullscreenExit: '<?= esc(lang('app.kitchen_exit_fullscreen')) ?>',
+        actionStart: '<?= esc(lang('app.kitchen_action_start')) ?>',
+        actionReady: '<?= esc(lang('app.kitchen_action_ready')) ?>',
+        actionServed: '<?= esc(lang('app.kitchen_action_served')) ?>',
+        movedTable: '<?= esc(lang('app.moved_table')) ?>',
+        moveNote: '<?= esc(lang('app.move_note')) ?>',
+        mergedBill: '<?= esc(lang('app.merged_bill')) ?>',
+        serveToTable: '<?= esc(lang('app.serve_to_table')) ?>',
+        mergedFromTable: '<?= esc(lang('app.merged_from_table')) ?>',
+        mergedTargetOrder: '<?= esc(lang('app.merged_target_order')) ?>',
+        mergeReason: '<?= esc(lang('app.merge_reason')) ?>',
+        cancelAction: '<?= esc(lang('app.cancel')) ?>',
+        cancelConfirm: '<?= esc(lang('app.cancel_confirm')) ?>',
+        cancelApproveConfirm: <?= json_encode(service('request')->getLocale() === 'th' ? 'ยืนยันอนุมัติการยกเลิกรายการนี้?' : 'Confirm approving this cancel request?') ?>,
+        cancelRejectConfirm: <?= json_encode(service('request')->getLocale() === 'th' ? 'ยืนยันปฏิเสธการยกเลิกรายการนี้?' : 'Confirm rejecting this cancel request?') ?>,
+        cancelRequestPending: <?= json_encode(service('request')->getLocale() === 'th' ? 'รออนุมัติยกเลิก' : 'Pending cancel request') ?>,
+        previousStatus: <?= json_encode(service('request')->getLocale() === 'th' ? 'สถานะก่อนหน้า' : 'Previous status') ?>,
+        cancelReason: <?= json_encode(service('request')->getLocale() === 'th' ? 'เหตุผล' : 'Reason') ?>,
+        requestedAt: <?= json_encode(service('request')->getLocale() === 'th' ? 'ขอเมื่อ' : 'Requested at') ?>,
+        newItem: '<?= esc(lang('app.new_item')) ?>',
+        waitingLong: '<?= esc(lang('app.waiting_long')) ?>',
+        veryLate: '<?= esc(lang('app.very_late')) ?>',
+        doNow: '<?= esc(lang('app.do_now')) ?>',
+        rushNow: '<?= esc(lang('app.rush_now')) ?>',
+        serveNow: '<?= esc(lang('app.serve_now')) ?>',
+        doneState: '<?= esc(lang('app.done_state')) ?>',
+        waitingHint: '<?= esc(lang('app.waiting_hint')) ?>',
+        newHint: '<?= esc(lang('app.new_hint')) ?>',
+        readyHint: '<?= esc(lang('app.ready_hint')) ?>',
+        servedHint: '<?= esc(lang('app.served_hint')) ?>',
+        preparingHint: '<?= esc(lang('app.preparing_hint')) ?>',
+        cancelRequestHint: <?= json_encode(service('request')->getLocale() === 'th' ? 'ตรวจสอบและตัดสินใจคำขอยกเลิกนี้' : 'Please review and decide this cancel request') ?>,
+        compactEnter: '<?= esc(lang('app.compact_enter')) ?>',
+        compactExit: '<?= esc(lang('app.compact_exit')) ?>',
+        servedHistory: '<?= esc(lang('app.served_history')) ?>',
+        servedHistoryEmpty: '<?= esc(lang('app.served_history_empty')) ?>',
+        servedCount: '<?= esc(lang('app.served_count')) ?>',
+        lastUpdated: '<?= esc(lang('app.last_updated')) ?>',
+        timeRangeToday: '<?= esc(lang('app.time_range_today')) ?>',
+        timeRange1h: '<?= esc(lang('app.time_range_1h')) ?>',
+        timeRange3h: '<?= esc(lang('app.time_range_3h')) ?>',
+        timeRangeAll: '<?= esc(lang('app.time_range_all')) ?>',
+        noteCashierReview: '<?= esc(lang('app.note_cashier_review')) ?>',
+        historyTable: '<?= esc(lang('app.history_table')) ?>',
+        historyServedAt: '<?= esc(lang('app.history_served_at')) ?>',
+        cancelRequestApprove: '<?= esc(lang('app.cancel_request_approve')) ?>',
+        cancelRequestReject: '<?= esc(lang('app.cancel_request_reject')) ?>',
+        cancelRequestApproved: '<?= esc(lang('app.cancel_request_approved')) ?>',
+        cancelRequestRejected: '<?= esc(lang('app.cancel_request_rejected')) ?>',
+        historyReason: '<?= esc(lang('app.history_reason')) ?>'
+    };
 
     const csrfName = <?= json_encode(csrf_token()) ?>;
     let csrfHash = <?= json_encode(csrf_hash()) ?>;
@@ -1057,10 +1054,14 @@
             return 'cancel_request';
         }
 
-        const itemStatus = String(item.item_status || '').toLowerCase().trim();
+        const itemStatus = String(item.item_status || item.status || '').toLowerCase().trim();
         const ticketStatus = String(item.ticket_status || '').toLowerCase().trim();
 
         if (itemStatus === 'served') {
+            return 'served';
+        }
+
+        if (itemStatus === 'cancel' || itemStatus === 'cancelled' || itemStatus === 'canceled') {
             return 'served';
         }
 
@@ -1218,23 +1219,22 @@
     }
 
     function searchableText(item) {
-		return [
-			item.table_name || '',
-			item.order_number || '',
-			item.ticket_no || '',
-			item.product_name || '',
-			item.item_detail || '',
-			item.note || '',
-			item.moved_from_table_name || '',
-			item.moved_to_table_name || '',
-			item.moved_reason || '',
-			item.merged_from_table_name || '',
-			item.merged_to_table_name || '',
-			item.merged_target_order_number || '',
-			item.merged_reason || ''
-		].join(' ').toLowerCase();
-	}
-
+        return [
+            item.table_name || '',
+            item.order_number || '',
+            item.ticket_no || '',
+            item.product_name || '',
+            item.item_detail || '',
+            item.note || '',
+            item.moved_from_table_name || '',
+            item.moved_to_table_name || '',
+            item.moved_reason || '',
+            item.merged_from_table_name || '',
+            item.merged_to_table_name || '',
+            item.merged_target_order_number || '',
+            item.merged_reason || ''
+        ].join(' ').toLowerCase();
+    }
 
     function translatePrevStatus(status) {
         const normalized = String(status || '').toLowerCase().trim();
@@ -1259,7 +1259,7 @@
             return locale === 'th' ? 'เสิร์ฟแล้ว' : 'Served';
         }
 
-        if (normalized === 'cancel') {
+        if (normalized === 'cancel' || normalized === 'cancelled' || normalized === 'canceled') {
             return locale === 'th' ? 'ยกเลิกแล้ว' : 'Cancelled';
         }
 
@@ -1341,54 +1341,54 @@
         const attentionMeta = getAttentionMeta(item, boardStatus);
 
         const movedFrom = item.moved_from_table_name || '';
-		const movedTo = item.moved_to_table_name || '';
-		const movedReason = item.moved_reason || '';
+        const movedTo = item.moved_to_table_name || '';
+        const movedReason = item.moved_reason || '';
 
-		const mergedFrom = item.merged_from_table_name || '';
-		const mergedTo = item.merged_to_table_name || '';
-		const mergedTargetOrderNo = item.merged_target_order_number || '';
-		const mergedReason = item.merged_reason || '';
-		const isMerged = Number(item.is_merged || 0) === 1 || (!!mergedFrom && !!mergedTo && mergedFrom !== mergedTo);
+        const mergedFrom = item.merged_from_table_name || '';
+        const mergedTo = item.merged_to_table_name || '';
+        const mergedTargetOrderNo = item.merged_target_order_number || '';
+        const mergedReason = item.merged_reason || '';
+        const isMerged = Number(item.is_merged || 0) === 1 || (!!mergedFrom && !!mergedTo && mergedFrom !== mergedTo);
 
-		const moveInfoHtml = (movedFrom && movedTo && movedFrom !== movedTo) ? `
-			<div class="kds-move-box">
-				<div class="d-flex align-items-center gap-2 flex-wrap">
-					<span class="badge text-bg-warning">${escapeHtml(i18n.movedTable)}</span>
-					<span class="small fw-semibold">${escapeHtml(movedFrom)} → ${escapeHtml(movedTo)}</span>
-				</div>
-				${movedReason ? `
-					<div class="small text-muted mt-1">
-						${escapeHtml(i18n.moveNote)}: ${escapeHtml(movedReason)}
-					</div>
-				` : ''}
-			</div>
-		` : '';
+        const moveInfoHtml = (movedFrom && movedTo && movedFrom !== movedTo) ? `
+            <div class="kds-move-box">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge text-bg-warning">${escapeHtml(i18n.movedTable)}</span>
+                    <span class="small fw-semibold">${escapeHtml(movedFrom)} → ${escapeHtml(movedTo)}</span>
+                </div>
+                ${movedReason ? `
+                    <div class="small text-muted mt-1">
+                        ${escapeHtml(i18n.moveNote)}: ${escapeHtml(movedReason)}
+                    </div>
+                ` : ''}
+            </div>
+        ` : '';
 
-		const mergeInfoHtml = isMerged ? `
-			<div class="kds-merge-box">
-				<div class="d-flex align-items-center gap-2 flex-wrap">
-					<span class="badge text-bg-primary">${escapeHtml(i18n.mergedBill)}</span>
-					<span class="small fw-semibold">
-						${escapeHtml(i18n.mergedFromTable)}: ${escapeHtml(mergedFrom || tableName)}
-					</span>
-					<span class="small fw-semibold">
-						→ ${escapeHtml(i18n.serveToTable)}: ${escapeHtml(mergedTo || tableName)}
-					</span>
-				</div>
+        const mergeInfoHtml = isMerged ? `
+            <div class="kds-merge-box">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge text-bg-primary">${escapeHtml(i18n.mergedBill)}</span>
+                    <span class="small fw-semibold">
+                        ${escapeHtml(i18n.mergedFromTable)}: ${escapeHtml(mergedFrom || tableName)}
+                    </span>
+                    <span class="small fw-semibold">
+                        → ${escapeHtml(i18n.serveToTable)}: ${escapeHtml(mergedTo || tableName)}
+                    </span>
+                </div>
 
-				${mergedTargetOrderNo ? `
-					<div class="small text-muted mt-1">
-						${escapeHtml(i18n.mergedTargetOrder)}: ${escapeHtml(mergedTargetOrderNo)}
-					</div>
-				` : ''}
+                ${mergedTargetOrderNo ? `
+                    <div class="small text-muted mt-1">
+                        ${escapeHtml(i18n.mergedTargetOrder)}: ${escapeHtml(mergedTargetOrderNo)}
+                    </div>
+                ` : ''}
 
-				${mergedReason ? `
-					<div class="small text-muted mt-1">
-						${escapeHtml(i18n.mergeReason)}: ${escapeHtml(mergedReason)}
-					</div>
-				` : ''}
-			</div>
-		` : '';
+                ${mergedReason ? `
+                    <div class="small text-muted mt-1">
+                        ${escapeHtml(i18n.mergeReason)}: ${escapeHtml(mergedReason)}
+                    </div>
+                ` : ''}
+            </div>
+        ` : '';
 
         return `
             <div
@@ -1408,11 +1408,11 @@
                 </div>
 
                 ${moveInfoHtml}
-				${mergeInfoHtml}
+                ${mergeInfoHtml}
 
                 ${renderCancelRequestBox(item, boardStatus)}
 
-				<div class="kds-item-title mt-2 mb-2">${escapeHtml(item.product_name || '-')}</div>
+                <div class="kds-item-title mt-2 mb-2">${escapeHtml(item.product_name || '-')}</div>
 
                 ${item.item_detail ? `<div class="kds-item-sub text-muted mt-1">${escapeHtml(item.item_detail)}</div>` : ''}
                 ${item.note ? `<div class="kds-item-sub text-danger mt-1 fw-semibold">${escapeHtml(item.note)}</div>` : ''}
@@ -1434,7 +1434,6 @@
             </div>
         `;
     }
-
 
     function rebucketBoardData(data) {
         const source = data || {};
@@ -1483,20 +1482,29 @@
         const preparingCount = (data.preparing || []).length;
         const readyCount = (data.ready || []).length;
         const cancelRequestCount = (data.cancel_request || []).length;
-        const servedCount = (data.served || []).length;
         const totalActive = newCount + preparingCount + readyCount + cancelRequestCount;
 
-        document.getElementById('count-new').textContent = newCount;
-        document.getElementById('count-preparing').textContent = preparingCount;
-        document.getElementById('count-ready').textContent = readyCount;
-        document.getElementById('count-cancel-request').textContent = cancelRequestCount;
-        document.getElementById('count-served').textContent = servedCount;
+        const countNewEl = document.getElementById('count-new');
+        const countPreparingEl = document.getElementById('count-preparing');
+        const countReadyEl = document.getElementById('count-ready');
+        const countCancelRequestEl = document.getElementById('count-cancel-request');
 
-        document.getElementById('summary-total-active').textContent = totalActive;
-        document.getElementById('summary-new').textContent = newCount;
-        document.getElementById('summary-preparing').textContent = preparingCount;
-        document.getElementById('summary-ready').textContent = readyCount;
-        document.getElementById('summary-cancel-request').textContent = cancelRequestCount;
+        if (countNewEl) countNewEl.textContent = newCount;
+        if (countPreparingEl) countPreparingEl.textContent = preparingCount;
+        if (countReadyEl) countReadyEl.textContent = readyCount;
+        if (countCancelRequestEl) countCancelRequestEl.textContent = cancelRequestCount;
+
+        const summaryTotalEl = document.getElementById('summary-total-active');
+        const summaryNewEl = document.getElementById('summary-new');
+        const summaryPreparingEl = document.getElementById('summary-preparing');
+        const summaryReadyEl = document.getElementById('summary-ready');
+        const summaryCancelRequestEl = document.getElementById('summary-cancel-request');
+
+        if (summaryTotalEl) summaryTotalEl.textContent = totalActive;
+        if (summaryNewEl) summaryNewEl.textContent = newCount;
+        if (summaryPreparingEl) summaryPreparingEl.textContent = preparingCount;
+        if (summaryReadyEl) summaryReadyEl.textContent = readyCount;
+        if (summaryCancelRequestEl) summaryCancelRequestEl.textContent = cancelRequestCount;
     }
 
     function playBeep() {
@@ -1570,7 +1578,6 @@
         });
     }
 
-
     function getServedHistoryStorageKey() {
         const branch = <?= json_encode((string) (session('branch_id') ?? '0')) ?>;
         const tenant = <?= json_encode((string) (session('tenant_id') ?? '0')) ?>;
@@ -1599,36 +1606,77 @@
 
     function normalizeServedHistoryItem(row) {
         const itemId = Number(row.order_item_id || row.item_id || row.id || 0);
+        const rawStatus = String(row.item_status || row.status || row.board_status || '').toLowerCase();
+        const cancelRequestStatus = String(row.cancel_request_status || '').toLowerCase();
+        let historyStatus = 'served';
+
+        if (rawStatus === 'cancel' || rawStatus === 'cancelled' || rawStatus === 'canceled' || cancelRequestStatus === 'approved') {
+            historyStatus = 'cancelled';
+        } else if (cancelRequestStatus === 'rejected') {
+            historyStatus = 'cancel_rejected';
+        } else if (rawStatus === 'served') {
+            historyStatus = 'served';
+        }
+
         return {
-            history_key: `${itemId}_${row.served_at || row.updated_at || row.sent_at || ''}`,
+            history_key: `${itemId || 0}`,
             item_id: itemId,
             order_number: row.order_number || row.ticket_no || '#',
             table_name: row.table_name || '-',
             product_name: row.product_name || '-',
             item_detail: row.item_detail || '',
-            note: row.note || '',
+            note: row.note || row.cancel_request_reason || row.cancel_request_note || row.cancel_reason || '',
             qty: Number(row.qty || 1),
             station_name: row.station_display_name || row.station_name || i18n.kitchen,
             served_at: row.served_at || row.updated_at || row.sent_at || '',
             sent_at: row.sent_at || '',
-            board_status: normalizeBoardStatus(row)
+            decided_at: row.cancel_decided_at || row.decided_at || row.updated_at || '',
+            board_status: normalizeBoardStatus(row),
+            item_status: rawStatus,
+            cancel_request_status: cancelRequestStatus,
+            history_status: historyStatus
         };
     }
 
     function syncServedHistory(rows) {
-        const incoming = (rows || []).map(normalizeServedHistoryItem);
+        const incoming = (rows || []).map(normalizeServedHistoryItem).filter((row) => Number(row.item_id || 0) > 0);
         if (!incoming.length) {
             return;
         }
 
-        const map = new Map(servedHistoryRows.map((row) => [row.history_key, row]));
-        incoming.forEach((row) => map.set(row.history_key, row));
+        const map = new Map();
 
-        servedHistoryRows = Array.from(map.values()).sort((a, b) => {
-            const da = new Date(String(a.served_at || '').replace(' ', 'T')).getTime() || 0;
-            const db = new Date(String(b.served_at || '').replace(' ', 'T')).getTime() || 0;
-            return db - da;
-        }).slice(0, 200);
+        (servedHistoryRows || []).forEach((row) => {
+            map.set(String(row.history_key || row.item_id || ''), row);
+        });
+
+        incoming.forEach((row) => {
+            const key = String(row.history_key || row.item_id || '');
+            const existing = map.get(key);
+
+            if (!existing) {
+                map.set(key, row);
+                return;
+            }
+
+            map.set(key, {
+                ...existing,
+                ...row,
+                history_status: existing.history_status && existing.history_status !== 'served'
+                    ? existing.history_status
+                    : row.history_status,
+                decided_at: existing.decided_at || row.decided_at || '',
+                note: existing.note || row.note || ''
+            });
+        });
+
+        servedHistoryRows = Array.from(map.values())
+            .sort((a, b) => {
+                const da = new Date(String(a.served_at || a.decided_at || '').replace(' ', 'T')).getTime() || 0;
+                const db = new Date(String(b.served_at || b.decided_at || '').replace(' ', 'T')).getTime() || 0;
+                return db - da;
+            })
+            .slice(0, 300);
 
         persistServedHistory();
         renderServedHistory();
@@ -1637,25 +1685,119 @@
     function filterServedHistoryRows() {
         const keyword = String(servedHistorySearchInput ? servedHistorySearchInput.value : '').trim().toLowerCase();
         const range = String(servedHistoryRange ? servedHistoryRange.value : 'today');
+        const statusFilter = String(servedHistoryStatusFilter ? servedHistoryStatusFilter.value : 'all').trim().toLowerCase();
         const now = Date.now();
 
         return servedHistoryRows.filter((row) => {
-            const servedTime = new Date(String(row.served_at || '').replace(' ', 'T')).getTime() || 0;
+            const compareTimeRaw = row.served_at || row.decided_at || '';
+            const compareTime = new Date(String(compareTimeRaw).replace(' ', 'T')).getTime() || 0;
+
             let passRange = true;
             if (range === 'today') {
                 const d = new Date();
                 const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-                passRange = servedTime >= start;
+                passRange = compareTime >= start;
             } else if (range === '1h') {
-                passRange = servedTime >= (now - (60 * 60 * 1000));
+                passRange = compareTime >= (now - (60 * 60 * 1000));
             } else if (range === '3h') {
-                passRange = servedTime >= (now - (3 * 60 * 60 * 1000));
+                passRange = compareTime >= (now - (3 * 60 * 60 * 1000));
             }
 
             const hay = [row.table_name, row.order_number, row.product_name, row.item_detail, row.note, row.station_name].join(' ').toLowerCase();
             const passKeyword = !keyword || hay.includes(keyword);
-            return passRange && passKeyword;
+            const rowStatus = String(row.history_status || '').toLowerCase();
+            const passStatus = statusFilter === 'all' || rowStatus === statusFilter;
+
+            return passRange && passKeyword && passStatus;
         });
+    }
+
+    function getServedHistoryStatusChip(row) {
+        const status = String(row.history_status || '').toLowerCase();
+
+        if (status === 'cancelled') {
+            const decidedAt = row.decided_at ? ` · ${escapeHtml(formatDateTime(row.decided_at))}` : '';
+            return `<div class="served-history-chip border-danger text-danger">❌ ${escapeHtml(i18n.cancelRequestApproved)}${decidedAt}</div>`;
+        }
+
+        if (status === 'cancel_rejected') {
+            const decidedAt = row.decided_at ? ` · ${escapeHtml(formatDateTime(row.decided_at))}` : '';
+            return `<div class="served-history-chip border-secondary text-secondary">🚫 ${escapeHtml(i18n.cancelRequestRejected)}${decidedAt}</div>`;
+        }
+
+        return `<div class="served-history-chip">✅ ${escapeHtml(i18n.historyServedAt)}: ${escapeHtml(formatDateTime(row.served_at))}</div>`;
+    }
+
+    function updateServedHistoryStatus(itemId, historyStatus, extra = {}) {
+        const normalizedId = Number(itemId || 0);
+        if (normalizedId <= 0) {
+            return;
+        }
+
+        let changed = false;
+
+        servedHistoryRows = Array.isArray(servedHistoryRows) ? servedHistoryRows : [];
+
+        servedHistoryRows = servedHistoryRows.map((row) => {
+            if (Number(row.item_id || 0) !== normalizedId) {
+                return row;
+            }
+
+            changed = true;
+
+            return {
+                ...row,
+                history_status: historyStatus,
+                item_status: historyStatus === 'cancelled'
+                    ? 'cancel'
+                    : (historyStatus === 'cancel_rejected' ? 'served' : row.item_status),
+                cancel_request_status: historyStatus === 'cancelled'
+                    ? 'approved'
+                    : (historyStatus === 'cancel_rejected' ? 'rejected' : row.cancel_request_status),
+                decided_at: extra.decided_at || row.decided_at || formatDateTime(new Date()),
+                note: extra.note || row.note || ''
+            };
+        });
+
+        if (!changed) {
+            const candidates = [
+                ...(lastBoardData.new || []),
+                ...(lastBoardData.preparing || []),
+                ...(lastBoardData.ready || []),
+                ...(lastBoardData.cancel_request || []),
+                ...(lastBoardData.served || [])
+            ];
+
+            const matched = candidates.find((row) => Number(row.order_item_id || row.item_id || row.id || 0) === normalizedId);
+
+            if (matched) {
+                const base = normalizeServedHistoryItem(matched);
+
+                servedHistoryRows.unshift({
+                    ...base,
+                    history_status: historyStatus,
+                    item_status: historyStatus === 'cancelled' ? 'cancel' : 'served',
+                    cancel_request_status: historyStatus === 'cancelled' ? 'approved' : 'rejected',
+                    decided_at: extra.decided_at || base.decided_at || formatDateTime(new Date()),
+                    note: extra.note || base.note || ''
+                });
+
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            servedHistoryRows = servedHistoryRows
+                .sort((a, b) => {
+                    const da = new Date(String(a.served_at || a.decided_at || '').replace(' ', 'T')).getTime() || 0;
+                    const db = new Date(String(b.served_at || b.decided_at || '').replace(' ', 'T')).getTime() || 0;
+                    return db - da;
+                })
+                .slice(0, 300);
+
+            persistServedHistory();
+            renderServedHistory();
+        }
     }
 
     function renderServedHistory() {
@@ -1664,7 +1806,8 @@
         }
 
         const rows = filterServedHistoryRows();
-        const latest = rows.length ? formatDateTime(rows[0].served_at) : '-';
+        const latestRow = rows.length ? rows[0] : null;
+        const latest = latestRow ? formatDateTime(latestRow.served_at || latestRow.decided_at || '') : '-';
         servedHistoryMeta.innerHTML = `${escapeHtml(i18n.servedCount)}: <strong>${rows.length}</strong> · ${escapeHtml(i18n.lastUpdated)}: <strong>${escapeHtml(latest)}</strong> · ${escapeHtml(i18n.noteCashierReview)}`;
 
         if (!rows.length) {
@@ -1680,7 +1823,7 @@
                         <div class="sub">${escapeHtml(i18n.historyTable)}: ${escapeHtml(row.table_name)} · ${escapeHtml(i18n.order)}: ${escapeHtml(row.order_number)}</div>
                     </div>
                     <div class="text-end">
-                        <div class="served-history-chip">✅ ${escapeHtml(i18n.historyServedAt)}: ${escapeHtml(formatDateTime(row.served_at))}</div>
+                        ${getServedHistoryStatusChip(row)}
                     </div>
                 </div>
                 <div class="d-flex flex-wrap gap-2 mb-2">
@@ -1698,6 +1841,30 @@
         if (servedHistoryModal) {
             servedHistoryModal.show();
         }
+    }
+
+    function collectServedHistoryCandidates(data) {
+        const allRows = [
+            ...(Array.isArray(data.new) ? data.new : []),
+            ...(Array.isArray(data.preparing) ? data.preparing : []),
+            ...(Array.isArray(data.ready) ? data.ready : []),
+            ...(Array.isArray(data.cancel_request) ? data.cancel_request : []),
+            ...(Array.isArray(data.served) ? data.served : [])
+        ];
+
+        return allRows.filter((row) => {
+            const reqStatus = String(row.cancel_request_status || '').toLowerCase().trim();
+            const itemStatus = String(row.item_status || row.status || '').toLowerCase().trim();
+            const boardStatus = String(row.board_status || '').toLowerCase().trim();
+
+            return boardStatus === 'served'
+                || reqStatus === 'approved'
+                || reqStatus === 'rejected'
+                || itemStatus === 'served'
+                || itemStatus === 'cancel'
+                || itemStatus === 'cancelled'
+                || itemStatus === 'canceled';
+        });
     }
 
     async function loadBoard() {
@@ -1728,14 +1895,13 @@
             const rawData = json.data || {};
             const data = rebucketBoardData(rawData);
             lastBoardData = data;
-            syncServedHistory(data.served || []);
+            syncServedHistory(collectServedHistoryCandidates(data));
             const newCount = (data.new || []).length;
 
             renderColumn('col-new', data.new || []);
             renderColumn('col-preparing', data.preparing || []);
             renderColumn('col-ready', data.ready || []);
             renderColumn('col-cancel-request', data.cancel_request || []);
-            renderColumn('col-served', data.served || []);
             updateCounts(data);
             applyClientFilters();
 
@@ -1806,6 +1972,11 @@
             }
 
             if (json && json.status === 'success') {
+                if (normalizedStatus === 'cancel_approved') {
+                    updateServedHistoryStatus(itemId, 'cancelled');
+                } else if (normalizedStatus === 'cancel_rejected') {
+                    updateServedHistoryStatus(itemId, 'cancel_rejected');
+                }
                 await loadBoard();
             } else {
                 alert((json && json.message) ? json.message : i18n.saveFailed);
@@ -1837,8 +2008,6 @@
                 el.className = 'btn btn-outline-info kitchen-filter-btn';
             } else if (filter === 'cancel_request') {
                 el.className = 'btn btn-outline-danger kitchen-filter-btn';
-            } else if (filter === 'served') {
-                el.className = 'btn btn-outline-success kitchen-filter-btn';
             }
         });
 
@@ -1857,11 +2026,8 @@
             activeBtn.className = 'btn btn-info text-dark kitchen-filter-btn active';
         } else if (activeFilter === 'cancel_request') {
             activeBtn.className = 'btn btn-danger kitchen-filter-btn active';
-        } else if (activeFilter === 'served') {
-            activeBtn.className = 'btn btn-success kitchen-filter-btn active';
         }
     }
-
 
     function applyCompactMode(enabled) {
         compactMode = !!enabled;
@@ -1973,6 +2139,10 @@
         servedHistoryRange.addEventListener('change', renderServedHistory);
     }
 
+    if (servedHistoryStatusFilter) {
+        servedHistoryStatusFilter.addEventListener('change', renderServedHistory);
+    }
+
     if (servedHistoryClearBtn) {
         servedHistoryClearBtn.addEventListener('click', function () {
             if (servedHistorySearchInput) {
@@ -1980,6 +2150,9 @@
             }
             if (servedHistoryRange) {
                 servedHistoryRange.value = 'today';
+            }
+            if (servedHistoryStatusFilter) {
+                servedHistoryStatusFilter.value = 'all';
             }
             renderServedHistory();
         });

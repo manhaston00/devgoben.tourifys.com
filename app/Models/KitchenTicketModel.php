@@ -80,13 +80,13 @@ class KitchenTicketModel extends TenantScopedModel
         $activeCount = (int) $db->table('order_items')
             ->where('tenant_id', $tenantId)
             ->where('kitchen_ticket_id', $ticketId)
-            ->whereNotIn('status', ['served', 'cancel'])
+            ->whereNotIn('status', ['served', 'cancel', 'cancelled', 'canceled'])
             ->countAllResults();
 
         if ($activeCount === 0) {
             $this->update($ticketId, [
-                'status'   => 'done',
-                'done_at'  => date('Y-m-d H:i:s'),
+                'status'     => 'done',
+                'done_at'    => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
         }
@@ -141,11 +141,12 @@ class KitchenTicketModel extends TenantScopedModel
             oi.status AS item_status,
             oi.sent_at,
             oi.served_at,
+            oi.updated_at,
             p.kitchen_station_id,
             ks.station_name,
             ks.station_name_th,
             ks.station_name_en,
-			otm.from_table_id AS moved_from_table_id,
+            otm.from_table_id AS moved_from_table_id,
             otm.to_table_id AS moved_to_table_id,
             otm.reason AS moved_reason,
             rtf.table_name AS moved_from_table_name,
@@ -156,33 +157,33 @@ class KitchenTicketModel extends TenantScopedModel
                 WHEN oi.status = 'ready' THEN 'ready'
                 WHEN oi.status = 'cooking' THEN 'preparing'
                 WHEN oi.status IN ('pending', 'sent') THEN 'new'
-                WHEN oi.status = 'cancel' THEN 'cancelled'
+                WHEN oi.status IN ('cancel', 'cancelled', 'canceled') THEN 'served'
                 ELSE 'new'
             END AS display_status
         ");
 
         $builder->join('orders o', 'o.id = kt.order_id', 'inner');
-		$builder->join('order_items oi', 'oi.kitchen_ticket_id = kt.id AND oi.tenant_id = kt.tenant_id', 'inner');
-		$builder->join('products p', 'p.id = oi.product_id', 'left');
-		$builder->join('restaurant_tables rt', 'rt.id = o.table_id', 'left');
-		$builder->join('kitchen_stations ks', 'ks.id = p.kitchen_station_id', 'left');
+        $builder->join('order_items oi', 'oi.kitchen_ticket_id = kt.id AND oi.tenant_id = kt.tenant_id', 'inner');
+        $builder->join('products p', 'p.id = oi.product_id', 'left');
+        $builder->join('restaurant_tables rt', 'rt.id = o.table_id', 'left');
+        $builder->join('kitchen_stations ks', 'ks.id = p.kitchen_station_id', 'left');
 
-		$latestMoveSubquery = "
-		(
-			SELECT x.*
-			FROM order_table_moves x
-			INNER JOIN (
-				SELECT order_id, MAX(id) AS max_id
-				FROM order_table_moves
-				WHERE tenant_id = {$tenantId}
-				GROUP BY order_id
-			) lm ON lm.max_id = x.id
-		) otm
-		";
+        $latestMoveSubquery = "
+        (
+            SELECT x.*
+            FROM order_table_moves x
+            INNER JOIN (
+                SELECT order_id, MAX(id) AS max_id
+                FROM order_table_moves
+                WHERE tenant_id = {$tenantId}
+                GROUP BY order_id
+            ) lm ON lm.max_id = x.id
+        ) otm
+        ";
 
-		$builder->join($latestMoveSubquery, 'otm.order_id = o.id', 'left', false);
-		$builder->join('restaurant_tables rtf', 'rtf.id = otm.from_table_id', 'left');
-		$builder->join('restaurant_tables rtt', 'rtt.id = otm.to_table_id', 'left');
+        $builder->join($latestMoveSubquery, 'otm.order_id = o.id', 'left', false);
+        $builder->join('restaurant_tables rtf', 'rtf.id = otm.from_table_id', 'left');
+        $builder->join('restaurant_tables rtt', 'rtt.id = otm.to_table_id', 'left');
 
         $builder->where('kt.tenant_id', $tenantId);
         $builder->where('o.tenant_id', $tenantId);
@@ -193,12 +194,21 @@ class KitchenTicketModel extends TenantScopedModel
         }
 
         $builder->groupStart()
-			->whereIn('oi.status', ['pending', 'sent', 'cooking', 'ready'])
-			->orGroupStart()
-				->where('oi.status', 'served')
-				->where('oi.served_at >=', date('Y-m-d H:i:s', strtotime('-20 minutes')))
-			->groupEnd()
-		->groupEnd();
+            ->whereIn('oi.status', [
+                'pending',
+                'sent',
+                'cooking',
+                'ready'
+            ])
+            ->orGroupStart()
+                ->where('oi.status', 'served')
+                ->where('oi.served_at >=', date('Y-m-d H:i:s', strtotime('-2 hours')))
+            ->groupEnd()
+            ->orGroupStart()
+                ->whereIn('oi.status', ['cancel', 'cancelled', 'canceled'])
+                ->where('oi.updated_at >=', date('Y-m-d H:i:s', strtotime('-2 hours')))
+            ->groupEnd()
+        ->groupEnd();
 
         if ($stationId) {
             $builder->where('p.kitchen_station_id', $stationId);

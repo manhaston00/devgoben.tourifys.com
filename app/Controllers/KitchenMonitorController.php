@@ -68,9 +68,9 @@ class KitchenMonitorController extends BaseController
             'cooking'   => 'cooking',
             'ready'     => 'ready',
             'served'    => 'served',
-            'cancelled' => 'cancel',
-            'canceled'  => 'cancel',
-            'cancel'    => 'cancel',
+            'cancelled' => 'cancelled',
+            'canceled'  => 'cancelled',
+            'cancel'    => 'cancelled',
         ];
 
         return $map[$status] ?? '';
@@ -94,7 +94,7 @@ class KitchenMonitorController extends BaseController
             case 'served':
                 return 'served';
 
-            case 'cancel':
+            case 'cancelled':
                 return 'cancel';
 
             default:
@@ -180,13 +180,13 @@ class KitchenMonitorController extends BaseController
     {
         return $this->currentLocale() === 'th' ? $th : $en;
     }
-	
-    protected function canShowCancelDecisionActions(array $row): bool
-	{
-		$cancelRequestStatus = strtolower((string) ($row['cancel_request_status'] ?? ''));
 
-		return $cancelRequestStatus === 'pending';
-	}
+    protected function canShowCancelDecisionActions(array $row): bool
+    {
+        $cancelRequestStatus = strtolower((string) ($row['cancel_request_status'] ?? ''));
+
+        return $cancelRequestStatus === 'pending';
+    }
 
     protected function getScopedItemFull(int $itemId): ?array
     {
@@ -255,68 +255,74 @@ class KitchenMonitorController extends BaseController
     }
 
     protected function resolveBoardStatus(array $row): string
-	{
-		$cancelRequestStatus = strtolower((string) ($row['cancel_request_status'] ?? ''));
-		$cancelPrevStatus    = strtolower((string) ($row['cancel_request_prev_status'] ?? ''));
-		$displayStatus       = strtolower((string) ($row['display_status'] ?? ''));
-		$itemStatus          = strtolower((string) ($row['item_status'] ?? $row['status'] ?? ''));
-		$ticketStatus        = strtolower((string) ($row['ticket_status'] ?? ''));
+    {
+        $cancelRequestStatus = strtolower((string) ($row['cancel_request_status'] ?? ''));
+        $cancelPrevStatus    = strtolower((string) ($row['cancel_request_prev_status'] ?? ''));
+        $displayStatus       = strtolower((string) ($row['display_status'] ?? ''));
+        $itemStatus          = strtolower((string) ($row['item_status'] ?? $row['status'] ?? ''));
+        $ticketStatus        = strtolower((string) ($row['ticket_status'] ?? ''));
 
-		// ต้องเช็กคำขอยกเลิกก่อน display_status เสมอ
-		if ($cancelRequestStatus === 'pending') {
-			return 'cancel_request';
-		}
+        if ($cancelRequestStatus === 'pending') {
+            return 'cancel_request';
+        }
 
-		// ถ้าปฏิเสธ ให้ย้อนกลับไปสถานะก่อนขอยกเลิก
-		if ($cancelRequestStatus === 'rejected' && in_array($cancelPrevStatus, ['new', 'preparing', 'ready', 'served'], true)) {
-			return $cancelPrevStatus;
-		}
+        if ($cancelRequestStatus === 'rejected' && in_array($cancelPrevStatus, ['new', 'preparing', 'ready', 'served'], true)) {
+            return $cancelPrevStatus;
+        }
 
-		if (in_array($displayStatus, ['new', 'preparing', 'ready', 'served', 'cancel_request'], true)) {
-			return $displayStatus;
-		}
+        if (in_array($displayStatus, ['new', 'preparing', 'ready', 'served', 'cancel_request'], true)) {
+            return $displayStatus;
+        }
 
-		if ($itemStatus === 'served') {
-			return 'served';
-		}
+        if (in_array($itemStatus, ['cancel', 'cancelled', 'canceled'], true)) {
+            return 'served';
+        }
 
-		if ($itemStatus === 'ready') {
-			return 'ready';
-		}
+        if ($itemStatus === 'served') {
+            return 'served';
+        }
 
-		if (in_array($itemStatus, ['preparing', 'cooking', 'doing'], true)) {
-			return 'preparing';
-		}
+        if ($itemStatus === 'ready') {
+            return 'ready';
+        }
 
-		if (in_array($itemStatus, ['new', 'pending', 'sent'], true)) {
-			return 'new';
-		}
+        if (in_array($itemStatus, ['preparing', 'cooking', 'doing'], true)) {
+            return 'preparing';
+        }
 
-		if ($ticketStatus === 'served') {
-			return 'served';
-		}
+        if (in_array($itemStatus, ['new', 'pending', 'sent'], true)) {
+            return 'new';
+        }
 
-		if ($ticketStatus === 'ready') {
-			return 'ready';
-		}
+        if (in_array($ticketStatus, ['cancel', 'cancelled', 'canceled'], true)) {
+            return 'served';
+        }
 
-		if (in_array($ticketStatus, ['preparing', 'cooking', 'doing'], true)) {
-			return 'preparing';
-		}
+        if ($ticketStatus === 'served') {
+            return 'served';
+        }
 
-		return 'new';
-	}
+        if ($ticketStatus === 'ready') {
+            return 'ready';
+        }
+
+        if (in_array($ticketStatus, ['preparing', 'cooking', 'doing'], true)) {
+            return 'preparing';
+        }
+
+        return 'new';
+    }
 
     protected function statusLabels(): array
-	{
-		return [
-			'new'            => lang('app.status_new'),
-			'preparing'      => lang('app.status_preparing'),
-			'ready'          => lang('app.status_ready'),
-			'cancel_request' => lang('app.cancel_request_pending') ?: 'คำขอยกเลิก',
-			'served'         => lang('app.status_served'),
-		];
-	}
+    {
+        return [
+            'new'            => lang('app.status_new'),
+            'preparing'      => lang('app.status_preparing'),
+            'ready'          => lang('app.status_ready'),
+            'cancel_request' => lang('app.cancel_request_pending') ?: 'คำขอยกเลิก',
+            'served'         => lang('app.status_served'),
+        ];
+    }
 
     protected function attachMergeInfoToRow(array $row): array
     {
@@ -427,14 +433,16 @@ class KitchenMonitorController extends BaseController
 
             $boardStatus = $this->resolveBoardStatus($row);
             $row['board_status'] = $boardStatus;
-			$row['show_cancel_decision_actions'] = $this->canShowCancelDecisionActions($row);
-			$row['cancel_request_is_pending']    = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'pending';
-			$row['cancel_request_is_rejected']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'rejected';
-			$row['cancel_request_is_approved']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'approved';
+            $row['show_cancel_decision_actions'] = $this->canShowCancelDecisionActions($row);
+            $row['cancel_request_is_pending']    = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'pending';
+            $row['cancel_request_is_rejected']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'rejected';
+            $row['cancel_request_is_approved']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'approved';
             $row['status_label'] = $this->statusLabels()[$boardStatus] ?? ucfirst($boardStatus);
+
             if (! array_key_exists($boardStatus, $grouped)) {
                 $grouped[$boardStatus] = [];
             }
+
             $grouped[$boardStatus][] = $row;
         }
 
@@ -475,7 +483,7 @@ class KitchenMonitorController extends BaseController
 
         if ($requestedStatus === 'cancel_approved') {
             $data = [
-                'status'     => 'cancel',
+                'status'     => 'cancelled',
                 'line_total' => 0,
             ];
 
@@ -518,7 +526,7 @@ class KitchenMonitorController extends BaseController
                         'order_id'      => (int) ($item['order_id'] ?? 0),
                         'ticket_id'     => (int) ($item['kitchen_ticket_id'] ?? 0),
                         'from_status'   => $fromStatus,
-                        'to_status'     => 'cancel',
+                        'to_status'     => 'cancelled',
                         'action_by'     => $userId,
                         'action_source' => 'kitchen.monitor.cancel_approved',
                     ]
@@ -631,7 +639,7 @@ class KitchenMonitorController extends BaseController
         if ($status === 'served' && $this->orderItemsFieldExists('served_at')) {
             $data['served_at'] = $now;
         }
-        if ($status === 'cancel') {
+        if (in_array($status, ['cancel', 'cancelled', 'canceled'], true)) {
             if ($this->orderItemsFieldExists('cancelled_at')) {
                 $data['cancelled_at'] = $now;
             }
