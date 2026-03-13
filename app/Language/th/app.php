@@ -1118,4 +1118,14 @@ return [
 'reset' => 'รีเซ็ต',
 'back' => 'กลับ',
 
+
+'audit_details_screen' => 'หน้าจอ',
+'audit_details_branch_id' => 'รหัสสาขา',
+'audit_details_filters' => 'ตัวกรอง',
+'audit_details_ticket_no' => 'เลขคิวครัว',
+'audit_details_ticket_id' => 'รหัสคิวครัว',
+'audit_details_batch_no' => 'รอบส่ง',
+'audit_details_item_count' => 'จำนวนรายการ',
+'audit_logs_no_additional_details' => 'ไม่มีรายละเอียดเพิ่มเติม',
+
 ];

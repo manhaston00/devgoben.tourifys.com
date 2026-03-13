@@ -777,12 +777,6 @@
                 </a>
             <?php endif; ?>
 
-            <?php if ($canAuditLogsMenu): ?>
-                <a href="<?= site_url('audit-logs') ?>" class="sidebar-link <?= menu_active(['audit-logs'], $currentPath) ?>">
-                    <?= lang('menu.audit_logs') ?>
-                </a>
-            <?php endif; ?>
-
 			<div class="sidebar-group-title"><?= lang('menu.system') ?></div>
 			<a href="<?= site_url('logout') ?>" class="sidebar-link text-warning"><?= lang('app.logout') ?></a>
         </div>

@@ -1138,4 +1138,14 @@ return [
 'reset' => 'Reset',
 'back' => 'Back',
 
+
+'audit_details_screen' => 'Screen',
+'audit_details_branch_id' => 'Branch ID',
+'audit_details_filters' => 'Filters',
+'audit_details_ticket_no' => 'Ticket No.',
+'audit_details_ticket_id' => 'Ticket ID',
+'audit_details_batch_no' => 'Batch',
+'audit_details_item_count' => 'Items',
+'audit_logs_no_additional_details' => 'No additional details',
+
 ];
