@@ -156,6 +156,14 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
         'filter' => 'permission:pos.view,feature_gate:pos.access'
     ]);
 
+    $routes->get('cashier', 'POSController::cashier', [
+        'filter' => 'permission:cashier.checkout,feature_gate:pos.access'
+    ]);
+
+    $routes->get('cashier-order/(:num)', 'POSController::cashierOrder/$1', [
+        'filter' => 'permission:cashier.checkout,feature_gate:pos.access'
+    ]);
+
     $routes->get('current-order/(:num)', 'POSController::currentOrder/$1', [
         'filter' => 'permission:pos.view,feature_gate:pos.access'
     ]);

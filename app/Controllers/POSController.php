@@ -576,6 +576,205 @@ class POSController extends BaseController
         ]);
     }
 
+
+    protected function getCashierOrdersForBranch(): array
+    {
+        $tenantId = $this->currentTenantId();
+        $branchId = $this->getCurrentBranchId();
+
+        $builder = $this->db->table('orders');
+
+        $builder->select("
+            orders.*,
+            restaurant_tables.table_name,
+            restaurant_tables.zone_id,
+            COALESCE(NULLIF(zones.zone_name_th, ''), NULLIF(zones.zone_name_en, ''), '-') AS zone_name
+        ");
+
+        $builder->join(
+            'restaurant_tables',
+            'restaurant_tables.id = orders.table_id
+             AND restaurant_tables.tenant_id = orders.tenant_id
+             AND restaurant_tables.deleted_at IS NULL',
+            'left'
+        );
+
+        $builder->join(
+            'zones',
+            'zones.id = restaurant_tables.zone_id
+             AND zones.tenant_id = restaurant_tables.tenant_id
+             AND zones.deleted_at IS NULL',
+            'left'
+        );
+
+        $builder->where('orders.tenant_id', $tenantId);
+
+        if ($branchId > 0) {
+            $builder->where('orders.branch_id', $branchId);
+        }
+
+        $builder->whereIn('orders.status', ['open', 'billing']);
+        $builder->orderBy("CASE WHEN orders.status = 'billing' THEN 0 ELSE 1 END", '', false);
+        $builder->orderBy('orders.updated_at', 'DESC');
+        $builder->orderBy('orders.id', 'DESC');
+
+        $orders = $builder->get()->getResultArray();
+
+        foreach ($orders as &$order) {
+            $orderId = (int) ($order['id'] ?? 0);
+
+            $this->recalculateOrderTotal($orderId);
+
+            $items = $this->orderItemModel->getByOrder($orderId);
+            $items = array_map(fn (array $item): array => $this->normalizeOrderItemRowForResponse($item), $items);
+
+            $counts = [
+                'all'       => count($items),
+                'pending'   => 0,
+                'sent'      => 0,
+                'preparing' => 0,
+                'ready'     => 0,
+                'served'    => 0,
+                'cancelled' => 0,
+            ];
+
+            foreach ($items as $item) {
+                $normalizedStatus = $this->normalizeOrderItemStatus($item['status'] ?? 'pending');
+                if (isset($counts[$normalizedStatus])) {
+                    $counts[$normalizedStatus]++;
+                }
+            }
+
+            $effectiveTotal = $this->getEffectiveOrderTotal($orderId);
+
+            $order['item_counts'] = $counts;
+            $order['display_total'] = $effectiveTotal;
+        }
+        unset($order);
+
+        return $orders;
+    }
+
+    protected function getCashierOrderPayload(int $orderId): ?array
+    {
+        $order = $this->getScopedOrder($orderId, ['open', 'billing']);
+
+        if (! $order) {
+            return null;
+        }
+
+        $this->recalculateOrderTotal($orderId);
+        $order = $this->getScopedOrder($orderId, ['open', 'billing']);
+
+        if (! $order) {
+            return null;
+        }
+
+        $items = $this->orderItemModel->getByOrder($orderId);
+        $items = array_map(fn (array $item): array => $this->normalizeOrderItemRowForResponse($item), $items);
+
+        $table = null;
+        if (! empty($order['table_id'])) {
+            $tableMap = $this->tableModel->getTableMapByIds([(int) $order['table_id']], $this->getCurrentBranchId());
+            $table = $tableMap[(int) $order['table_id']] ?? null;
+        }
+
+        $counts = [
+            'all'       => count($items),
+            'pending'   => 0,
+            'sent'      => 0,
+            'preparing' => 0,
+            'ready'     => 0,
+            'served'    => 0,
+            'cancelled' => 0,
+        ];
+
+        foreach ($items as $item) {
+            $normalizedStatus = $this->normalizeOrderItemStatus($item['status'] ?? 'pending');
+            if (isset($counts[$normalizedStatus])) {
+                $counts[$normalizedStatus]++;
+            }
+        }
+
+        $summary = [
+            'subtotal'        => (float) ($order['subtotal'] ?? 0),
+            'discount_amount' => (float) ($order['discount_amount'] ?? 0),
+            'service_charge'  => (float) ($order['service_charge'] ?? 0),
+            'vat_amount'      => (float) ($order['vat_amount'] ?? 0),
+            'total_price'     => (float) ($order['total_price'] ?? 0),
+            'display_total'   => $this->getEffectiveOrderTotal($orderId),
+        ];
+
+        return [
+            'order' => $order,
+            'items' => $items,
+            'table' => $table,
+            'counts' => $counts,
+            'summary' => $summary,
+        ];
+    }
+
+    public function cashier()
+    {
+        if ($response = $this->denyIfFeatureNotEnabled('pos.access', lang('app.plan_cannot_access_pos'))) {
+            return $response;
+        }
+
+        $orders = $this->getCashierOrdersForBranch();
+
+        $summary = [
+            'orders' => count($orders),
+            'billing' => 0,
+            'open' => 0,
+            'sales_total' => 0.0,
+        ];
+
+        foreach ($orders as $order) {
+            if (($order['status'] ?? '') === 'billing') {
+                $summary['billing']++;
+            } else {
+                $summary['open']++;
+            }
+
+            $summary['sales_total'] += (float) ($order['display_total'] ?? 0);
+        }
+
+        return view('pos/cashier', [
+            'cashierOrders' => $orders,
+            'cashierSummary' => $summary,
+        ]);
+    }
+
+    public function cashierOrder($orderId = null)
+    {
+        if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
+            return $response;
+        }
+
+        $orderId = (int) $orderId;
+
+        if ($orderId <= 0) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
+
+        $payload = $this->getCashierOrderPayload($orderId);
+
+        if (! $payload) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => $payload,
+        ]);
+    }
+
     public function getProductQuickOptions($productId = null)
     {
         if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {

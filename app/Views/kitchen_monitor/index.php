@@ -78,6 +78,14 @@ if (! function_exists('kds_lang')) {
                 <button type="button" class="btn btn-outline-dark" id="fullscreenBtn">
                     <?= esc(lang('app.kitchen_fullscreen')) ?>
                 </button>
+
+                <button type="button" class="btn btn-outline-dark" id="tvModeBtn">
+                    <?= esc(kds_lang('app.kds_tv_mode', 'โหมดทีวี', 'TV mode', $kdsLocale)) ?>
+                </button>
+
+                <button type="button" class="btn btn-outline-secondary" id="resetUiBtn">
+                    <?= esc(kds_lang('app.kds_reset_filters', 'รีเซ็ตฟิลเตอร์', 'Reset filters', $kdsLocale)) ?>
+                </button>
             </div>
         </div>
 
@@ -212,6 +220,12 @@ if (! function_exists('kds_lang')) {
                         <div class="d-flex align-items-center gap-2"><span class="badge bg-success kds-col-count" id="count-served">0</span><span class="small text-muted"><?= esc(kds_lang('app.kds_recent_only', 'ล่าสุด', 'Recent', $kdsLocale)) ?></span></div>
                     </div>
                     <div class="card-body bg-light kds-column-body" id="col-served"></div>
+                    <div class="card-footer bg-white border-0 pt-0 pb-3 px-3" id="servedLoadMoreWrap" style="display:none;">
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-outline-success btn-sm" id="servedLoadMoreBtn"></button>
+                            <div class="small text-muted text-center" id="servedLoadMoreMeta"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -224,10 +238,7 @@ if (! function_exists('kds_lang')) {
             <div class="modal-header">
                 <div>
                     <h5 class="modal-title mb-1" id="servedHistoryTitle"><?= esc(kds_lang('app.kds_history', 'ประวัติย้อนหลัง', 'History', $kdsLocale)) ?></h5>
-                    <div class="small text-muted d-flex align-items-center gap-2 flex-wrap" id="servedHistorySubTitle">
-                        <span><?= esc(lang('app.kitchen_monitor_desc')) ?></span>
-                        <span class="badge rounded-pill bg-success d-none" id="servedHistoryLiveBadge">+0 ใหม่</span>
-                    </div>
+                    <div class="small text-muted" id="servedHistorySubTitle"><?= esc(lang('app.kitchen_monitor_desc')) ?></div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -499,6 +510,25 @@ if (! function_exists('kds_lang')) {
 
     .kds-focus-mode .kitchen-monitor-page { border-radius: 0 !important; margin: 0 !important; }
     .kds-browser-fullscreen .kds-column-body { height: 74vh; }
+
+    .kds-tv-mode #kdsHeaderBlock,
+    .kds-tv-mode #kdsStickyFilterBar,
+    .kds-tv-mode .kds-summary-help,
+    .kds-tv-mode #servedLoadMoreWrap,
+    .kds-tv-mode .kitchen-monitor-page .card-body .kitchen-filter-btn,
+    .kds-tv-mode .kitchen-monitor-page .form-check.form-switch {
+        display: none !important;
+    }
+    .kds-tv-mode .kitchen-monitor-page .card-body { padding-top: 8px; }
+    .kds-tv-mode #kdsBoard { --bs-gutter-x: .75rem; --bs-gutter-y: .75rem; }
+    .kds-tv-mode .kds-column-body { height: 83vh; padding: 10px; }
+    .kds-tv-mode .kds-col-header { padding: 10px 12px; font-size: 18px; }
+    .kds-tv-mode .kds-col-count { font-size: 14px; }
+    .kds-tv-mode .kitchen-ticket-card { transform: scale(1.01); transform-origin: top center; }
+    .kds-tv-mode .kitchen-ticket-card .ticket-title,
+    .kds-tv-mode .kitchen-ticket-card .title { font-size: 1.2rem; }
+    .kds-tv-mode .kitchen-ticket-card .btn,
+    .kds-tv-mode .kitchen-ticket-card button { font-size: 1rem; padding-top: .7rem; padding-bottom: .7rem; }
 
     .kds-move-box,
     .kds-merge-box,
@@ -788,6 +818,20 @@ if (! function_exists('kds_lang')) {
     const compactHeaderBtn = document.getElementById('compactHeaderBtn');
     const focusModeBtn = document.getElementById('focusModeBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const tvModeBtn = document.getElementById('tvModeBtn');
+    const resetUiBtn = document.getElementById('resetUiBtn');
+    const servedLoadMoreBtn = document.getElementById('servedLoadMoreBtn');
+    const servedLoadMoreWrap = document.getElementById('servedLoadMoreWrap');
+    const servedLoadMoreMeta = document.getElementById('servedLoadMoreMeta');
+
+    const kdsStorageKeys = {
+        station: 'kds_station_filter',
+        quick: 'kds_quick_filter',
+        hideEmpty: 'kds_hide_empty_columns',
+        focus: 'kds_focus_mode',
+        compact: 'kds_compact_mode',
+        tv: 'kds_tv_mode'
+    };
     const hideEmptyColumns = document.getElementById('hideEmptyColumns');
     const boardRoot = document.getElementById('kdsBoard');
     const summaryRow = document.getElementById('kdsSummaryRow');
@@ -796,7 +840,6 @@ if (! function_exists('kds_lang')) {
     const servedHistoryClearBtn = document.getElementById('servedHistoryClearBtn');
     const servedHistoryMeta = document.getElementById('servedHistoryMeta');
     const servedHistoryList = document.getElementById('servedHistoryList');
-    const servedHistoryLiveBadge = document.getElementById('servedHistoryLiveBadge');
     const cancelledHistoryList = document.getElementById('cancelledHistoryList');
     const servedHistoryModalEl = document.getElementById('servedHistoryModal');
     const servedHistoryModal = servedHistoryModalEl ? new bootstrap.Modal(servedHistoryModalEl) : null;
@@ -808,10 +851,12 @@ if (! function_exists('kds_lang')) {
     let quickFilter = 'all';
     let focusMode = false;
     let compactMode = false;
+    let tvMode = false;
     let servedHistoryRows = [];
-    let servedHistoryLastSignature = '';
-    let servedHistoryPendingNewCount = 0;
     let lastBoardData = { new: [], preparing: [], ready: [], cancel_request: [], served: [] };
+    let lastServedBoardRows = [];
+    let servedBoardInitialLimit = 30;
+    let servedBoardVisibleLimit = 30;
 
     const locale = '<?= esc(service('request')->getLocale()) ?>';
     const isThaiLocale = locale === 'th';
@@ -879,8 +924,11 @@ if (! function_exists('kds_lang')) {
         cancelRequestApproved: '<?= esc(lang('app.cancel_request_approved')) ?>',
         cancelRequestRejected: '<?= esc(lang('app.cancel_request_rejected')) ?>',
         historyReason: '<?= esc(lang('app.history_reason')) ?>',
-        newItemsAdded: '<?= esc(kds_lang('app.kds_new_items_added', 'มีรายการใหม่เพิ่ม', 'New items added', $kdsLocale)) ?>',
-        newItemsAddedSuffix: '<?= esc(kds_lang('app.kds_new_items_suffix', 'ใหม่', 'new', $kdsLocale)) ?>'
+        tvModeEnter: <?= json_encode(kds_lang('app.kds_tv_mode', 'โหมดทีวี', 'TV mode', $kdsLocale)) ?>,
+        tvModeExit: <?= json_encode(kds_lang('app.kds_exit_tv_mode', 'ออกจากโหมดทีวี', 'Exit TV mode', $kdsLocale)) ?>,
+        loadMore: <?= json_encode(kds_lang('app.kds_load_more', 'โหลดเพิ่ม', 'Load more', $kdsLocale)) ?>,
+        showingItems: <?= json_encode(kds_lang('app.kds_showing_items', 'แสดง', 'Showing', $kdsLocale)) ?>,
+        ofItems: <?= json_encode(kds_lang('app.kds_of_items', 'จาก', 'of', $kdsLocale)) ?>
     };
 
     const csrfName = <?= json_encode(csrf_token()) ?>;
@@ -1410,6 +1458,38 @@ if (! function_exists('kds_lang')) {
         el.innerHTML = rows.map((row, index) => renderCard(row, index)).join('');
     }
 
+    function updateServedLoadMoreUi(totalCount, visibleCount) {
+        if (!servedLoadMoreWrap || !servedLoadMoreBtn || !servedLoadMoreMeta) {
+            return;
+        }
+
+        const total = Number(totalCount || 0);
+        const visible = Number(visibleCount || 0);
+        const hasMore = total > visible;
+
+        if (tvMode || total <= 0) {
+            servedLoadMoreWrap.style.display = 'none';
+            return;
+        }
+
+        servedLoadMoreWrap.style.display = 'block';
+        servedLoadMoreBtn.style.display = hasMore ? '' : 'none';
+        servedLoadMoreBtn.textContent = `${i18n.loadMore} (+${Math.min(servedBoardInitialLimit, Math.max(total - visible, 0))})`;
+        servedLoadMoreMeta.textContent = `${i18n.showingItems} ${visible} ${i18n.ofItems} ${total}`;
+    }
+
+    function renderServedColumn(rows) {
+        const allRows = Array.isArray(rows) ? rows : [];
+        lastServedBoardRows = allRows.slice();
+
+        const initialLimit = Math.max(1, Number(servedBoardInitialLimit || 30));
+        const currentVisible = Math.max(initialLimit, Number(servedBoardVisibleLimit || initialLimit));
+        const visibleRows = allRows.slice(0, currentVisible);
+
+        renderColumn('col-served', visibleRows);
+        updateServedLoadMoreUi(allRows.length, visibleRows.length);
+    }
+
     function updateCounts(data, summaryMeta = {}) {
     const newCount = Number(summaryMeta.new ?? ((data.new || []).length));
     const preparingCount = Number(summaryMeta.preparing ?? ((data.preparing || []).length));
@@ -1577,42 +1657,6 @@ if (! function_exists('kds_lang')) {
         }
     }
 
-
-    function buildServedHistorySignature(rows) {
-        return (Array.isArray(rows) ? rows : []).map((row) => {
-            return [
-                Number(row.item_id || 0),
-                String(row.history_status || ''),
-                String(row.served_at || ''),
-                String(row.decided_at || ''),
-                String(row.note || ''),
-                String(row.cancel_request_status || '')
-            ].join('|');
-        }).join('||');
-    }
-
-    function isServedHistoryModalOpen() {
-        return !!(servedHistoryModalEl && servedHistoryModalEl.classList.contains('show'));
-    }
-
-    function updateServedHistoryLiveBadge(count = 0) {
-        if (!servedHistoryLiveBadge) {
-            return;
-        }
-
-        const normalizedCount = Math.max(0, Number(count || 0));
-        servedHistoryPendingNewCount = normalizedCount;
-
-        if (normalizedCount <= 0) {
-            servedHistoryLiveBadge.classList.add('d-none');
-            servedHistoryLiveBadge.textContent = '';
-            return;
-        }
-
-        servedHistoryLiveBadge.classList.remove('d-none');
-        servedHistoryLiveBadge.textContent = `+${normalizedCount} ${i18n.newItemsAddedSuffix}`;
-    }
-
     function normalizeServedHistoryItem(row) {
         const itemId = Number(row.order_item_id || row.item_id || row.id || 0);
         const rawStatus = String(row.item_status || row.status || row.board_status || '').toLowerCase();
@@ -1649,56 +1693,37 @@ if (! function_exists('kds_lang')) {
 
     function syncServedHistory(rows) {
         const incoming = (rows || []).map(normalizeServedHistoryItem).filter((row) => Number(row.item_id || 0) > 0);
-        const oldMap = new Map();
+        if (!incoming.length) {
+            return;
+        }
 
-        (Array.isArray(servedHistoryRows) ? servedHistoryRows : []).forEach((row) => {
-            oldMap.set(String(row.history_key || row.item_id || ''), row);
+        const map = new Map();
+
+        (servedHistoryRows || []).forEach((row) => {
+            map.set(String(row.history_key || row.item_id || ''), row);
         });
-
-        const newMap = new Map();
-        let newItemsDetected = 0;
 
         incoming.forEach((row) => {
             const key = String(row.history_key || row.item_id || '');
-            const existing = oldMap.get(key);
+            const existing = map.get(key);
 
             if (!existing) {
-                newItemsDetected++;
-                newMap.set(key, row);
+                map.set(key, row);
                 return;
             }
 
-            const merged = {
+            map.set(key, {
                 ...existing,
                 ...row,
-                history_status: row.history_status || existing.history_status,
-                decided_at: row.decided_at || existing.decided_at || '',
-                note: row.note || existing.note || ''
-            };
-
-            const beforeSignature = [
-                String(existing.history_status || ''),
-                String(existing.served_at || ''),
-                String(existing.decided_at || ''),
-                String(existing.note || ''),
-                String(existing.cancel_request_status || '')
-            ].join('|');
-            const afterSignature = [
-                String(merged.history_status || ''),
-                String(merged.served_at || ''),
-                String(merged.decided_at || ''),
-                String(merged.note || ''),
-                String(merged.cancel_request_status || '')
-            ].join('|');
-
-            if (beforeSignature !== afterSignature) {
-                newItemsDetected++;
-            }
-
-            newMap.set(key, merged);
+                history_status: existing.history_status && existing.history_status !== 'served'
+                    ? existing.history_status
+                    : row.history_status,
+                decided_at: existing.decided_at || row.decided_at || '',
+                note: existing.note || row.note || ''
+            });
         });
 
-        servedHistoryRows = Array.from(newMap.values())
+        servedHistoryRows = Array.from(map.values())
             .sort((a, b) => {
                 const da = new Date(String(a.served_at || a.decided_at || '').replace(' ', 'T')).getTime() || 0;
                 const db = new Date(String(b.served_at || b.decided_at || '').replace(' ', 'T')).getTime() || 0;
@@ -1706,20 +1731,8 @@ if (! function_exists('kds_lang')) {
             })
             .slice(0, 300);
 
-        const nextSignature = buildServedHistorySignature(servedHistoryRows);
-        const changed = nextSignature !== servedHistoryLastSignature;
-        servedHistoryLastSignature = nextSignature;
-
         persistServedHistory();
-
-        if (changed) {
-            if (isServedHistoryModalOpen() && newItemsDetected > 0) {
-                updateServedHistoryLiveBadge(newItemsDetected);
-            } else if (!isServedHistoryModalOpen()) {
-                updateServedHistoryLiveBadge(0);
-            }
-            renderServedHistory();
-        }
+        renderServedHistory();
     }
 
     function filterServedHistoryRows(historyTab = 'all') {
@@ -1908,7 +1921,6 @@ if (! function_exists('kds_lang')) {
 }
 
     function openServedHistory() {
-        updateServedHistoryLiveBadge(0);
         renderServedHistory();
         if (servedHistoryModal) {
             servedHistoryModal.show();
@@ -1969,10 +1981,8 @@ if (! function_exists('kds_lang')) {
         const summaryMeta = (json.meta && json.meta.summary) ? json.meta.summary : {};
         const boardSettings = (json.meta && json.meta.settings) ? json.meta.settings : {};
         const data = rebucketBoardData(rawData);
-        const servedBoardLimit = Number(boardSettings.served_board_limit || 30);
-        if (Array.isArray(data.served)) {
-            data.served = data.served.slice(0, servedBoardLimit);
-        }
+        servedBoardInitialLimit = Math.max(1, Number(boardSettings.served_board_limit || 30));
+        servedBoardVisibleLimit = servedBoardInitialLimit;
 
         lastBoardData = data;
         syncServedHistory([...(historyMeta.served || []), ...(historyMeta.cancelled || [])]);
@@ -1983,7 +1993,7 @@ if (! function_exists('kds_lang')) {
         renderColumn('col-preparing', data.preparing || []);
         renderColumn('col-ready', data.ready || []);
         renderColumn('col-cancel-request', data.cancel_request || []);
-        renderColumn('col-served', data.served || []);
+        renderServedColumn(data.served || []);
         updateCounts(data, summaryMeta);
         applyClientFilters();
         debouncedSyncResponsiveBoardLayout();
@@ -2116,6 +2126,84 @@ if (! function_exists('kds_lang')) {
         }
     }
 
+
+    function safeLocalStorageGet(key, fallback = '') {
+        try {
+            const value = localStorage.getItem(key);
+            return value === null ? fallback : value;
+        } catch (e) {
+            return fallback;
+        }
+    }
+
+    function safeLocalStorageSet(key, value) {
+        try {
+            localStorage.setItem(key, value);
+        } catch (e) {
+            console.error('Local storage write error:', e);
+        }
+    }
+
+    function safeLocalStorageRemove(key) {
+        try {
+            localStorage.removeItem(key);
+        } catch (e) {
+            console.error('Local storage remove error:', e);
+        }
+    }
+
+    function syncStationUrl(stationId) {
+        try {
+            const url = new URL(window.location.href);
+            const normalized = String(stationId || '0').trim() || '0';
+
+            if (normalized === '0') {
+                url.searchParams.delete('station_id');
+            } else {
+                url.searchParams.set('station_id', normalized);
+            }
+
+            window.history.replaceState({}, '', url.toString());
+        } catch (e) {
+            console.error('Station URL sync error:', e);
+        }
+    }
+
+    function restoreUiPreferences() {
+        if (stationFilter) {
+            const savedStation = safeLocalStorageGet(kdsStorageKeys.station, '');
+            if (savedStation !== '') {
+                const optionExists = Array.from(stationFilter.options || []).some((option) => String(option.value) === String(savedStation));
+                stationFilter.value = optionExists ? String(savedStation) : '0';
+            }
+            syncStationUrl(stationFilter.value || '0');
+        }
+
+        quickFilter = safeLocalStorageGet(kdsStorageKeys.quick, 'all') || 'all';
+        applyFilterButtonStyles(quickFilter);
+
+        if (hideEmptyColumns) {
+            hideEmptyColumns.checked = safeLocalStorageGet(kdsStorageKeys.hideEmpty, '0') === '1';
+        }
+    }
+
+    function resetKdsUiState() {
+        safeLocalStorageRemove(kdsStorageKeys.station);
+        safeLocalStorageRemove(kdsStorageKeys.quick);
+        safeLocalStorageRemove(kdsStorageKeys.hideEmpty);
+
+        try {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('station_id');
+            window.location.href = url.toString();
+            return;
+        } catch (e) {
+            console.error('Reset URL rebuild error:', e);
+        }
+
+        window.location.reload();
+    }
+
     function applyCompactMode(enabled) {
         compactMode = !!enabled;
         document.body.classList.toggle('kds-compact', compactMode);
@@ -2124,10 +2212,22 @@ if (! function_exists('kds_lang')) {
             compactHeaderBtn.className = compactMode ? 'btn btn-primary' : 'btn btn-outline-dark';
         }
         try {
-            localStorage.setItem('kds_compact_mode', compactMode ? '1' : '0');
+            safeLocalStorageSet(kdsStorageKeys.compact, compactMode ? '1' : '0');
         } catch (e) {
             console.error('Compact mode storage error:', e);
         }
+    }
+
+    function applyTvMode(enabled) {
+        tvMode = !!enabled;
+        document.body.classList.toggle('kds-tv-mode', tvMode);
+        if (tvModeBtn) {
+            tvModeBtn.textContent = tvMode ? i18n.tvModeExit : i18n.tvModeEnter;
+            tvModeBtn.className = tvMode ? 'btn btn-primary' : 'btn btn-outline-dark';
+        }
+        safeLocalStorageSet(kdsStorageKeys.tv, tvMode ? '1' : '0');
+        renderServedColumn(lastServedBoardRows || (lastBoardData.served || []));
+        debouncedSyncResponsiveBoardLayout();
     }
 
     function applyFocusMode(enabled) {
@@ -2140,7 +2240,7 @@ if (! function_exists('kds_lang')) {
         }
 
         try {
-            localStorage.setItem('kds_focus_mode', focusMode ? '1' : '0');
+            safeLocalStorageSet(kdsStorageKeys.focus, focusMode ? '1' : '0');
         } catch (e) {
             console.error('Focus mode storage error:', e);
         }
@@ -2182,6 +2282,7 @@ if (! function_exists('kds_lang')) {
         const filterBtn = e.target.closest('.kitchen-filter-btn[data-filter]');
         if (filterBtn) {
             quickFilter = String(filterBtn.getAttribute('data-filter') || 'all');
+            safeLocalStorageSet(kdsStorageKeys.quick, quickFilter);
             applyFilterButtonStyles(quickFilter);
             applyClientFilters();
             return;
@@ -2189,7 +2290,12 @@ if (! function_exists('kds_lang')) {
     });
 
     if (stationFilter) {
-        stationFilter.addEventListener('change', loadBoard);
+        stationFilter.addEventListener('change', function () {
+            const value = String(stationFilter.value || '0');
+            safeLocalStorageSet(kdsStorageKeys.station, value);
+            syncStationUrl(value);
+            loadBoard();
+        });
     }
 
     if (searchInput) {
@@ -2251,47 +2357,49 @@ if (! function_exists('kds_lang')) {
         });
     }
 
+    if (tvModeBtn) {
+        tvModeBtn.addEventListener('click', function () {
+            applyTvMode(!tvMode);
+        });
+    }
+
+    if (servedLoadMoreBtn) {
+        servedLoadMoreBtn.addEventListener('click', function () {
+            servedBoardVisibleLimit += Math.max(1, Number(servedBoardInitialLimit || 30));
+            renderServedColumn(lastServedBoardRows || (lastBoardData.served || []));
+            applyClientFilters();
+            debouncedSyncResponsiveBoardLayout();
+        });
+    }
+
     if (hideEmptyColumns) {
-        hideEmptyColumns.addEventListener('change', applyClientFilters);
+        hideEmptyColumns.addEventListener('change', function () {
+            safeLocalStorageSet(kdsStorageKeys.hideEmpty, hideEmptyColumns.checked ? '1' : '0');
+            applyClientFilters();
+        });
+    }
+
+    if (resetUiBtn) {
+        resetUiBtn.addEventListener('click', resetKdsUiState);
     }
 
     window.addEventListener('resize', debouncedSyncResponsiveBoardLayout);
 
     try {
-        if (localStorage.getItem('kds_focus_mode') === '1') {
+        if (safeLocalStorageGet(kdsStorageKeys.focus, '0') === '1') {
             applyFocusMode(true);
         }
-        if (localStorage.getItem('kds_compact_mode') === '1') {
+        if (safeLocalStorageGet(kdsStorageKeys.compact, '0') === '1') {
             applyCompactMode(true);
         }
     } catch (e) {
         console.error('Mode restore error:', e);
     }
 
-
-    if (servedHistoryModalEl) {
-        servedHistoryModalEl.addEventListener('shown.bs.modal', function () {
-            updateServedHistoryLiveBadge(0);
-            renderServedHistory();
-        });
-
-        servedHistoryModalEl.addEventListener('hidden.bs.modal', function () {
-            updateServedHistoryLiveBadge(0);
-        });
-    }
-
-    document.querySelectorAll('#servedHistoryTabs button[data-bs-toggle="tab"]').forEach((tabEl) => {
-        tabEl.addEventListener('shown.bs.tab', function () {
-            if (isServedHistoryModalOpen()) {
-                renderServedHistory();
-            }
-        });
-    });
-
+    restoreUiPreferences();
     restoreServedHistory();
-    servedHistoryLastSignature = buildServedHistorySignature(servedHistoryRows);
     renderServedHistory();
-    applyFilterButtonStyles('all');
+    applyFilterButtonStyles(quickFilter);
     updateFullscreenButton();
     syncResponsiveBoardLayout();
     loadBoard();
