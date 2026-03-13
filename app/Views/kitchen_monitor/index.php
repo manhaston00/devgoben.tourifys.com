@@ -104,6 +104,22 @@
                     <div class="kds-summary-help"><?= esc(service('request')->getLocale() === 'th' ? 'รายการที่รอครัวอนุมัติหรือปฏิเสธ' : 'Items waiting for kitchen approval or rejection') ?></div>
                 </div>
             </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="kds-summary-card kds-summary-card-served">
+                    <div class="kds-summary-label"><?= esc(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served') ?></div>
+                    <div class="kds-summary-number" id="summary-served">0</div>
+                    <div class="kds-summary-help"><?= esc(service('request')->getLocale() === 'th' ? 'รายการที่เสิร์ฟแล้วและยังแสดงในบอร์ดด้านขวา' : 'Served items currently visible on the right-side board') ?></div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="kds-summary-card kds-summary-card-cancelled">
+                    <div class="kds-summary-label"><?= esc(service('request')->getLocale() === 'th' ? 'ยกเลิกแล้ว' : 'Cancelled') ?></div>
+                    <div class="kds-summary-number" id="summary-cancelled">0</div>
+                    <div class="kds-summary-help"><?= esc(service('request')->getLocale() === 'th' ? 'รายการที่อนุมัติยกเลิกแล้วในประวัติย้อนหลัง' : 'Items approved as cancelled in history') ?></div>
+                </div>
+            </div>
         </div>
 
         </div>
@@ -124,6 +140,9 @@
                 </button>
                 <button type="button" class="btn btn-outline-danger kitchen-filter-btn" data-filter="cancel_request">
                     <?= esc(service('request')->getLocale() === 'th' ? 'คำขอยกเลิก' : 'Cancel requests') ?>
+                </button>
+                <button type="button" class="btn btn-outline-success kitchen-filter-btn" data-filter="served">
+                    <?= esc(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served') ?>
                 </button>
             </div>
 
@@ -175,6 +194,16 @@
                     <div class="card-body bg-light kds-column-body" id="col-cancel-request"></div>
                 </div>
             </div>
+
+            <div class="col-xxl kds-col-wrap" data-col="served">
+                <div class="card border-0 shadow-sm h-100 kds-column-card">
+                    <div class="card-header kds-col-header d-flex justify-content-between align-items-center">
+                        <span><?= esc(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served') ?></span>
+                        <span class="badge bg-success kds-col-count" id="count-served">0</span>
+                    </div>
+                    <div class="card-body bg-light kds-column-body" id="col-served"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -191,7 +220,7 @@
             </div>
             <div class="modal-body">
                 <div class="row g-2 mb-3">
-                    <div class="col-lg-6">
+                    <div class="col-lg-7">
                         <div class="input-group">
                             <span class="input-group-text">🔎</span>
                             <input type="text" class="form-control" id="servedHistorySearchInput" placeholder="<?= esc(lang('app.kitchen_search_placeholder')) ?>">
@@ -205,20 +234,34 @@
                             <option value="all"><?= esc(lang('app.all') ?? 'All') ?></option>
                         </select>
                     </div>
-                    <div class="col-lg-3">
-                        <select class="form-select" id="servedHistoryStatusFilter">
-                            <option value="all"><?= esc(service('request')->getLocale() === 'th' ? 'ทุกสถานะ' : 'All statuses') ?></option>
-                            <option value="served"><?= esc(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served') ?></option>
-                            <option value="cancelled"><?= esc(service('request')->getLocale() === 'th' ? 'ยกเลิกแล้ว' : 'Cancelled') ?></option>
-                            <option value="cancel_rejected"><?= esc(service('request')->getLocale() === 'th' ? 'ปฏิเสธยกเลิก' : 'Cancel rejected') ?></option>
-                        </select>
-                    </div>
-                    <div class="col-lg-12 d-flex gap-2">
+                    <div class="col-lg-2 d-flex gap-2">
                         <button type="button" class="btn btn-outline-secondary w-100" id="servedHistoryClearBtn"><?= esc(lang('app.clear')) ?></button>
                     </div>
                 </div>
+
+                <ul class="nav nav-tabs served-history-tabs mb-3" id="servedHistoryTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="served-history-tab" data-bs-toggle="tab" data-bs-target="#served-history-pane" type="button" role="tab" aria-controls="served-history-pane" aria-selected="true">
+                            <?= esc(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served') ?>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="cancelled-history-tab" data-bs-toggle="tab" data-bs-target="#cancelled-history-pane" type="button" role="tab" aria-controls="cancelled-history-pane" aria-selected="false">
+                            <?= esc(service('request')->getLocale() === 'th' ? 'ยกเลิก' : 'Cancelled') ?>
+                        </button>
+                    </li>
+                </ul>
+
                 <div class="served-history-meta mb-3" id="servedHistoryMeta"></div>
-                <div class="served-history-list" id="servedHistoryList"></div>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="served-history-pane" role="tabpanel" aria-labelledby="served-history-tab" tabindex="0">
+                        <div class="served-history-list" id="servedHistoryList"></div>
+                    </div>
+                    <div class="tab-pane fade" id="cancelled-history-pane" role="tabpanel" aria-labelledby="cancelled-history-tab" tabindex="0">
+                        <div class="served-history-list" id="cancelledHistoryList"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -247,7 +290,7 @@
 
     #kdsSummaryRow {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(7, minmax(0, 1fr));
         gap: 1rem;
     }
 
@@ -260,7 +303,7 @@
 
     @media (max-width: 1399.98px) {
         #kdsSummaryRow {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
         }
     }
 
@@ -314,6 +357,14 @@
         background: #dc3545;
     }
 
+    .kds-summary-card-served::before {
+        background: #198754;
+    }
+
+    .kds-summary-card-cancelled::before {
+        background: #6f42c1;
+    }
+
     .kds-summary-label {
         font-size: 12px;
         font-weight: 800;
@@ -349,6 +400,14 @@
 
     .kds-summary-card-cancel-request .kds-summary-number {
         color: #b91c1c;
+    }
+
+    .kds-summary-card-served .kds-summary-number {
+        color: #15803d;
+    }
+
+    .kds-summary-card-cancelled .kds-summary-number {
+        color: #7c3aed;
     }
 
     .kds-summary-help {
@@ -857,6 +916,11 @@
         color: #6b7280;
         background: #fafafa;
     }
+
+    .served-history-tabs .nav-link {
+        font-weight: 800;
+        border-radius: 12px 12px 0 0;
+    }
 </style>
 
 <?= $this->endSection() ?>
@@ -875,10 +939,10 @@
     const hideEmptyColumns = document.getElementById('hideEmptyColumns');
     const servedHistorySearchInput = document.getElementById('servedHistorySearchInput');
     const servedHistoryRange = document.getElementById('servedHistoryRange');
-    const servedHistoryStatusFilter = document.getElementById('servedHistoryStatusFilter');
     const servedHistoryClearBtn = document.getElementById('servedHistoryClearBtn');
     const servedHistoryMeta = document.getElementById('servedHistoryMeta');
     const servedHistoryList = document.getElementById('servedHistoryList');
+    const cancelledHistoryList = document.getElementById('cancelledHistoryList');
     const servedHistoryModalEl = document.getElementById('servedHistoryModal');
     const servedHistoryModal = servedHistoryModalEl ? new bootstrap.Modal(servedHistoryModalEl) : null;
     const pollSeconds = <?= (int) ($pollingSeconds ?? 5) ?>;
@@ -1477,35 +1541,43 @@
         el.innerHTML = rows.map((row, index) => renderCard(row, index)).join('');
     }
 
-    function updateCounts(data) {
-        const newCount = (data.new || []).length;
-        const preparingCount = (data.preparing || []).length;
-        const readyCount = (data.ready || []).length;
-        const cancelRequestCount = (data.cancel_request || []).length;
-        const totalActive = newCount + preparingCount + readyCount + cancelRequestCount;
+    function updateCounts(data, summaryMeta = {}) {
+    const newCount = Number(summaryMeta.new ?? ((data.new || []).length));
+    const preparingCount = Number(summaryMeta.preparing ?? ((data.preparing || []).length));
+    const readyCount = Number(summaryMeta.ready ?? ((data.ready || []).length));
+    const cancelRequestCount = Number(summaryMeta.cancel_request ?? ((data.cancel_request || []).length));
+    const servedCount = Number(summaryMeta.served ?? ((data.served || []).length));
+    const cancelledCount = Number(summaryMeta.cancelled ?? 0);
+    const totalActive = Number(summaryMeta.active_total ?? (newCount + preparingCount + readyCount + cancelRequestCount));
 
-        const countNewEl = document.getElementById('count-new');
-        const countPreparingEl = document.getElementById('count-preparing');
-        const countReadyEl = document.getElementById('count-ready');
-        const countCancelRequestEl = document.getElementById('count-cancel-request');
+    const countNewEl = document.getElementById('count-new');
+    const countPreparingEl = document.getElementById('count-preparing');
+    const countReadyEl = document.getElementById('count-ready');
+    const countCancelRequestEl = document.getElementById('count-cancel-request');
+    const countServedEl = document.getElementById('count-served');
 
-        if (countNewEl) countNewEl.textContent = newCount;
-        if (countPreparingEl) countPreparingEl.textContent = preparingCount;
-        if (countReadyEl) countReadyEl.textContent = readyCount;
-        if (countCancelRequestEl) countCancelRequestEl.textContent = cancelRequestCount;
+    if (countNewEl) countNewEl.textContent = newCount;
+    if (countPreparingEl) countPreparingEl.textContent = preparingCount;
+    if (countReadyEl) countReadyEl.textContent = readyCount;
+    if (countCancelRequestEl) countCancelRequestEl.textContent = cancelRequestCount;
+    if (countServedEl) countServedEl.textContent = servedCount;
 
-        const summaryTotalEl = document.getElementById('summary-total-active');
-        const summaryNewEl = document.getElementById('summary-new');
-        const summaryPreparingEl = document.getElementById('summary-preparing');
-        const summaryReadyEl = document.getElementById('summary-ready');
-        const summaryCancelRequestEl = document.getElementById('summary-cancel-request');
+    const summaryTotalEl = document.getElementById('summary-total-active');
+    const summaryNewEl = document.getElementById('summary-new');
+    const summaryPreparingEl = document.getElementById('summary-preparing');
+    const summaryReadyEl = document.getElementById('summary-ready');
+    const summaryCancelRequestEl = document.getElementById('summary-cancel-request');
+    const summaryServedEl = document.getElementById('summary-served');
+    const summaryCancelledEl = document.getElementById('summary-cancelled');
 
-        if (summaryTotalEl) summaryTotalEl.textContent = totalActive;
-        if (summaryNewEl) summaryNewEl.textContent = newCount;
-        if (summaryPreparingEl) summaryPreparingEl.textContent = preparingCount;
-        if (summaryReadyEl) summaryReadyEl.textContent = readyCount;
-        if (summaryCancelRequestEl) summaryCancelRequestEl.textContent = cancelRequestCount;
-    }
+    if (summaryTotalEl) summaryTotalEl.textContent = totalActive;
+    if (summaryNewEl) summaryNewEl.textContent = newCount;
+    if (summaryPreparingEl) summaryPreparingEl.textContent = preparingCount;
+    if (summaryReadyEl) summaryReadyEl.textContent = readyCount;
+    if (summaryCancelRequestEl) summaryCancelRequestEl.textContent = cancelRequestCount;
+    if (summaryServedEl) summaryServedEl.textContent = servedCount;
+    if (summaryCancelledEl) summaryCancelledEl.textContent = cancelledCount;
+}
 
     function playBeep() {
         try {
@@ -1682,35 +1754,35 @@
         renderServedHistory();
     }
 
-    function filterServedHistoryRows() {
-        const keyword = String(servedHistorySearchInput ? servedHistorySearchInput.value : '').trim().toLowerCase();
-        const range = String(servedHistoryRange ? servedHistoryRange.value : 'today');
-        const statusFilter = String(servedHistoryStatusFilter ? servedHistoryStatusFilter.value : 'all').trim().toLowerCase();
-        const now = Date.now();
+    function filterServedHistoryRows(historyTab = 'all') {
+    const keyword = String(servedHistorySearchInput ? servedHistorySearchInput.value : '').trim().toLowerCase();
+    const range = String(servedHistoryRange ? servedHistoryRange.value : 'today');
+    const now = Date.now();
 
-        return servedHistoryRows.filter((row) => {
-            const compareTimeRaw = row.served_at || row.decided_at || '';
-            const compareTime = new Date(String(compareTimeRaw).replace(' ', 'T')).getTime() || 0;
+    return servedHistoryRows.filter((row) => {
+        const compareTimeRaw = row.served_at || row.decided_at || '';
+        const compareTime = new Date(String(compareTimeRaw).replace(' ', 'T')).getTime() || 0;
 
-            let passRange = true;
-            if (range === 'today') {
-                const d = new Date();
-                const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-                passRange = compareTime >= start;
-            } else if (range === '1h') {
-                passRange = compareTime >= (now - (60 * 60 * 1000));
-            } else if (range === '3h') {
-                passRange = compareTime >= (now - (3 * 60 * 60 * 1000));
-            }
+        let passRange = true;
+        if (range === 'today') {
+            const d = new Date();
+            const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+            passRange = compareTime >= start;
+        } else if (range === '1h') {
+            passRange = compareTime >= (now - (60 * 60 * 1000));
+        } else if (range === '3h') {
+            passRange = compareTime >= (now - (3 * 60 * 60 * 1000));
+        }
 
-            const hay = [row.table_name, row.order_number, row.product_name, row.item_detail, row.note, row.station_name].join(' ').toLowerCase();
-            const passKeyword = !keyword || hay.includes(keyword);
-            const rowStatus = String(row.history_status || '').toLowerCase();
-            const passStatus = statusFilter === 'all' || rowStatus === statusFilter;
+        const hay = [row.table_name, row.order_number, row.product_name, row.item_detail, row.note, row.station_name].join(' ').toLowerCase();
+        const passKeyword = !keyword || hay.includes(keyword);
+        const rowStatus = String(row.history_status || '').toLowerCase();
+        const rowTab = rowStatus === 'served' ? 'served' : 'cancelled';
+        const passTab = historyTab === 'all' || rowTab === historyTab;
 
-            return passRange && passKeyword && passStatus;
-        });
-    }
+        return passRange && passKeyword && passTab;
+    });
+}
 
     function getServedHistoryStatusChip(row) {
         const status = String(row.history_status || '').toLowerCase();
@@ -1801,21 +1873,27 @@
     }
 
     function renderServedHistory() {
-        if (!servedHistoryList || !servedHistoryMeta) {
-            return;
-        }
+    if (!servedHistoryList || !cancelledHistoryList || !servedHistoryMeta) {
+        return;
+    }
 
-        const rows = filterServedHistoryRows();
-        const latestRow = rows.length ? rows[0] : null;
-        const latest = latestRow ? formatDateTime(latestRow.served_at || latestRow.decided_at || '') : '-';
-        servedHistoryMeta.innerHTML = `${escapeHtml(i18n.servedCount)}: <strong>${rows.length}</strong> · ${escapeHtml(i18n.lastUpdated)}: <strong>${escapeHtml(latest)}</strong> · ${escapeHtml(i18n.noteCashierReview)}`;
+    const servedRows = filterServedHistoryRows('served');
+    const cancelledRows = filterServedHistoryRows('cancelled');
+    const allRows = [...servedRows, ...cancelledRows].sort((a, b) => {
+        const da = new Date(String(a.served_at || a.decided_at || '').replace(' ', 'T')).getTime() || 0;
+        const db = new Date(String(b.served_at || b.decided_at || '').replace(' ', 'T')).getTime() || 0;
+        return db - da;
+    });
 
-        if (!rows.length) {
-            servedHistoryList.innerHTML = `<div class="served-history-empty">${escapeHtml(i18n.servedHistoryEmpty)}</div>`;
-            return;
-        }
+    const latestRow = allRows.length ? allRows[0] : null;
+    const latest = latestRow ? formatDateTime(latestRow.served_at || latestRow.decided_at || '') : '-';
 
-        servedHistoryList.innerHTML = rows.map((row) => `
+    servedHistoryMeta.innerHTML = `${escapeHtml(i18n.servedCount)}: <strong>${servedRows.length}</strong> · <?= esc(service('request')->getLocale() === 'th' ? 'ยกเลิกแล้ว' : 'Cancelled') ?>: <strong>${cancelledRows.length}</strong> · ${escapeHtml(i18n.lastUpdated)}: <strong>${escapeHtml(latest)}</strong> · ${escapeHtml(i18n.noteCashierReview)}`;
+
+    if (!servedRows.length) {
+        servedHistoryList.innerHTML = `<div class="served-history-empty">${escapeHtml(i18n.servedHistoryEmpty)}</div>`;
+    } else {
+        servedHistoryList.innerHTML = servedRows.map((row) => `
             <div class="served-history-card">
                 <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap mb-2">
                     <div>
@@ -1835,6 +1913,31 @@
             </div>
         `).join('');
     }
+
+    if (!cancelledRows.length) {
+        cancelledHistoryList.innerHTML = `<div class="served-history-empty"><?= esc(service('request')->getLocale() === 'th' ? 'ยังไม่มีรายการยกเลิกย้อนหลัง' : 'No cancelled items in history yet') ?></div>`;
+    } else {
+        cancelledHistoryList.innerHTML = cancelledRows.map((row) => `
+            <div class="served-history-card">
+                <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap mb-2">
+                    <div>
+                        <div class="title">${escapeHtml(row.product_name)}</div>
+                        <div class="sub">${escapeHtml(i18n.historyTable)}: ${escapeHtml(row.table_name)} · ${escapeHtml(i18n.order)}: ${escapeHtml(row.order_number)}</div>
+                    </div>
+                    <div class="text-end">
+                        ${getServedHistoryStatusChip(row)}
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <span class="served-history-chip">${escapeHtml(i18n.itemCountLabel)} x ${escapeHtml(row.qty)}</span>
+                    <span class="served-history-chip">${escapeHtml(row.station_name)}</span>
+                </div>
+                ${row.item_detail ? `<div class="sub mb-1">${escapeHtml(row.item_detail)}</div>` : ''}
+                ${row.note ? `<div class="sub text-danger fw-semibold">${escapeHtml(i18n.historyReason)}: ${escapeHtml(row.note)}</div>` : ''}
+            </div>
+        `).join('');
+    }
+}
 
     function openServedHistory() {
         renderServedHistory();
@@ -1868,55 +1971,60 @@
     }
 
     async function loadBoard() {
-        if (isLoadingBoard) {
+    if (isLoadingBoard) {
+        return;
+    }
+
+    isLoadingBoard = true;
+
+    const params = new URLSearchParams({
+        station_id: stationFilter ? (stationFilter.value || '0') : '0',
+        mode: 'all'
+    });
+
+    try {
+        const res = await fetch(`<?= site_url('kitchen-monitor/feed') ?>?${params.toString()}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const json = await res.json();
+
+        if (!json || json.status !== 'success') {
             return;
         }
 
-        isLoadingBoard = true;
+        const rawData = json.data || {};
+        const historyMeta = (json.meta && json.meta.history) ? json.meta.history : { served: [], cancelled: [] };
+        const summaryMeta = (json.meta && json.meta.summary) ? json.meta.summary : {};
+        const data = rebucketBoardData(rawData);
 
-        const params = new URLSearchParams({
-            station_id: stationFilter ? (stationFilter.value || '0') : '0',
-            mode: 'all'
-        });
+        lastBoardData = data;
+        syncServedHistory([...(historyMeta.served || []), ...(historyMeta.cancelled || [])]);
 
-        try {
-            const res = await fetch(`<?= site_url('kitchen-monitor/feed') ?>?${params.toString()}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
+        const newCount = (data.new || []).length;
 
-            const json = await res.json();
+        renderColumn('col-new', data.new || []);
+        renderColumn('col-preparing', data.preparing || []);
+        renderColumn('col-ready', data.ready || []);
+        renderColumn('col-cancel-request', data.cancel_request || []);
+        renderColumn('col-served', data.served || []);
+        updateCounts(data, summaryMeta);
+        applyClientFilters();
 
-            if (!json || json.status !== 'success') {
-                return;
-            }
-
-            const rawData = json.data || {};
-            const data = rebucketBoardData(rawData);
-            lastBoardData = data;
-            syncServedHistory(collectServedHistoryCandidates(data));
-            const newCount = (data.new || []).length;
-
-            renderColumn('col-new', data.new || []);
-            renderColumn('col-preparing', data.preparing || []);
-            renderColumn('col-ready', data.ready || []);
-            renderColumn('col-cancel-request', data.cancel_request || []);
-            updateCounts(data);
-            applyClientFilters();
-
-            if (boardLoadedOnce && newCount > lastNewCount) {
-                playBeep();
-            }
-
-            lastNewCount = newCount;
-            boardLoadedOnce = true;
-        } catch (error) {
-            console.error('Kitchen board load error:', error);
-        } finally {
-            isLoadingBoard = false;
+        if (boardLoadedOnce && newCount > lastNewCount) {
+            playBeep();
         }
+
+        lastNewCount = newCount;
+        boardLoadedOnce = true;
+    } catch (error) {
+        console.error('Kitchen board load error:', error);
+    } finally {
+        isLoadingBoard = false;
     }
+}
 
     async function updateStatus(itemId, status, buttonEl) {
         if (!itemId || !status) {
@@ -2008,6 +2116,8 @@
                 el.className = 'btn btn-outline-info kitchen-filter-btn';
             } else if (filter === 'cancel_request') {
                 el.className = 'btn btn-outline-danger kitchen-filter-btn';
+            } else if (filter === 'served') {
+                el.className = 'btn btn-outline-success kitchen-filter-btn';
             }
         });
 
@@ -2026,6 +2136,8 @@
             activeBtn.className = 'btn btn-info text-dark kitchen-filter-btn active';
         } else if (activeFilter === 'cancel_request') {
             activeBtn.className = 'btn btn-danger kitchen-filter-btn active';
+        } else if (activeFilter === 'served') {
+            activeBtn.className = 'btn btn-success kitchen-filter-btn active';
         }
     }
 
@@ -2139,9 +2251,6 @@
         servedHistoryRange.addEventListener('change', renderServedHistory);
     }
 
-    if (servedHistoryStatusFilter) {
-        servedHistoryStatusFilter.addEventListener('change', renderServedHistory);
-    }
 
     if (servedHistoryClearBtn) {
         servedHistoryClearBtn.addEventListener('click', function () {
@@ -2150,9 +2259,6 @@
             }
             if (servedHistoryRange) {
                 servedHistoryRange.value = 'today';
-            }
-            if (servedHistoryStatusFilter) {
-                servedHistoryStatusFilter.value = 'all';
             }
             renderServedHistory();
         });

@@ -157,7 +157,7 @@ class KitchenTicketModel extends TenantScopedModel
                 WHEN oi.status = 'ready' THEN 'ready'
                 WHEN oi.status = 'cooking' THEN 'preparing'
                 WHEN oi.status IN ('pending', 'sent') THEN 'new'
-                WHEN oi.status IN ('cancel', 'cancelled', 'canceled') THEN 'served'
+                WHEN oi.status IN ('cancel', 'cancelled', 'canceled') THEN 'cancelled'
                 ELSE 'new'
             END AS display_status
         ");
