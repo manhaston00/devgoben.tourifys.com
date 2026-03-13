@@ -19,6 +19,8 @@ use App\Models\ReservationTableModel;
 use App\Models\KitchenLogModel;
 use App\Models\OrderTableMoveModel;
 use App\Models\OrderMergeModel;
+use App\Models\UserModel;
+use App\Models\RolePermissionModel;
 
 class POSController extends BaseController
 {
@@ -38,6 +40,8 @@ class POSController extends BaseController
     protected $reservationTableModel;
     protected $orderTableMoveModel;
     protected $orderMergeModel;
+    protected $userModel;
+    protected $rolePermissionModel;
     protected $db;
 
     public function __construct()
@@ -59,6 +63,8 @@ class POSController extends BaseController
         $this->db                      = \Config\Database::connect();
         $this->orderTableMoveModel     = new OrderTableMoveModel();
         $this->orderMergeModel         = new OrderMergeModel();
+        $this->userModel               = new UserModel();
+        $this->rolePermissionModel     = new RolePermissionModel();
     }
 
     protected function getActiveOrderStatuses(): array
@@ -111,6 +117,191 @@ class POSController extends BaseController
         }
 
         return null;
+    }
+
+
+    protected function jsonManagerOverrideRequired(string $permissionKey, string $actionKey, int $orderId = 0)
+    {
+        return $this->response->setJSON([
+            'status'              => 'error',
+            'message'             => lang('app.manager_override_required'),
+            'code'                => 'MANAGER_OVERRIDE_REQUIRED',
+            'required_permission' => $permissionKey,
+            'override_action'     => $actionKey,
+            'order_id'            => $orderId,
+        ]);
+    }
+
+    protected function currentUserPermissions(): array
+    {
+        $permissions = session('permissions') ?? [];
+
+        if (! is_array($permissions)) {
+            return [];
+        }
+
+        return array_values(array_unique(array_filter(array_map(
+            static fn ($item) => trim((string) $item),
+            $permissions
+        ))));
+    }
+
+    protected function userHasPermissionKey(string $permissionKey): bool
+    {
+        if ($permissionKey === '') {
+            return false;
+        }
+
+        return in_array($permissionKey, $this->currentUserPermissions(), true);
+    }
+
+    protected function managerOverridePermissionMap(): array
+    {
+        return [
+            'request_bill' => 'cashier.request_bill',
+            'close_bill'   => 'cashier.close_bill',
+            'pay'          => 'cashier.pay',
+        ];
+    }
+
+    protected function normalizeOverrideAction(string $actionKey): string
+    {
+        $actionKey = strtolower(trim($actionKey));
+        $map = $this->managerOverridePermissionMap();
+
+        return array_key_exists($actionKey, $map) ? $actionKey : '';
+    }
+
+    protected function getOverridePermissionKey(string $actionKey): string
+    {
+        $map = $this->managerOverridePermissionMap();
+
+        return $map[$actionKey] ?? '';
+    }
+
+    protected function getManagerOverridesFromSession(): array
+    {
+        $rows = session('manager_overrides');
+
+        return is_array($rows) ? $rows : [];
+    }
+
+    protected function cleanupManagerOverrides(): array
+    {
+        $now = time();
+        $rows = $this->getManagerOverridesFromSession();
+        $clean = [];
+
+        foreach ($rows as $row) {
+            $expiresAt = (int) ($row['expires_at'] ?? 0);
+            if ($expiresAt > $now) {
+                $clean[] = $row;
+            }
+        }
+
+        session()->set('manager_overrides', $clean);
+
+        return $clean;
+    }
+
+    protected function storeManagerOverrideApproval(string $actionKey, int $orderId, array $approver): void
+    {
+        $rows = $this->cleanupManagerOverrides();
+        $rows[] = [
+            'action_key'        => $actionKey,
+            'permission_key'    => $this->getOverridePermissionKey($actionKey),
+            'order_id'          => $orderId,
+            'approved_for_user' => (int) (session('user_id') ?? 0),
+            'approved_by'       => (int) ($approver['id'] ?? 0),
+            'approved_by_name'  => (string) ($approver['full_name'] ?? $approver['username'] ?? '-'),
+            'approved_at'       => date('Y-m-d H:i:s'),
+            'expires_at'        => time() + 300,
+        ];
+
+        session()->set('manager_overrides', $rows);
+    }
+
+    protected function consumeManagerOverrideApproval(string $actionKey, int $orderId): ?array
+    {
+        $rows = $this->cleanupManagerOverrides();
+        $currentUserId = (int) (session('user_id') ?? 0);
+        $consumed = null;
+        $remaining = [];
+
+        foreach ($rows as $row) {
+            $matches = (string) ($row['action_key'] ?? '') === $actionKey
+                && (int) ($row['order_id'] ?? 0) === $orderId
+                && (int) ($row['approved_for_user'] ?? 0) === $currentUserId;
+
+            if ($matches && $consumed === null) {
+                $consumed = $row;
+                continue;
+            }
+
+            $remaining[] = $row;
+        }
+
+        session()->set('manager_overrides', $remaining);
+
+        return $consumed;
+    }
+
+    protected function ensurePermissionOrManagerOverride(string $permissionKey, string $actionKey, int $orderId = 0)
+    {
+        if ($this->userHasPermissionKey($permissionKey)) {
+            return null;
+        }
+
+        $approval = $this->consumeManagerOverrideApproval($actionKey, $orderId);
+        if ($approval !== null) {
+            return null;
+        }
+
+        return $this->jsonManagerOverrideRequired($permissionKey, $actionKey, $orderId);
+    }
+
+    protected function findManagerOverrideApprover(string $username, string $pinCode): ?array
+    {
+        $username = strtolower(trim($username));
+        $pinCode = trim($pinCode);
+
+        if ($username === '' || $pinCode === '') {
+            return null;
+        }
+
+        $user = $this->userModel->findActiveLoginUser($username);
+        if (! $user) {
+            return null;
+        }
+
+        if ((int) ($user['tenant_id'] ?? 0) !== $this->currentTenantId()) {
+            return null;
+        }
+
+        $userBranchId = (int) ($user['branch_id'] ?? 0);
+        $currentBranchId = $this->getCurrentBranchId();
+        if ($userBranchId > 0 && $currentBranchId > 0 && $userBranchId !== $currentBranchId) {
+            return null;
+        }
+
+        if (trim((string) ($user['pin_code'] ?? '')) === '' || trim((string) ($user['pin_code'] ?? '')) !== $pinCode) {
+            return null;
+        }
+
+        return $user;
+    }
+
+    protected function approverCanOverride(array $approver, string $permissionKey): bool
+    {
+        $roleId = (int) ($approver['role_id'] ?? 0);
+        if ($roleId <= 0) {
+            return false;
+        }
+
+        $permissionKeys = $this->rolePermissionModel->getPermissionKeysByRoleId($roleId);
+
+        return in_array('cashier.manager_override', $permissionKeys, true)
+            && in_array($permissionKey, $permissionKeys, true);
     }
 
     protected function getCurrentBranchId(): int
@@ -1431,6 +1622,10 @@ class POSController extends BaseController
         }
 
         $orderId       = (int) $this->request->getPost('order_id');
+
+        if ($response = $this->ensurePermissionOrManagerOverride('cashier.pay', 'pay', $orderId)) {
+            return $response;
+        }
         $paymentMethod = trim((string) $this->request->getPost('payment_method'));
         $amount        = (float) $this->request->getPost('amount');
 
@@ -1889,6 +2084,10 @@ class POSController extends BaseController
 
         $orderId = (int) $this->request->getPost('order_id');
 
+        if ($response = $this->ensurePermissionOrManagerOverride('cashier.request_bill', 'request_bill', $orderId)) {
+            return $response;
+        }
+
         $order = $this->getScopedOrder($orderId);
         if (! $order) {
             return $this->response->setJSON([
@@ -1927,6 +2126,10 @@ class POSController extends BaseController
 
         $orderId = (int) $this->request->getPost('order_id');
 
+        if ($response = $this->ensurePermissionOrManagerOverride('cashier.close_bill', 'close_bill', $orderId)) {
+            return $response;
+        }
+
         $order = $this->getScopedOrder($orderId);
         if (! $order) {
             return $this->response->setJSON([
@@ -1961,6 +2164,75 @@ class POSController extends BaseController
         return $this->response->setJSON([
             'status'  => 'success',
             'message' => lang('app.close_bill_success_billing'),
+        ]);
+    }
+
+
+    public function managerOverride()
+    {
+        if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
+            return $response;
+        }
+
+        $actionKey = $this->normalizeOverrideAction((string) $this->request->getPost('action_key'));
+        $orderId = (int) $this->request->getPost('order_id');
+        $managerUsername = (string) $this->request->getPost('manager_username');
+        $managerPinCode = (string) $this->request->getPost('manager_pin_code');
+
+        if ($actionKey === '' || $orderId <= 0) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.invalid_request'),
+            ]);
+        }
+
+        $order = $this->getScopedOrder($orderId);
+        if (! $order) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
+
+        $permissionKey = $this->getOverridePermissionKey($actionKey);
+        if ($permissionKey === '') {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.invalid_request'),
+            ]);
+        }
+
+        $approver = $this->findManagerOverrideApprover($managerUsername, $managerPinCode);
+        if (! $approver) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.manager_override_invalid_credentials'),
+            ]);
+        }
+
+        if ((int) ($approver['id'] ?? 0) === (int) (session('user_id') ?? 0)) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.manager_override_self_not_allowed'),
+            ]);
+        }
+
+        if (! $this->approverCanOverride($approver, $permissionKey)) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.manager_override_not_allowed'),
+            ]);
+        }
+
+        $this->storeManagerOverrideApproval($actionKey, $orderId, $approver);
+
+        return $this->response->setJSON([
+            'status'           => 'success',
+            'message'          => lang('app.manager_override_approved'),
+            'approved_by'      => (string) ($approver['full_name'] ?? $approver['username'] ?? '-'),
+            'action_key'       => $actionKey,
+            'permission_key'   => $permissionKey,
+            'approved_order_id'=> $orderId,
         ]);
     }
 

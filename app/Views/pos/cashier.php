@@ -632,6 +632,10 @@
         openBillSuccessBilling: <?= json_encode(lang('app.close_bill_success_billing'), JSON_UNESCAPED_UNICODE) ?>,
     };
 
+    const managerOverrideModalEl = document.getElementById('managerOverrideModal');
+    const managerOverrideModal = managerOverrideModalEl ? new bootstrap.Modal(managerOverrideModalEl) : null;
+    let managerOverrideResolver = null;
+
     const state = {
         orders: Array.isArray(initialOrders) ? initialOrders : [],
         search: '',
@@ -795,6 +799,34 @@
                 renderOrderList();
                 loadOrder(orderId);
             });
+        });
+    }
+
+
+    function managerOverrideActionLabel(actionKey) {
+        if (actionKey === 'pay') {
+            return lang.managerOverrideActionPay || lang.managerOverrideRequired;
+        }
+        if (actionKey === 'close_bill') {
+            return lang.managerOverrideActionCloseBill || lang.managerOverrideRequired;
+        }
+        return lang.managerOverrideRequired;
+    }
+
+    function requestManagerOverride(actionKey, orderId) {
+        return new Promise((resolve) => {
+            managerOverrideResolver = resolve;
+            document.getElementById('managerOverrideAction').value = String(actionKey || '');
+            document.getElementById('managerOverrideOrderId').value = String(orderId || 0);
+            document.getElementById('managerOverrideUsername').value = '';
+            document.getElementById('managerOverridePinCode').value = '';
+            document.getElementById('managerOverrideHelpText').textContent = `${lang.managerOverrideRequired} - ${managerOverrideActionLabel(actionKey)}`;
+
+            if (managerOverrideModal) {
+                managerOverrideModal.show();
+            } else {
+                resolve(false);
+            }
         });
     }
 
@@ -1035,7 +1067,14 @@
 
                     await refreshOrders(Number(order.id || 0));
                 } catch (error) {
-                    alert(error.message || lang.orderNotFound);
+                    if (error && error.payload && error.payload.code === 'MANAGER_OVERRIDE_REQUIRED') {
+                        const approved = await requestManagerOverride('close_bill', Number(order.id || 0));
+                        if (approved) {
+                            markBillingBtn.click();
+                        }
+                    } else {
+                        alert(error.message || lang.orderNotFound);
+                    }
                 } finally {
                     markBillingBtn.disabled = false;
                 }
@@ -1063,7 +1102,14 @@
 
                     await refreshOrders();
                 } catch (error) {
-                    alert(error.message || lang.orderNotFound);
+                    if (error && error.payload && error.payload.code === 'MANAGER_OVERRIDE_REQUIRED') {
+                        const approved = await requestManagerOverride('close_bill', Number(order.id || 0));
+                        if (approved) {
+                            markBillingBtn.click();
+                        }
+                    } else {
+                        alert(error.message || lang.orderNotFound);
+                    }
                 } finally {
                     payBtn.disabled = false;
                 }
@@ -1113,11 +1159,64 @@
         const json = await response.json();
 
         if (!response.ok || (json.status !== 'success' && json.status !== 'warning')) {
-            throw new Error(json.message || 'Request failed');
+            const error = new Error(json.message || 'Request failed');
+            error.payload = json;
+            throw error;
         }
 
         return json;
     }
+
+
+    if (managerOverrideModalEl) {
+        managerOverrideModalEl.addEventListener('hidden.bs.modal', () => {
+            if (typeof managerOverrideResolver === 'function') {
+                const resolver = managerOverrideResolver;
+                managerOverrideResolver = null;
+                resolver(false);
+            }
+        });
+    }
+
+    document.getElementById('btnConfirmManagerOverride')?.addEventListener('click', async () => {
+        const btn = document.getElementById('btnConfirmManagerOverride');
+        const actionKey = String(document.getElementById('managerOverrideAction')?.value || '');
+        const orderId = Number(document.getElementById('managerOverrideOrderId')?.value || 0);
+        const managerUsername = String(document.getElementById('managerOverrideUsername')?.value || '').trim();
+        const managerPinCode = String(document.getElementById('managerOverridePinCode')?.value || '').trim();
+
+        if (!actionKey || !orderId || !managerUsername || !managerPinCode) {
+            alert(lang.managerOverrideFailed);
+            return;
+        }
+
+        btn.disabled = true;
+        try {
+            const response = await postJson('<?= site_url('pos/manager-override') ?>', {
+                action_key: actionKey,
+                order_id: orderId,
+                manager_username: managerUsername,
+                manager_pin_code: managerPinCode,
+            });
+
+            if (managerOverrideModal) {
+                managerOverrideModal.hide();
+            }
+
+            const resolver = managerOverrideResolver;
+            managerOverrideResolver = null;
+            if (typeof resolver === 'function') {
+                resolver(true);
+            }
+
+            alert((response.message || lang.managerOverrideApproved) + (response.approved_by ? `
+${response.approved_by}` : ''));
+        } catch (error) {
+            alert(error.message || lang.managerOverrideFailed);
+        } finally {
+            btn.disabled = false;
+        }
+    });
 
     async function refreshOrders(preferredOrderId = null) {
         if (preferredOrderId) {
@@ -1207,5 +1306,34 @@
     }
 })();
 </script>
+
+
+<div class="modal fade" id="managerOverrideModal" tabindex="-1" aria-labelledby="managerOverrideModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title" id="managerOverrideModalLabel"><?= esc(lang('app.manager_override_title')) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning py-2 small mb-3" id="managerOverrideHelpText"><?= esc(lang('app.manager_override_help')) ?></div>
+                <input type="hidden" id="managerOverrideAction" value="">
+                <input type="hidden" id="managerOverrideOrderId" value="">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><?= esc(lang('app.manager_username')) ?></label>
+                    <input type="text" class="form-control" id="managerOverrideUsername" autocomplete="username">
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold"><?= esc(lang('app.manager_pin_code')) ?></label>
+                    <input type="password" class="form-control" id="managerOverridePinCode" inputmode="numeric" autocomplete="one-time-code">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?= esc(lang('app.cancel')) ?></button>
+                <button type="button" class="btn btn-primary" id="btnConfirmManagerOverride"><?= esc(lang('app.approve_and_continue')) ?></button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?= $this->endSection() ?>

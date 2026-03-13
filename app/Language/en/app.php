@@ -1095,4 +1095,18 @@ return [
 'preparing' => 'Preparing',
 'ready' => 'Ready',
 
+
+'manager_override_title' => 'Manager Override',
+'manager_override_help' => 'Manager approval is required before continuing this action.',
+'manager_override_required' => 'This action requires manager override.',
+'manager_override_approved' => 'Manager override approved.',
+'manager_override_failed' => 'Unable to approve manager override.',
+'manager_override_invalid_credentials' => 'Manager username or PIN is invalid.',
+'manager_override_not_allowed' => 'This manager cannot approve this action.',
+'manager_override_self_not_allowed' => 'You cannot approve your own restricted action.',
+'manager_username' => 'Manager Username',
+'manager_pin_code' => 'Manager PIN',
+'approve_and_continue' => 'Approve and Continue',
+'manager_override_action_pay' => 'Approve payment',
+'manager_override_action_close_bill' => 'Approve close bill',
 ];

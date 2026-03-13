@@ -217,15 +217,19 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
     ]);
 
     $routes->post('request-bill', 'POSController::requestBill', [
-        'filter' => 'permission:cashier.checkout,feature_gate:pos.sell'
+        'filter' => 'feature_gate:pos.sell'
     ]);
 
     $routes->post('close-bill', 'POSController::closeBill', [
-        'filter' => 'permission:cashier.checkout,feature_gate:pos.sell'
+        'filter' => 'feature_gate:pos.sell'
     ]);
 
     $routes->post('pay', 'POSController::pay', [
-        'filter' => 'permission:cashier.checkout,feature_gate:pos.sell'
+        'filter' => 'feature_gate:pos.sell'
+    ]);
+
+    $routes->post('manager-override', 'POSController::managerOverride', [
+        'filter' => 'feature_gate:pos.access'
     ]);
 });
 

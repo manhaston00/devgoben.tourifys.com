@@ -406,6 +406,37 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="managerOverrideModal" tabindex="-1" aria-labelledby="managerOverrideModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title" id="managerOverrideModalLabel"><?= esc(lang('app.manager_override_title')) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning py-2 small mb-3" id="managerOverrideHelpText">
+                    <?= esc(lang('app.manager_override_help')) ?>
+                </div>
+                <input type="hidden" id="managerOverrideAction" value="">
+                <input type="hidden" id="managerOverrideOrderId" value="">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold"><?= esc(lang('app.manager_username')) ?></label>
+                    <input type="text" class="form-control" id="managerOverrideUsername" autocomplete="username">
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold"><?= esc(lang('app.manager_pin_code')) ?></label>
+                    <input type="password" class="form-control" id="managerOverridePinCode" inputmode="numeric" autocomplete="one-time-code">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?= esc(lang('app.cancel')) ?></button>
+                <button type="button" class="btn btn-primary" id="btnConfirmManagerOverride"><?= esc(lang('app.approve_and_continue')) ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
@@ -480,6 +511,10 @@ $(function () {
         amountLessThanBill: <?= json_encode(lang('app.received_less_than_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         paymentFailed: <?= json_encode(lang('app.payment_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         paymentSuccess: <?= json_encode(lang('app.payment_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        managerOverrideRequired: <?= json_encode(lang('app.manager_override_required'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        managerOverrideApproved: <?= json_encode(lang('app.manager_override_approved'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        managerOverrideFailed: <?= json_encode(lang('app.manager_override_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        managerOverrideActionPay: <?= json_encode(lang('app.manager_override_action_pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         closeBillSuccess: <?= json_encode(lang('app.close_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         changeLabel: <?= json_encode(lang('app.change'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         allProductsDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -509,6 +544,9 @@ $(function () {
 
     const paymentModalEl = document.getElementById('paymentModal');
     const paymentModal = paymentModalEl ? new bootstrap.Modal(paymentModalEl) : null;
+    const managerOverrideModalEl = document.getElementById('managerOverrideModal');
+    const managerOverrideModal = managerOverrideModalEl ? new bootstrap.Modal(managerOverrideModalEl) : null;
+    let managerOverrideResolver = null;
 
     function money(num) {
         return '฿' + parseFloat(num || 0).toFixed(2);
@@ -544,6 +582,31 @@ $(function () {
 
         $('#paymentBillTotal').text(money(total));
         $('#paymentChange').text(money(change));
+    }
+
+
+    function managerOverrideActionLabel(actionKey) {
+        if (actionKey === 'pay') {
+            return TXT.managerOverrideActionPay || TXT.managerOverrideRequired;
+        }
+        return TXT.managerOverrideRequired;
+    }
+
+    function requestManagerOverride(actionKey, orderId) {
+        return new Promise(function (resolve) {
+            managerOverrideResolver = resolve;
+            $('#managerOverrideAction').val(actionKey || '');
+            $('#managerOverrideOrderId').val(orderId || CURRENT_ORDER_ID || 0);
+            $('#managerOverrideUsername').val('');
+            $('#managerOverridePinCode').val('');
+            $('#managerOverrideHelpText').text((TXT.managerOverrideRequired || '') + ' - ' + managerOverrideActionLabel(actionKey));
+
+            if (managerOverrideModal) {
+                managerOverrideModal.show();
+            } else {
+                resolve(false);
+            }
+        });
     }
 
     function openPaymentModal() {
@@ -1597,8 +1660,15 @@ $(function () {
 				order_id: CURRENT_ORDER_ID,
 				payment_method: 'cash',
 				amount: 0
-			}).done(function (res) {
+			}).done(async function (res) {
 				if (!res || res.status !== 'success') {
+					if (res && res.code === 'MANAGER_OVERRIDE_REQUIRED') {
+						const approved = await requestManagerOverride('pay', CURRENT_ORDER_ID);
+						if (approved) {
+							$('#btnPay').trigger('click');
+						}
+						return;
+					}
 					alert((res && res.message) ? res.message : TXT.paymentFailed);
 					return;
 				}
@@ -1699,8 +1769,15 @@ $(function () {
             payment_method: paymentMethod,
             amount: amount
         })
-        .done(function (res) {
+        .done(async function (res) {
             if (res.status !== 'success') {
+                if (res && res.code === 'MANAGER_OVERRIDE_REQUIRED') {
+                    const approved = await requestManagerOverride('pay', CURRENT_ORDER_ID);
+                    if (approved) {
+                        $('#btnConfirmPay').trigger('click');
+                    }
+                    return;
+                }
                 alert(res.message || TXT.paymentFailed);
                 return;
             }
@@ -1717,6 +1794,65 @@ $(function () {
         .fail(function (xhr) {
             console.error('pay error:', xhr.responseText);
             alert(TXT.paymentFailed);
+        });
+    });
+
+
+    if (managerOverrideModalEl) {
+        managerOverrideModalEl.addEventListener('hidden.bs.modal', function () {
+            if (typeof managerOverrideResolver === 'function') {
+                const resolver = managerOverrideResolver;
+                managerOverrideResolver = null;
+                resolver(false);
+            }
+        });
+    }
+
+    $(document).on('click', '#btnConfirmManagerOverride', function () {
+        const actionKey = $('#managerOverrideAction').val() || '';
+        const orderId = parseInt($('#managerOverrideOrderId').val() || CURRENT_ORDER_ID || 0, 10);
+        const managerUsername = $.trim($('#managerOverrideUsername').val() || '');
+        const managerPinCode = $.trim($('#managerOverridePinCode').val() || '');
+        const $btn = $(this);
+
+        if (!actionKey || !orderId || !managerUsername || !managerPinCode) {
+            alert(TXT.managerOverrideFailed);
+            return;
+        }
+
+        $btn.prop('disabled', true);
+
+        $.post("<?= site_url('pos/manager-override') ?>", {
+            action_key: actionKey,
+            order_id: orderId,
+            manager_username: managerUsername,
+            manager_pin_code: managerPinCode
+        })
+        .done(function (res) {
+            if (!res || res.status !== 'success') {
+                alert((res && res.message) ? res.message : TXT.managerOverrideFailed);
+                return;
+            }
+
+            if (managerOverrideModal) {
+                managerOverrideModal.hide();
+            }
+
+            const resolver = managerOverrideResolver;
+			managerOverrideResolver = null;
+			if (typeof resolver === 'function') {
+				resolver(true);
+			}
+
+			const approvedByText = res.approved_by ? (' ' + (TX.by || 'by') + ' ' + res.approved_by) : '';
+			alert((res.message || TX.managerOverrideApproved || 'Manager override approved') + approvedByText);
+        })
+        .fail(function (xhr) {
+            console.error('manager override error:', xhr.responseText);
+            alert(TXT.managerOverrideFailed);
+        })
+        .always(function () {
+            $btn.prop('disabled', false);
         });
     });
 
