@@ -1163,7 +1163,7 @@
         const requestStatus = String(item.cancel_request_status || '').toLowerCase().trim();
         let html = '';
 
-        if (boardStatus === 'cancel_request' && requestStatus === 'pending') {
+        if (boardStatus === 'cancel_request' && requestStatus === 'pending' && (item.show_cancel_decision_actions === undefined || Number(item.show_cancel_decision_actions) === 1 || item.show_cancel_decision_actions === true || item.show_cancel_decision_actions === '1')) {
             html += `
                 <div class="kds-cancel-decision-actions">
                     <button
@@ -1231,6 +1231,37 @@
 		].join(' ').toLowerCase();
 	}
 
+
+    function translatePrevStatus(status) {
+        const normalized = String(status || '').toLowerCase().trim();
+
+        if (normalized === 'sent') {
+            return locale === 'th' ? 'ส่งครัวแล้ว' : 'Sent to kitchen';
+        }
+
+        if (normalized === 'pending' || normalized === 'new') {
+            return locale === 'th' ? 'ใหม่' : 'New';
+        }
+
+        if (normalized === 'preparing' || normalized === 'cooking' || normalized === 'doing') {
+            return locale === 'th' ? 'กำลังทำ' : 'Preparing';
+        }
+
+        if (normalized === 'ready') {
+            return locale === 'th' ? 'พร้อมเสิร์ฟ' : 'Ready';
+        }
+
+        if (normalized === 'served') {
+            return locale === 'th' ? 'เสิร์ฟแล้ว' : 'Served';
+        }
+
+        if (normalized === 'cancel') {
+            return locale === 'th' ? 'ยกเลิกแล้ว' : 'Cancelled';
+        }
+
+        return normalized ? normalized.toUpperCase() : (locale === 'th' ? 'เสิร์ฟแล้ว' : 'Served');
+    }
+
     function renderCancelRequestBox(item, boardStatus) {
         const requestStatus = String(item.cancel_request_status || '').toLowerCase().trim();
         if (!requestStatus) {
@@ -1240,13 +1271,14 @@
         const reason = item.cancel_request_reason || item.cancel_request_note || '';
         const requestedAt = item.cancel_requested_at || item.requested_at || '';
         const previousStatus = String(item.cancel_request_prev_status || item.previous_status || item.item_status || '').toLowerCase().trim();
+        const previousStatusLabel = translatePrevStatus(previousStatus);
 
         if (boardStatus === 'cancel_request' || requestStatus === 'pending') {
             return `
                 <div class="kds-cancel-request-box">
                     <div class="d-flex align-items-center gap-2 flex-wrap">
                         <span class="badge text-bg-danger">${escapeHtml(i18n.cancelRequestPending)}</span>
-                        <span class="small fw-semibold">${escapeHtml(i18n.previousStatus)}: ${escapeHtml(previousStatus ? previousStatus.toUpperCase() : i18n.servedState)}</span>
+                        <span class="small fw-semibold">${escapeHtml(i18n.previousStatus)}: ${escapeHtml(previousStatusLabel)}</span>
                     </div>
                     ${reason ? `<div class="small text-muted mt-1">${escapeHtml(i18n.cancelReason)}: ${escapeHtml(reason)}</div>` : ''}
                     ${requestedAt ? `<div class="small text-muted mt-1">${escapeHtml(i18n.requestedAt)}: ${escapeHtml(formatDateTime(requestedAt))}</div>` : ''}
@@ -1397,6 +1429,35 @@
                 <div>${actions}</div>
             </div>
         `;
+    }
+
+
+    function rebucketBoardData(data) {
+        const source = data || {};
+        const merged = []
+            .concat(source.new || [])
+            .concat(source.preparing || [])
+            .concat(source.ready || [])
+            .concat(source.cancel_request || [])
+            .concat(source.served || []);
+
+        const bucketed = {
+            new: [],
+            preparing: [],
+            ready: [],
+            cancel_request: [],
+            served: []
+        };
+
+        merged.forEach((item) => {
+            const bucket = normalizeBoardStatus(item);
+            if (!bucketed[bucket]) {
+                bucketed[bucket] = [];
+            }
+            bucketed[bucket].push(item);
+        });
+
+        return bucketed;
     }
 
     function renderColumn(targetId, rows) {
@@ -1660,7 +1721,8 @@
                 return;
             }
 
-            const data = json.data || {};
+            const rawData = json.data || {};
+            const data = rebucketBoardData(rawData);
             lastBoardData = data;
             syncServedHistory(data.served || []);
             const newCount = (data.new || []).length;

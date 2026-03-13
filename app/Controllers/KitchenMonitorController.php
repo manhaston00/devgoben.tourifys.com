@@ -181,18 +181,11 @@ class KitchenMonitorController extends BaseController
         return $this->currentLocale() === 'th' ? $th : $en;
     }
 	
-	protected function canShowCancelDecisionActions(array $row): bool
+    protected function canShowCancelDecisionActions(array $row): bool
 	{
 		$cancelRequestStatus = strtolower((string) ($row['cancel_request_status'] ?? ''));
-		$itemStatus          = strtolower((string) ($row['item_status'] ?? $row['status'] ?? ''));
-		$prevStatus          = strtolower((string) ($row['cancel_request_prev_status'] ?? ''));
 
-		if ($cancelRequestStatus !== 'pending') {
-			return false;
-		}
-
-		// กรณีที่เคย served แล้ว หรือสถานะก่อนหน้าคือ served
-		return $itemStatus === 'served' || $prevStatus === 'served';
+		return $cancelRequestStatus === 'pending';
 	}
 
     protected function getScopedItemFull(int $itemId): ?array
@@ -263,25 +256,24 @@ class KitchenMonitorController extends BaseController
 
     protected function resolveBoardStatus(array $row): string
 	{
-		$displayStatus = strtolower((string) ($row['display_status'] ?? ''));
-		if (in_array($displayStatus, ['new', 'preparing', 'ready', 'served', 'cancel_request'], true)) {
-			return $displayStatus;
-		}
-
 		$cancelRequestStatus = strtolower((string) ($row['cancel_request_status'] ?? ''));
 		$cancelPrevStatus    = strtolower((string) ($row['cancel_request_prev_status'] ?? ''));
+		$displayStatus       = strtolower((string) ($row['display_status'] ?? ''));
 		$itemStatus          = strtolower((string) ($row['item_status'] ?? $row['status'] ?? ''));
 		$ticketStatus        = strtolower((string) ($row['ticket_status'] ?? ''));
 
-		// สำคัญมาก:
-		// ถ้ามีคำขอยกเลิกค้างอยู่ ให้แยกออกจากคอลัมน์ served ทันที
+		// ต้องเช็กคำขอยกเลิกก่อน display_status เสมอ
 		if ($cancelRequestStatus === 'pending') {
 			return 'cancel_request';
 		}
 
-		// ถ้าครัวปฏิเสธ ให้ย้อนกลับไปแสดงตามสถานะก่อนกดยกเลิก
+		// ถ้าปฏิเสธ ให้ย้อนกลับไปสถานะก่อนขอยกเลิก
 		if ($cancelRequestStatus === 'rejected' && in_array($cancelPrevStatus, ['new', 'preparing', 'ready', 'served'], true)) {
 			return $cancelPrevStatus;
+		}
+
+		if (in_array($displayStatus, ['new', 'preparing', 'ready', 'served', 'cancel_request'], true)) {
+			return $displayStatus;
 		}
 
 		if ($itemStatus === 'served') {
@@ -296,7 +288,7 @@ class KitchenMonitorController extends BaseController
 			return 'preparing';
 		}
 
-		if ($itemStatus === 'new') {
+		if (in_array($itemStatus, ['new', 'pending', 'sent'], true)) {
 			return 'new';
 		}
 
@@ -316,14 +308,15 @@ class KitchenMonitorController extends BaseController
 	}
 
     protected function statusLabels(): array
-    {
-        return [
-            'new'       => lang('app.status_new'),
-            'preparing' => lang('app.status_preparing'),
-            'ready'     => lang('app.status_ready'),
-            'served'    => lang('app.status_served'),
-        ];
-    }
+	{
+		return [
+			'new'            => lang('app.status_new'),
+			'preparing'      => lang('app.status_preparing'),
+			'ready'          => lang('app.status_ready'),
+			'cancel_request' => lang('app.cancel_request_pending') ?: 'คำขอยกเลิก',
+			'served'         => lang('app.status_served'),
+		];
+	}
 
     protected function attachMergeInfoToRow(array $row): array
     {
@@ -421,10 +414,11 @@ class KitchenMonitorController extends BaseController
         );
 
         $grouped = [
-            'new'       => [],
-            'preparing' => [],
-            'ready'     => [],
-            'served'    => [],
+            'new'            => [],
+            'preparing'      => [],
+            'ready'          => [],
+            'cancel_request' => [],
+            'served'         => [],
         ];
 
         foreach ($rows as $row) {
@@ -438,6 +432,9 @@ class KitchenMonitorController extends BaseController
 			$row['cancel_request_is_rejected']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'rejected';
 			$row['cancel_request_is_approved']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'approved';
             $row['status_label'] = $this->statusLabels()[$boardStatus] ?? ucfirst($boardStatus);
+            if (! array_key_exists($boardStatus, $grouped)) {
+                $grouped[$boardStatus] = [];
+            }
             $grouped[$boardStatus][] = $row;
         }
 
