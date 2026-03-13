@@ -1,6 +1,23 @@
 <?= $this->extend('layout/main') ?>
 <?= $this->section('content') ?>
 
+<?php
+$kdsLocale = (string) (service('request')->getLocale() ?: 'th');
+if (! function_exists('kds_lang')) {
+    function kds_lang(string $key, string $th, string $en, ?string $locale = null): string
+    {
+        $locale = $locale ?: (string) (service('request')->getLocale() ?: 'th');
+        $text = lang($key);
+
+        if (is_string($text) && $text !== '' && $text !== $key) {
+            return $text;
+        }
+
+        return $locale === 'th' ? $th : $en;
+    }
+}
+?>
+
 <div class="card card-soft kitchen-monitor-page" id="kitchenMonitorPage">
     <div class="card-body">
         <div id="kdsHeaderBlock" class="kds-header-block">
@@ -47,11 +64,11 @@
                 </button>
 
                 <button type="button" class="btn btn-outline-secondary" id="servedHistoryBtn">
-                    <?= esc(service('request')->getLocale() === 'th' ? 'ประวัติย้อนหลัง' : 'History') ?>
+                    <?= esc(kds_lang('app.kds_history', 'ประวัติย้อนหลัง', 'History', $kdsLocale)) ?>
                 </button>
 
                 <button type="button" class="btn btn-outline-dark" id="compactHeaderBtn">
-                    <?= esc(service('request')->getLocale() === 'th' ? 'โหมดย่อส่วนบน' : 'Compact header') ?>
+                    <?= esc(kds_lang('app.kds_compact_header', 'โหมดย่อส่วนบน', 'Compact header', $kdsLocale)) ?>
                 </button>
 
                 <button type="button" class="btn btn-dark" id="focusModeBtn">
@@ -99,25 +116,25 @@
 
             <div class="col-xl-3 col-md-6">
                 <div class="kds-summary-card kds-summary-card-cancel-request">
-                    <div class="kds-summary-label"><?= esc(service('request')->getLocale() === 'th' ? 'คำขอยกเลิก' : 'Cancel requests') ?></div>
+                    <div class="kds-summary-label"><?= esc(kds_lang('app.kds_cancel_requests', 'คำขอยกเลิก', 'Cancel requests', $kdsLocale)) ?></div>
                     <div class="kds-summary-number" id="summary-cancel-request">0</div>
-                    <div class="kds-summary-help"><?= esc(service('request')->getLocale() === 'th' ? 'รายการที่รอครัวอนุมัติหรือปฏิเสธ' : 'Items waiting for kitchen approval or rejection') ?></div>
+                    <div class="kds-summary-help"><?= esc(kds_lang('app.kds_cancel_requests_help', 'รายการที่รอครัวอนุมัติหรือปฏิเสธ', 'Items waiting for kitchen approval or rejection', $kdsLocale)) ?></div>
                 </div>
             </div>
 
             <div class="col-xl-3 col-md-6">
                 <div class="kds-summary-card kds-summary-card-served">
-                    <div class="kds-summary-label"><?= esc(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served') ?></div>
+                    <div class="kds-summary-label"><?= esc(kds_lang('app.kds_served', 'เสิร์ฟแล้ว', 'Served', $kdsLocale)) ?></div>
                     <div class="kds-summary-number" id="summary-served">0</div>
-                    <div class="kds-summary-help"><?= esc(service('request')->getLocale() === 'th' ? 'รายการที่เสิร์ฟแล้วและยังแสดงในบอร์ดด้านขวา' : 'Served items currently visible on the right-side board') ?></div>
+                    <div class="kds-summary-help"><?= esc(kds_lang('app.kds_served_help', 'รายการที่เสิร์ฟแล้วและยังแสดงในบอร์ดด้านขวา', 'Served items currently visible on the right-side board', $kdsLocale)) ?></div>
                 </div>
             </div>
 
             <div class="col-xl-3 col-md-6">
                 <div class="kds-summary-card kds-summary-card-cancelled">
-                    <div class="kds-summary-label"><?= esc(service('request')->getLocale() === 'th' ? 'ยกเลิกแล้ว' : 'Cancelled') ?></div>
+                    <div class="kds-summary-label"><?= esc(kds_lang('app.kds_cancelled', 'ยกเลิกแล้ว', 'Cancelled', $kdsLocale)) ?></div>
                     <div class="kds-summary-number" id="summary-cancelled">0</div>
-                    <div class="kds-summary-help"><?= esc(service('request')->getLocale() === 'th' ? 'รายการที่อนุมัติยกเลิกแล้วในประวัติย้อนหลัง' : 'Items approved as cancelled in history') ?></div>
+                    <div class="kds-summary-help"><?= esc(kds_lang('app.kds_cancelled_help', 'รายการที่อนุมัติยกเลิกแล้วในประวัติย้อนหลัง', 'Items approved as cancelled in history', $kdsLocale)) ?></div>
                 </div>
             </div>
         </div>
@@ -139,10 +156,10 @@
                     <?= esc(lang('app.status_ready')) ?>
                 </button>
                 <button type="button" class="btn btn-outline-danger kitchen-filter-btn" data-filter="cancel_request">
-                    <?= esc(service('request')->getLocale() === 'th' ? 'คำขอยกเลิก' : 'Cancel requests') ?>
+                    <?= esc(kds_lang('app.kds_cancel_requests', 'คำขอยกเลิก', 'Cancel requests', $kdsLocale)) ?>
                 </button>
                 <button type="button" class="btn btn-outline-success kitchen-filter-btn" data-filter="served">
-                    <?= esc(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served') ?>
+                    <?= esc(kds_lang('app.kds_served', 'เสิร์ฟแล้ว', 'Served', $kdsLocale)) ?>
                 </button>
             </div>
 
@@ -188,7 +205,7 @@
             <div class="col-xxl kds-col-wrap" data-col="cancel_request">
                 <div class="card border-0 shadow-sm h-100 kds-column-card">
                     <div class="card-header kds-col-header d-flex justify-content-between align-items-center">
-                        <span><?= esc(service('request')->getLocale() === 'th' ? 'คำขอยกเลิก' : 'Cancel requests') ?></span>
+                        <span><?= esc(kds_lang('app.kds_cancel_requests', 'คำขอยกเลิก', 'Cancel requests', $kdsLocale)) ?></span>
                         <span class="badge bg-danger kds-col-count" id="count-cancel-request">0</span>
                     </div>
                     <div class="card-body bg-light kds-column-body" id="col-cancel-request"></div>
@@ -198,8 +215,8 @@
             <div class="col-xxl kds-col-wrap" data-col="served">
                 <div class="card border-0 shadow-sm h-100 kds-column-card">
                     <div class="card-header kds-col-header d-flex justify-content-between align-items-center">
-                        <span><?= esc(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served') ?></span>
-                        <span class="badge bg-success kds-col-count" id="count-served">0</span>
+                        <span><?= esc(kds_lang('app.kds_served', 'เสิร์ฟแล้ว', 'Served', $kdsLocale)) ?></span>
+                        <div class="d-flex align-items-center gap-2"><span class="badge bg-success kds-col-count" id="count-served">0</span><span class="small text-muted"><?= esc(kds_lang('app.kds_recent_only', 'ล่าสุด', 'Recent', $kdsLocale)) ?></span></div>
                     </div>
                     <div class="card-body bg-light kds-column-body" id="col-served"></div>
                 </div>
@@ -213,7 +230,7 @@
         <div class="modal-content border-0 rounded-4 shadow-lg">
             <div class="modal-header">
                 <div>
-                    <h5 class="modal-title mb-1" id="servedHistoryTitle"><?= esc(service('request')->getLocale() === 'th' ? 'ประวัติย้อนหลัง' : 'History') ?></h5>
+                    <h5 class="modal-title mb-1" id="servedHistoryTitle"><?= esc(kds_lang('app.kds_history', 'ประวัติย้อนหลัง', 'History', $kdsLocale)) ?></h5>
                     <div class="small text-muted" id="servedHistorySubTitle"><?= esc(lang('app.kitchen_monitor_desc')) ?></div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -228,9 +245,9 @@
                     </div>
                     <div class="col-lg-3">
                         <select class="form-select" id="servedHistoryRange">
-                            <option value="today"><?= esc(service('request')->getLocale() === 'th' ? 'วันนี้' : 'Today') ?></option>
-                            <option value="1h"><?= esc(service('request')->getLocale() === 'th' ? '1 ชั่วโมงล่าสุด' : 'Last 1 hour') ?></option>
-                            <option value="3h"><?= esc(service('request')->getLocale() === 'th' ? '3 ชั่วโมงล่าสุด' : 'Last 3 hours') ?></option>
+                            <option value="today"><?= esc(kds_lang('app.kds_today', 'วันนี้', 'Today', $kdsLocale)) ?></option>
+                            <option value="1h"><?= esc(kds_lang('app.kds_last_1_hour', '1 ชั่วโมงล่าสุด', 'Last 1 hour', $kdsLocale)) ?></option>
+                            <option value="3h"><?= esc(kds_lang('app.kds_last_3_hours', '3 ชั่วโมงล่าสุด', 'Last 3 hours', $kdsLocale)) ?></option>
                             <option value="all"><?= esc(lang('app.all') ?? 'All') ?></option>
                         </select>
                     </div>
@@ -242,12 +259,12 @@
                 <ul class="nav nav-tabs served-history-tabs mb-3" id="servedHistoryTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="served-history-tab" data-bs-toggle="tab" data-bs-target="#served-history-pane" type="button" role="tab" aria-controls="served-history-pane" aria-selected="true">
-                            <?= esc(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served') ?>
+                            <?= esc(kds_lang('app.kds_served', 'เสิร์ฟแล้ว', 'Served', $kdsLocale)) ?>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="cancelled-history-tab" data-bs-toggle="tab" data-bs-target="#cancelled-history-pane" type="button" role="tab" aria-controls="cancelled-history-pane" aria-selected="false">
-                            <?= esc(service('request')->getLocale() === 'th' ? 'ยกเลิก' : 'Cancelled') ?>
+                            <?= esc(kds_lang('app.kds_cancelled', 'ยกเลิกแล้ว', 'Cancelled', $kdsLocale)) ?>
                         </button>
                     </li>
                 </ul>
@@ -299,6 +316,28 @@
         max-width: none;
         padding-left: 0;
         padding-right: 0;
+    }
+
+    #kdsBoard {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 1rem;
+        align-items: start;
+    }
+
+    #kdsBoard > .kds-col-wrap {
+        width: 100%;
+        margin: 0;
+    }
+
+    #kdsBoard > .kds-col-wrap .kds-column-card {
+        height: 100%;
+    }
+
+    @media (min-width: 768px) and (max-width: 1399.98px) {
+        #kdsBoard > .kds-col-wrap[data-col="served"] .kds-column-body {
+            max-height: 56vh;
+        }
     }
 
     @media (max-width: 1399.98px) {
@@ -932,6 +971,7 @@
     const searchInput = document.getElementById('searchInput');
     const clearSearchBtn = document.getElementById('clearSearchBtn');
     const refreshBoardBtn = document.getElementById('refreshBoardBtn');
+    const boardRoot = document.getElementById('kdsBoard');
     const servedHistoryBtn = document.getElementById('servedHistoryBtn');
     const compactHeaderBtn = document.getElementById('compactHeaderBtn');
     const focusModeBtn = document.getElementById('focusModeBtn');
@@ -985,12 +1025,12 @@
         mergeReason: '<?= esc(lang('app.merge_reason')) ?>',
         cancelAction: '<?= esc(lang('app.cancel')) ?>',
         cancelConfirm: '<?= esc(lang('app.cancel_confirm')) ?>',
-        cancelApproveConfirm: <?= json_encode(service('request')->getLocale() === 'th' ? 'ยืนยันอนุมัติการยกเลิกรายการนี้?' : 'Confirm approving this cancel request?') ?>,
-        cancelRejectConfirm: <?= json_encode(service('request')->getLocale() === 'th' ? 'ยืนยันปฏิเสธการยกเลิกรายการนี้?' : 'Confirm rejecting this cancel request?') ?>,
-        cancelRequestPending: <?= json_encode(service('request')->getLocale() === 'th' ? 'รออนุมัติยกเลิก' : 'Pending cancel request') ?>,
-        previousStatus: <?= json_encode(service('request')->getLocale() === 'th' ? 'สถานะก่อนหน้า' : 'Previous status') ?>,
-        cancelReason: <?= json_encode(service('request')->getLocale() === 'th' ? 'เหตุผล' : 'Reason') ?>,
-        requestedAt: <?= json_encode(service('request')->getLocale() === 'th' ? 'ขอเมื่อ' : 'Requested at') ?>,
+        cancelApproveConfirm: <?= json_encode(kds_lang('app.kds_confirm_cancel_approve', 'ยืนยันอนุมัติการยกเลิกรายการนี้?', 'Confirm approving this cancel request?', $kdsLocale)) ?>,
+        cancelRejectConfirm: <?= json_encode(kds_lang('app.kds_confirm_cancel_reject', 'ยืนยันปฏิเสธการยกเลิกรายการนี้?', 'Confirm rejecting this cancel request?', $kdsLocale)) ?>,
+        cancelRequestPending: <?= json_encode(kds_lang('app.kds_pending_cancel_request', 'รออนุมัติยกเลิก', 'Pending cancel request', $kdsLocale)) ?>,
+        previousStatus: <?= json_encode(kds_lang('app.kds_previous_status', 'สถานะก่อนหน้า', 'Previous status', $kdsLocale)) ?>,
+        cancelReason: <?= json_encode(kds_lang('app.kds_reason', 'เหตุผล', 'Reason', $kdsLocale)) ?>,
+        requestedAt: <?= json_encode(kds_lang('app.kds_requested_at', 'ขอเมื่อ', 'Requested at', $kdsLocale)) ?>,
         newItem: '<?= esc(lang('app.new_item')) ?>',
         waitingLong: '<?= esc(lang('app.waiting_long')) ?>',
         veryLate: '<?= esc(lang('app.very_late')) ?>',
@@ -1003,7 +1043,7 @@
         readyHint: '<?= esc(lang('app.ready_hint')) ?>',
         servedHint: '<?= esc(lang('app.served_hint')) ?>',
         preparingHint: '<?= esc(lang('app.preparing_hint')) ?>',
-        cancelRequestHint: <?= json_encode(service('request')->getLocale() === 'th' ? 'ตรวจสอบและตัดสินใจคำขอยกเลิกนี้' : 'Please review and decide this cancel request') ?>,
+        cancelRequestHint: <?= json_encode(kds_lang('app.kds_cancel_request_hint', 'ตรวจสอบและตัดสินใจคำขอยกเลิกนี้', 'Please review and decide this cancel request', $kdsLocale)) ?>,
         compactEnter: '<?= esc(lang('app.compact_enter')) ?>',
         compactExit: '<?= esc(lang('app.compact_exit')) ?>',
         servedHistory: '<?= esc(lang('app.served_history')) ?>',
@@ -1173,7 +1213,10 @@
     }
 
     function getAttentionMeta(item, boardStatus) {
-        const ageMinutes = getAgeMinutes(item.sent_at || item.created_at || '');
+        const attentionTime = boardStatus === 'served'
+            ? (item.served_at || item.updated_at || '')
+            : (item.sent_at || item.created_at || '');
+        const ageMinutes = getAgeMinutes(attentionTime);
         const meta = {
             cardClass: '',
             chips: [],
@@ -1200,17 +1243,19 @@
             meta.hint = i18n.servedHint;
         }
 
-        if (ageMinutes >= 16) {
-            meta.cardClass += ' kds-danger-flash';
-            meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-danger">⏰ ${escapeHtml(i18n.veryLate)}</span>`);
-            meta.hint = i18n.waitingHint;
-        } else if (ageMinutes >= 6) {
-            meta.cardClass += ' kds-warning-flash';
-            meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-warn">⏳ ${escapeHtml(i18n.waitingLong)}</span>`);
-            if (boardStatus === 'preparing') {
-                meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-do">🔥 ${escapeHtml(i18n.rushNow)}</span>`);
+        if (boardStatus !== 'served') {
+            if (ageMinutes >= 16) {
+                meta.cardClass += ' kds-danger-flash';
+                meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-danger">⏰ ${escapeHtml(i18n.veryLate)}</span>`);
+                meta.hint = i18n.waitingHint;
+            } else if (ageMinutes >= 6) {
+                meta.cardClass += ' kds-warning-flash';
+                meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-warn">⏳ ${escapeHtml(i18n.waitingLong)}</span>`);
+                if (boardStatus === 'preparing') {
+                    meta.chips.push(`<span class="kds-attention-chip kds-attention-chip-do">🔥 ${escapeHtml(i18n.rushNow)}</span>`);
+                }
+                meta.hint = i18n.waitingHint;
             }
-            meta.hint = i18n.waitingHint;
         }
 
         if (boardStatus === 'served') {
@@ -1396,9 +1441,14 @@
         const orderNo = item.order_number || item.ticket_no || '#';
         const sentAt = item.sent_at ? formatDateTime(item.sent_at) : '-';
         const servedAt = item.served_at ? formatDateTime(item.served_at) : '-';
-        const ageText = item.sent_at ? diffMinutes(item.sent_at) : '';
-        const ageClass = item.sent_at ? ageBadgeClass(item.sent_at) : 'kds-age-normal';
-        const urgencyClass = item.sent_at ? cardUrgencyClass(item.sent_at) : '';
+        const ageReference = boardStatus === 'served'
+            ? (item.served_at || item.updated_at || '')
+            : (item.sent_at || item.created_at || '');
+        const ageText = ageReference ? diffMinutes(ageReference) : '';
+        const ageClass = ageReference ? ageBadgeClass(ageReference) : 'kds-age-normal';
+        const urgencyClass = boardStatus === 'served'
+            ? ''
+            : (ageReference ? cardUrgencyClass(ageReference) : '');
         const actions = renderActionButtons(item);
         const searchText = searchableText(item);
         const queueNo = Number(indexInColumn || 0) + 1;
@@ -1628,6 +1678,42 @@
         }
     }
 
+    function updateBoardAutoLayout() {
+        if (!boardRoot) {
+            return;
+        }
+
+        const visibleCols = Array.from(document.querySelectorAll('.kds-col-wrap')).filter((col) => !col.classList.contains('is-hidden'));
+        const visibleCount = Math.max(visibleCols.length, 1);
+        const ww = window.innerWidth || document.documentElement.clientWidth || 0;
+        let template = '';
+
+        if (ww <= 767.98) {
+            const mobileCols = visibleCount >= 2 ? 2 : 1;
+            template = `repeat(${mobileCols}, minmax(0, 1fr))`;
+            visibleCols.forEach((col) => {
+                const key = String(col.getAttribute('data-col') || '');
+                if (key === 'cancel_request' || key === 'served') {
+                    col.style.gridColumn = '1 / -1';
+                } else {
+                    col.style.gridColumn = '';
+                }
+            });
+        } else if (ww <= 1399.98) {
+            template = `repeat(${visibleCount}, minmax(220px, 1fr))`;
+            visibleCols.forEach((col) => {
+                col.style.gridColumn = '';
+            });
+        } else {
+            template = `repeat(${visibleCount}, minmax(0, 1fr))`;
+            visibleCols.forEach((col) => {
+                col.style.gridColumn = '';
+            });
+        }
+
+        boardRoot.style.gridTemplateColumns = template;
+    }
+
     function applyClientFilters() {
         const keyword = String(searchInput ? searchInput.value : '').trim().toLowerCase();
         const cards = document.querySelectorAll('.kds-card');
@@ -1648,6 +1734,8 @@
             const shouldHide = hideEmptyColumns && hideEmptyColumns.checked && visibleCards === 0;
             col.classList.toggle('is-hidden', shouldHide);
         });
+
+        updateBoardAutoLayout();
     }
 
     function getServedHistoryStorageKey() {
@@ -1888,7 +1976,7 @@
     const latestRow = allRows.length ? allRows[0] : null;
     const latest = latestRow ? formatDateTime(latestRow.served_at || latestRow.decided_at || '') : '-';
 
-    servedHistoryMeta.innerHTML = `${escapeHtml(i18n.servedCount)}: <strong>${servedRows.length}</strong> · <?= esc(service('request')->getLocale() === 'th' ? 'ยกเลิกแล้ว' : 'Cancelled') ?>: <strong>${cancelledRows.length}</strong> · ${escapeHtml(i18n.lastUpdated)}: <strong>${escapeHtml(latest)}</strong> · ${escapeHtml(i18n.noteCashierReview)}`;
+    servedHistoryMeta.innerHTML = `${escapeHtml(i18n.servedCount)}: <strong>${servedRows.length}</strong> · <?= esc(kds_lang('app.kds_cancelled', 'ยกเลิกแล้ว', 'Cancelled', $kdsLocale)) ?>: <strong>${cancelledRows.length}</strong> · ${escapeHtml(i18n.lastUpdated)}: <strong>${escapeHtml(latest)}</strong> · ${escapeHtml(i18n.noteCashierReview)}`;
 
     if (!servedRows.length) {
         servedHistoryList.innerHTML = `<div class="served-history-empty">${escapeHtml(i18n.servedHistoryEmpty)}</div>`;
@@ -1915,7 +2003,7 @@
     }
 
     if (!cancelledRows.length) {
-        cancelledHistoryList.innerHTML = `<div class="served-history-empty"><?= esc(service('request')->getLocale() === 'th' ? 'ยังไม่มีรายการยกเลิกย้อนหลัง' : 'No cancelled items in history yet') ?></div>`;
+        cancelledHistoryList.innerHTML = `<div class="served-history-empty"><?= esc(kds_lang('app.kds_no_cancelled_history', 'ยังไม่มีรายการยกเลิกย้อนหลัง', 'No cancelled items in history yet', $kdsLocale)) ?></div>`;
     } else {
         cancelledHistoryList.innerHTML = cancelledRows.map((row) => `
             <div class="served-history-card">
@@ -1998,7 +2086,12 @@
         const rawData = json.data || {};
         const historyMeta = (json.meta && json.meta.history) ? json.meta.history : { served: [], cancelled: [] };
         const summaryMeta = (json.meta && json.meta.summary) ? json.meta.summary : {};
+        const boardSettings = (json.meta && json.meta.settings) ? json.meta.settings : {};
         const data = rebucketBoardData(rawData);
+        const servedBoardLimit = Number(boardSettings.served_board_limit || 30);
+        if (Array.isArray(data.served)) {
+            data.served = data.served.slice(0, servedBoardLimit);
+        }
 
         lastBoardData = data;
         syncServedHistory([...(historyMeta.served || []), ...(historyMeta.cancelled || [])]);
@@ -2280,6 +2373,8 @@
         hideEmptyColumns.addEventListener('change', applyClientFilters);
     }
 
+    window.addEventListener('resize', updateBoardAutoLayout);
+
     try {
         if (localStorage.getItem('kds_focus_mode') === '1') {
             applyFocusMode(true);
@@ -2294,6 +2389,7 @@
     restoreServedHistory();
     renderServedHistory();
     applyFilterButtonStyles('all');
+    updateBoardAutoLayout();
     updateFullscreenButton();
     loadBoard();
     setInterval(loadBoard, pollSeconds * 1000);

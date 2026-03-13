@@ -68,9 +68,9 @@ class KitchenMonitorController extends BaseController
             'cooking'   => 'cooking',
             'ready'     => 'ready',
             'served'    => 'served',
-            'cancelled' => 'cancelled',
-            'canceled'  => 'cancelled',
-            'cancel'    => 'cancelled',
+            'cancelled' => 'cancel',
+            'canceled'  => 'cancel',
+            'cancel'    => 'cancel',
         ];
 
         return $map[$status] ?? '';
@@ -255,100 +255,63 @@ class KitchenMonitorController extends BaseController
     }
 
     protected function resolveBoardStatus(array $row): string
-{
-    $cancelRequestStatus = strtolower((string) ($row['cancel_request_status'] ?? ''));
-    $cancelPrevStatus    = strtolower((string) ($row['cancel_request_prev_status'] ?? ''));
-    $displayStatus       = strtolower((string) ($row['display_status'] ?? ''));
-    $itemStatus          = strtolower((string) ($row['item_status'] ?? $row['status'] ?? ''));
-    $ticketStatus        = strtolower((string) ($row['ticket_status'] ?? ''));
+    {
+        $cancelRequestStatus = strtolower((string) ($row['cancel_request_status'] ?? ''));
+        $cancelPrevStatus    = strtolower((string) ($row['cancel_request_prev_status'] ?? ''));
+        $displayStatus       = strtolower((string) ($row['display_status'] ?? ''));
+        $itemStatus          = strtolower((string) ($row['item_status'] ?? $row['status'] ?? ''));
+        $ticketStatus        = strtolower((string) ($row['ticket_status'] ?? ''));
 
-    if ($cancelRequestStatus === 'pending') {
-        return 'cancel_request';
-    }
+        if ($cancelRequestStatus === 'pending') {
+            return 'cancel_request';
+        }
 
-    if ($cancelRequestStatus === 'approved') {
-        return '';
-    }
+        if ($cancelRequestStatus === 'rejected' && in_array($cancelPrevStatus, ['new', 'preparing', 'ready', 'served'], true)) {
+            return $cancelPrevStatus;
+        }
 
-    if ($cancelRequestStatus === 'rejected' && in_array($cancelPrevStatus, ['new', 'preparing', 'ready', 'served'], true)) {
-        return $cancelPrevStatus;
-    }
+        if (in_array($displayStatus, ['new', 'preparing', 'ready', 'served', 'cancel_request'], true)) {
+            return $displayStatus;
+        }
 
-    if ($displayStatus === 'cancelled') {
-        return '';
-    }
+        if (in_array($itemStatus, ['cancel', 'cancelled', 'canceled'], true)) {
+            return 'served';
+        }
 
-    if (in_array($displayStatus, ['new', 'preparing', 'ready', 'served', 'cancel_request'], true)) {
-        return $displayStatus;
-    }
+        if ($itemStatus === 'served') {
+            return 'served';
+        }
 
-    if (in_array($itemStatus, ['cancel', 'cancelled', 'canceled'], true)) {
-        return '';
-    }
+        if ($itemStatus === 'ready') {
+            return 'ready';
+        }
 
-    if ($itemStatus === 'served') {
-        return 'served';
-    }
+        if (in_array($itemStatus, ['preparing', 'cooking', 'doing'], true)) {
+            return 'preparing';
+        }
 
-    if ($itemStatus === 'ready') {
-        return 'ready';
-    }
+        if (in_array($itemStatus, ['new', 'pending', 'sent'], true)) {
+            return 'new';
+        }
 
-    if (in_array($itemStatus, ['preparing', 'cooking', 'doing'], true)) {
-        return 'preparing';
-    }
+        if (in_array($ticketStatus, ['cancel', 'cancelled', 'canceled'], true)) {
+            return 'served';
+        }
 
-    if (in_array($itemStatus, ['new', 'pending', 'sent'], true)) {
+        if ($ticketStatus === 'served') {
+            return 'served';
+        }
+
+        if ($ticketStatus === 'ready') {
+            return 'ready';
+        }
+
+        if (in_array($ticketStatus, ['preparing', 'cooking', 'doing'], true)) {
+            return 'preparing';
+        }
+
         return 'new';
     }
-
-    if (in_array($ticketStatus, ['cancel', 'cancelled', 'canceled'], true)) {
-        return '';
-    }
-
-    if ($ticketStatus === 'served') {
-        return 'served';
-    }
-
-    if ($ticketStatus === 'ready') {
-        return 'ready';
-    }
-
-    if (in_array($ticketStatus, ['preparing', 'cooking', 'doing'], true)) {
-        return 'preparing';
-    }
-
-    return 'new';
-}
-
-protected function resolveHistoryStatus(array $row): string
-{
-    $cancelRequestStatus = strtolower((string) ($row['cancel_request_status'] ?? ''));
-    $displayStatus       = strtolower((string) ($row['display_status'] ?? ''));
-    $itemStatus          = strtolower((string) ($row['item_status'] ?? $row['status'] ?? ''));
-
-    if ($cancelRequestStatus === 'approved' || in_array($itemStatus, ['cancel', 'cancelled', 'canceled'], true) || $displayStatus === 'cancelled') {
-        return 'cancelled';
-    }
-
-    if ($cancelRequestStatus === 'rejected') {
-        return 'cancel_rejected';
-    }
-
-    if ($itemStatus === 'served' || $displayStatus === 'served') {
-        return 'served';
-    }
-
-    return '';
-}
-
-protected function normalizeHistoryRow(array $row, string $historyStatus): array
-{
-    $row['history_status'] = $historyStatus;
-    $row['history_bucket'] = $historyStatus === 'served' ? 'served' : 'cancelled';
-
-    return $row;
-}
 
     protected function statusLabels(): array
     {
@@ -426,6 +389,32 @@ protected function normalizeHistoryRow(array $row, string $historyStatus): array
         return $row;
     }
 
+
+    protected function servedBoardLimit(): int
+    {
+        return 20;
+    }
+
+    protected function servedBoardMinutes(): int
+    {
+        return 20;
+    }
+
+    protected function isRecentServedRow(array $row): bool
+    {
+        $servedAt = trim((string) ($row['served_at'] ?? $row['updated_at'] ?? ''));
+        if ($servedAt === '') {
+            return false;
+        }
+
+        $servedTs = strtotime($servedAt);
+        if ($servedTs === false) {
+            return false;
+        }
+
+        return $servedTs >= strtotime('-' . $this->servedBoardMinutes() . ' minutes');
+    }
+
     public function index()
     {
         $stationId = (int) ($this->request->getGet('station_id') ?? 0);
@@ -443,87 +432,73 @@ protected function normalizeHistoryRow(array $row, string $historyStatus): array
     }
 
     public function feed()
-{
-    $stationId = (int) ($this->request->getGet('station_id') ?? 0);
-    $mode = trim((string) ($this->request->getGet('mode') ?? 'all'));
-    $locale = $this->currentLocale();
+    {
+        $stationId = (int) ($this->request->getGet('station_id') ?? 0);
+        $mode = trim((string) ($this->request->getGet('mode') ?? 'all'));
+        $locale = $this->currentLocale();
 
-    $rows = $this->kitchenTicketModel->getMonitorBoardRows(
-        $this->currentTenantId(),
-        $this->currentBranchId(),
-        $stationId > 0 ? $stationId : null,
-        $mode === 'station',
-        $locale
-    );
+        $rows = $this->kitchenTicketModel->getMonitorBoardRows(
+            $this->currentTenantId(),
+            $this->currentBranchId(),
+            $stationId > 0 ? $stationId : null,
+            $mode === 'station',
+            $locale
+        );
 
-    $grouped = [
-        'new'            => [],
-        'preparing'      => [],
-        'ready'          => [],
-        'cancel_request' => [],
-        'served'         => [],
-    ];
+        $grouped = [
+            'new'            => [],
+            'preparing'      => [],
+            'ready'          => [],
+            'cancel_request' => [],
+            'served'         => [],
+        ];
 
-    $history = [
-        'served'    => [],
-        'cancelled' => [],
-    ];
+        foreach ($rows as $row) {
+            $row = $this->attachMergeInfoToRow($row);
+            $row = $this->attachCancelRequestInfoToRow($row);
 
-    foreach ($rows as $row) {
-        $row = $this->attachMergeInfoToRow($row);
-        $row = $this->attachCancelRequestInfoToRow($row);
+            $boardStatus = $this->resolveBoardStatus($row);
+            $row['board_status'] = $boardStatus;
+            $row['show_cancel_decision_actions'] = $this->canShowCancelDecisionActions($row);
+            $row['cancel_request_is_pending']    = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'pending';
+            $row['cancel_request_is_rejected']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'rejected';
+            $row['cancel_request_is_approved']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'approved';
+            $row['status_label'] = $this->statusLabels()[$boardStatus] ?? ucfirst($boardStatus);
 
-        $boardStatus = $this->resolveBoardStatus($row);
-        $historyStatus = $this->resolveHistoryStatus($row);
+            if ($boardStatus === 'served' && ! $this->isRecentServedRow($row)) {
+                continue;
+            }
 
-        $row['board_status'] = $boardStatus;
-        $row['show_cancel_decision_actions'] = $this->canShowCancelDecisionActions($row);
-        $row['cancel_request_is_pending']    = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'pending';
-        $row['cancel_request_is_rejected']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'rejected';
-        $row['cancel_request_is_approved']   = strtolower((string) ($row['cancel_request_status'] ?? '')) === 'approved';
-        $row['status_label'] = $boardStatus !== ''
-            ? ($this->statusLabels()[$boardStatus] ?? ucfirst($boardStatus))
-            : '';
+            if (! array_key_exists($boardStatus, $grouped)) {
+                $grouped[$boardStatus] = [];
+            }
 
-        if ($boardStatus !== '' && array_key_exists($boardStatus, $grouped)) {
             $grouped[$boardStatus][] = $row;
         }
 
-        if ($historyStatus !== '') {
-            $historyRow = $this->normalizeHistoryRow($row, $historyStatus);
-            $bucket = $historyRow['history_bucket'];
+        if (! empty($grouped['served'])) {
+            usort($grouped['served'], static function (array $a, array $b): int {
+                $aTs = strtotime((string) ($a['served_at'] ?? $a['updated_at'] ?? '')) ?: 0;
+                $bTs = strtotime((string) ($b['served_at'] ?? $b['updated_at'] ?? '')) ?: 0;
+                return $bTs <=> $aTs;
+            });
 
-            if (! array_key_exists($bucket, $history)) {
-                $history[$bucket] = [];
-            }
-
-            $history[$bucket][] = $historyRow;
+            $grouped['served'] = array_slice($grouped['served'], 0, $this->servedBoardLimit());
         }
-    }
 
-    return $this->response->setJSON([
-        'status' => 'success',
-        'data'   => $grouped,
-        'meta'   => [
-            'labels'  => $this->statusLabels(),
-            'locale'  => $locale,
-            'summary' => [
-                'active_total'      => count($grouped['new']) + count($grouped['preparing']) + count($grouped['ready']) + count($grouped['cancel_request']),
-                'new'               => count($grouped['new']),
-                'preparing'         => count($grouped['preparing']),
-                'ready'             => count($grouped['ready']),
-                'cancel_request'    => count($grouped['cancel_request']),
-                'served'            => count($grouped['served']),
-                'cancelled'         => count(array_filter($history['cancelled'], static function ($row) {
-                    return ($row['history_status'] ?? '') === 'cancelled';
-                })),
-                'cancelled_all'     => count($history['cancelled']),
-                'served_history'    => count($history['served']),
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data'   => $grouped,
+            'meta'   => [
+                'labels'   => $this->statusLabels(),
+                'locale'   => $locale,
+                'settings' => [
+                    'served_board_limit'   => $this->servedBoardLimit(),
+                    'served_board_minutes' => $this->servedBoardMinutes(),
+                ],
             ],
-            'history' => $history,
-        ],
-    ]);
-}
+        ]);
+    }
 
     public function updateStatus()
     {
@@ -552,7 +527,7 @@ protected function normalizeHistoryRow(array $row, string $historyStatus): array
 
         if ($requestedStatus === 'cancel_approved') {
             $data = [
-                'status'     => 'cancelled',
+                'status'     => 'cancel',
                 'line_total' => 0,
             ];
 
@@ -595,7 +570,7 @@ protected function normalizeHistoryRow(array $row, string $historyStatus): array
                         'order_id'      => (int) ($item['order_id'] ?? 0),
                         'ticket_id'     => (int) ($item['kitchen_ticket_id'] ?? 0),
                         'from_status'   => $fromStatus,
-                        'to_status'     => 'cancelled',
+                        'to_status'     => 'cancel',
                         'action_by'     => $userId,
                         'action_source' => 'kitchen.monitor.cancel_approved',
                     ]

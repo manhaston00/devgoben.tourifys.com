@@ -442,6 +442,11 @@ $(function () {
         cooking: <?= json_encode(lang('app.cooking'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         served: <?= json_encode(lang('app.served'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         canceled: <?= json_encode(lang('app.canceled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        preparingStatus: <?= json_encode(service('request')->getLocale() === 'th' ? 'กำลังทำ' : 'Preparing', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        readyStatus: <?= json_encode(service('request')->getLocale() === 'th' ? 'พร้อมเสิร์ฟ' : 'Ready', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        cancelRequestedStatus: <?= json_encode(service('request')->getLocale() === 'th' ? 'รออนุมัติยกเลิก' : 'Waiting for cancel approval', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        cancelRejectedStatus: <?= json_encode(service('request')->getLocale() === 'th' ? 'ปฏิเสธการยกเลิกแล้ว' : 'Cancel request rejected', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        cancelledStatus: <?= json_encode(service('request')->getLocale() === 'th' ? 'ยกเลิกแล้ว' : 'Cancelled', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         unknownStatus: <?= json_encode(lang('app.unknown_status'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         addFoodItem: <?= json_encode(lang('app.add_food_item'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         editFoodItem: <?= json_encode(lang('app.edit_food_item'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -573,22 +578,67 @@ $(function () {
         return 'text-bg-secondary';
     }
 
+    function normalizeItemStatus(status) {
+        return String(status || 'pending').toLowerCase().trim();
+    }
+
     function itemStatusBadge(status) {
-        if (status === 'pending') return 'secondary';
+        status = normalizeItemStatus(status);
+
+        if (status === 'pending' || status === 'open' || status === 'new') return 'secondary';
         if (status === 'sent') return 'primary';
-        if (status === 'cooking') return 'warning';
+        if (status === 'preparing' || status === 'cooking') return 'warning';
+        if (status === 'ready') return 'info';
         if (status === 'served') return 'success';
-        if (status === 'cancel') return 'danger';
+        if (status === 'cancel_requested' || status === 'cancelrequest' || status === 'cancel-request') return 'warning text-dark';
+        if (status === 'cancel_rejected' || status === 'rejected') return 'danger';
+        if (status === 'cancel' || status === 'cancelled' || status === 'canceled') return 'danger';
         return 'secondary';
     }
 
     function itemStatusText(status) {
-        if (status === 'pending') return TXT.pending;
+        status = normalizeItemStatus(status);
+
+        if (status === 'pending' || status === 'open' || status === 'new') return TXT.pending;
         if (status === 'sent') return TXT.sentKitchen;
-        if (status === 'cooking') return TXT.cooking;
+        if (status === 'preparing' || status === 'cooking') return TXT.preparingStatus || TXT.cooking;
+        if (status === 'ready') return TXT.readyStatus || TXT.sentKitchen;
         if (status === 'served') return TXT.served;
-        if (status === 'cancel') return TXT.canceled;
+        if (status === 'cancel_requested' || status === 'cancelrequest' || status === 'cancel-request') return TXT.cancelRequestedStatus || TXT.cancelRequestPending;
+        if (status === 'cancel_rejected' || status === 'rejected') return TXT.cancelRejectedStatus || TXT.cancelRequestRejected;
+        if (status === 'cancel' || status === 'cancelled' || status === 'canceled') return TXT.cancelledStatus || TXT.canceled;
         return TXT.unknownStatus;
+    }
+
+    function getDisplayStatusMeta(item) {
+        const requestState = getRequestStateMeta(item);
+        const rawStatus = normalizeItemStatus(item && item.status ? item.status : 'pending');
+
+        if (requestState && requestState.key === 'pending') {
+            return {
+                badgeClass: itemStatusBadge('cancel_requested'),
+                text: itemStatusText('cancel_requested')
+            };
+        }
+
+        if (requestState && requestState.key === 'rejected') {
+            return {
+                badgeClass: itemStatusBadge('cancel_rejected'),
+                text: itemStatusText('cancel_rejected')
+            };
+        }
+
+        if (requestState && requestState.key === 'approved') {
+            return {
+                badgeClass: itemStatusBadge('cancelled'),
+                text: itemStatusText('cancelled')
+            };
+        }
+
+        return {
+            badgeClass: itemStatusBadge(rawStatus),
+            text: itemStatusText(rawStatus)
+        };
     }
 
     function parseCommaText(text) {
@@ -956,10 +1006,11 @@ $(function () {
             $('#canceledItemsBox').html('');
         } else {
             items.forEach(function (item) {
-                const normalizedStatus = String(item.status || 'pending').toLowerCase().trim();
+                const normalizedStatus = normalizeItemStatus(item.status || 'pending');
                 const editable = canEditItem(item.status);
                 const requestState = getRequestStateMeta(item);
-                const isCanceled = normalizedStatus === 'cancel' || normalizedStatus === 'cancelled';
+                const displayStatus = getDisplayStatusMeta(item);
+                const isCanceled = normalizedStatus === 'cancel' || normalizedStatus === 'cancelled' || normalizedStatus === 'canceled' || (requestState && requestState.key === 'approved');
                 const canRequestCancel = !editable && !isCanceled && (!requestState || requestState.key === 'rejected');
 
                 let requestHtml = '';
@@ -1002,7 +1053,7 @@ $(function () {
                                 data-note="${escapeHtml(item.note ?? '')}"
                                 data-status="${escapeHtml(item.status ?? '')}"
                             >${TXT.edit}</button>
-                            <button type="button" class="btn btn-outline-danger btn-remove" data-id="${item.id}">${TXT.remove}</button>
+                            <button type="button" class="btn btn-outline-danger btn-cancel-direct" data-id="${item.id}">${TXT.remove}</button>
                         </div>
                     `;
                 } else if (canRequestCancel) {
@@ -1015,7 +1066,7 @@ $(function () {
                     <div class="border rounded-4 p-2 mb-2 ${isCanceled ? 'bg-light' : ''}" data-item-status="${escapeHtml(item.status ?? 'pending')}" data-cancel-request-status="${escapeHtml(getCancelRequestStatus(item))}">
                         <div class="d-flex justify-content-between align-items-start mb-1 gap-2">
                             <div class="fw-bold">${escapeHtml(item.product_name ?? '')}</div>
-                            <span class="badge bg-${itemStatusBadge(item.status)}">${escapeHtml(itemStatusText(item.status ?? 'pending'))}</span>
+                            <span class="badge bg-${displayStatus.badgeClass}">${escapeHtml(displayStatus.text)}</span>
                         </div>
 
                         ${item.item_detail ? `<div class="small text-dark">${TXT.detailLabel}: ${escapeHtml(item.item_detail)}</div>` : ''}
@@ -1379,7 +1430,7 @@ $(function () {
         });
     });
 
-    $(document).on('click', '.btn-remove', function () {
+    $(document).on('click', '.btn-cancel-direct', function () {
         $.post("<?= site_url('pos/remove-item') ?>", {
             item_id: $(this).data('id')
         })
@@ -1391,7 +1442,7 @@ $(function () {
             loadOrder();
         })
         .fail(function (xhr) {
-            console.error('removeItem error:', xhr.responseText);
+            console.error('cancelDirect error:', xhr.responseText);
             alert(TXT.removeItemFailed);
         });
     });
@@ -1404,6 +1455,10 @@ $(function () {
         .done(function (res) {
             if (res && res.status === 'error') {
                 alert(res.message || TXT.updateItemFailed);
+                return;
+            }
+            if (res && (res.mode === 'cancel' || res.mode === 'cancelled' || res.mode === 'cancelled_direct')) {
+                loadOrder();
                 return;
             }
             alert(TXT.requestCancelSentToKitchen);

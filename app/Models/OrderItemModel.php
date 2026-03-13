@@ -28,6 +28,13 @@ class OrderItemModel extends TenantScopedModel
         'served_at',
         'cancelled_at',
         'cancelled_by',
+        'cancel_request_status',
+        'cancel_request_note',
+        'cancel_requested_at',
+        'cancel_requested_by',
+        'cancel_request_prev_status',
+        'cancel_decided_at',
+        'cancel_decided_by',
     ];
 
     protected $beforeInsert = ['beforeInsertTenant'];

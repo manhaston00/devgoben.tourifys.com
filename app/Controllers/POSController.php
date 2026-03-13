@@ -438,6 +438,37 @@ class POSController extends BaseController
         return $map[$status] ?? $status;
     }
 
+    protected function normalizeOrderItemRowForResponse(array $item): array
+    {
+        $rawStatus = strtolower(trim((string) ($item['status'] ?? '')));
+        $requestStatus = strtolower(trim((string) ($item['cancel_request_status'] ?? '')));
+        $cancelledAt = trim((string) ($item['cancelled_at'] ?? ''));
+        $servedAt = trim((string) ($item['served_at'] ?? ''));
+
+        if ($cancelledAt !== '' || in_array($requestStatus, ['approved', 'accepted'], true)) {
+            $item['status'] = 'cancel';
+            if ($item['cancel_request_status'] ?? null) {
+                $item['cancel_request_status'] = 'approved';
+            }
+            if (($item['line_total'] ?? null) !== null) {
+                $item['line_total'] = 0;
+            }
+            return $item;
+        }
+
+        if ($servedAt !== '' && $rawStatus === '') {
+            $item['status'] = 'served';
+            return $item;
+        }
+
+        $normalized = $this->normalizeOrderItemStatus($rawStatus);
+        if ($normalized !== '') {
+            $item['status'] = $normalized;
+        }
+
+        return $item;
+    }
+
     protected function isNonBillableOrderItemStatus(?string $status): bool
     {
         $status = $this->normalizeOrderItemStatus($status);
@@ -779,6 +810,7 @@ class POSController extends BaseController
         $order = $this->getScopedOrder((int) $order['id']);
 
         $items = $this->orderItemModel->getByOrder((int) $order['id']);
+        $items = array_map(fn (array $item): array => $this->normalizeOrderItemRowForResponse($item), $items);
 
         return $this->response->setJSON([
             'status'        => 'success',
@@ -1489,9 +1521,12 @@ class POSController extends BaseController
 
         $currentStatus = $this->normalizeOrderItemStatus($item['status'] ?? 'pending');
 
+        $directCancelFromPending = false;
+
         if ($status === 'cancel_requested') {
             if ($currentStatus === 'pending') {
                 $status = 'cancel';
+                $directCancelFromPending = true;
             } elseif ($this->isCancelRequestFlowEnabled()) {
                 $requestData = $this->buildCancelRequestPayload('pending', $note, (string) ($item['status'] ?? 'sent'));
 
@@ -1639,7 +1674,10 @@ class POSController extends BaseController
 
         return $this->response->setJSON([
             'status'  => 'success',
-            'message' => lang('app.save_success'),
+            'message' => $directCancelFromPending
+                ? (lang('app.cancelled') ?: lang('app.canceled'))
+                : lang('app.save_success'),
+            'mode'    => $directCancelFromPending ? 'cancelled_direct' : 'updated',
         ]);
     }
 

@@ -202,11 +202,11 @@ class KitchenTicketModel extends TenantScopedModel
             ])
             ->orGroupStart()
                 ->where('oi.status', 'served')
-                ->where('oi.served_at >=', date('Y-m-d H:i:s', strtotime('-2 hours')))
+                ->where('oi.served_at >=', date('Y-m-d H:i:s', strtotime('-20 minutes')))
             ->groupEnd()
             ->orGroupStart()
                 ->whereIn('oi.status', ['cancel', 'cancelled', 'canceled'])
-                ->where('oi.updated_at >=', date('Y-m-d H:i:s', strtotime('-2 hours')))
+                ->where('oi.updated_at >=', date('Y-m-d H:i:s', strtotime('-20 minutes')))
             ->groupEnd()
         ->groupEnd();
 
