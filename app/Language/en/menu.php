@@ -24,4 +24,6 @@ return [
 	'back_to_store'         => 'Back to Store',
 	'branches' => 'Branches',
 	'kitchen_monitor' => 'Kitchen Monitor',
+    'reports' => 'Reports',
+    'audit_logs' => 'Audit Logs',
 ];

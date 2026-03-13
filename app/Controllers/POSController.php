@@ -21,6 +21,7 @@ use App\Models\OrderTableMoveModel;
 use App\Models\OrderMergeModel;
 use App\Models\UserModel;
 use App\Models\RolePermissionModel;
+use App\Models\AuditLogModel;
 
 class POSController extends BaseController
 {
@@ -42,6 +43,7 @@ class POSController extends BaseController
     protected $orderMergeModel;
     protected $userModel;
     protected $rolePermissionModel;
+    protected $auditLogModel;
     protected $db;
 
     public function __construct()
@@ -65,6 +67,26 @@ class POSController extends BaseController
         $this->orderMergeModel         = new OrderMergeModel();
         $this->userModel               = new UserModel();
         $this->rolePermissionModel     = new RolePermissionModel();
+        $this->auditLogModel            = new AuditLogModel();
+    }
+
+
+    protected function writeAuditLog(array $payload): void
+    {
+        try {
+            if (! isset($this->auditLogModel) || ! $this->auditLogModel) {
+                return;
+            }
+
+            $this->auditLogModel->add($payload);
+        } catch (\Throwable $e) {
+            log_message('error', 'writeAuditLog error: ' . $e->getMessage());
+        }
+    }
+
+    protected function currentActorName(): string
+    {
+        return trim((string) (session('full_name') ?? session('username') ?? ''));
     }
 
     protected function getActiveOrderStatuses(): array
@@ -1598,6 +1620,23 @@ class POSController extends BaseController
 
             $db->transCommit();
 
+            $this->writeAuditLog([
+                'branch_id'    => $branchId > 0 ? $branchId : null,
+                'target_type'  => 'order',
+                'target_id'    => $orderId,
+                'action_key'   => 'pos.send_kitchen',
+                'action_label' => lang('app.audit_log_sent_to_kitchen'),
+                'ref_code'     => (string) $ticketNo,
+                'order_id'     => $orderId,
+                'table_id'     => (int) ($order['table_id'] ?? 0) ?: null,
+                'meta_json'    => [
+                    'ticket_no'   => (string) $ticketNo,
+                    'ticket_id'   => (int) $ticketId,
+                    'batch_no'    => (int) $batchNo,
+                    'item_count'  => count($pendingItems),
+                ],
+            ]);
+
             return $this->response->setJSON([
                 'status'    => 'success',
                 'message'   => lang('app.send_kitchen_success'),
@@ -1749,6 +1788,27 @@ class POSController extends BaseController
             }
 
             $db->transCommit();
+
+            $paymentId = (int) $this->paymentModel->getInsertID();
+
+            $this->writeAuditLog([
+                'branch_id'    => (int) ($order['branch_id'] ?? 0) ?: null,
+                'target_type'  => 'payment',
+                'target_id'    => $paymentId > 0 ? $paymentId : $orderId,
+                'action_key'   => 'cashier.pay',
+                'action_label' => lang('app.audit_log_payment_received'),
+                'ref_code'     => (string) ($order['order_number'] ?? ''),
+                'order_id'     => $orderId,
+                'table_id'     => (int) ($order['table_id'] ?? 0) ?: null,
+                'payment_id'   => $paymentId > 0 ? $paymentId : null,
+                'meta_json'    => [
+                    'payment_method' => (string) ($paymentMethod ?: 'cash'),
+                    'amount'         => (float) $amount,
+                    'total'          => (float) $total,
+                    'change'         => (float) $change,
+                    'override_by'    => session('override_approved_by_name') ?? null,
+                ],
+            ]);
 
             return $this->response->setJSON([
                 'status'  => 'success',
@@ -2112,6 +2172,22 @@ class POSController extends BaseController
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
+        $this->writeAuditLog([
+            'branch_id'    => (int) ($order['branch_id'] ?? 0) ?: null,
+            'target_type'  => 'order',
+            'target_id'    => $orderId,
+            'action_key'   => 'cashier.request_bill',
+            'action_label' => lang('app.audit_log_request_bill'),
+            'ref_code'     => (string) ($order['order_number'] ?? ''),
+            'order_id'     => $orderId,
+            'table_id'     => (int) ($order['table_id'] ?? 0) ?: null,
+            'meta_json'    => [
+                'from_status' => 'open',
+                'to_status'   => 'billing',
+                'override_by' => session('override_approved_by_name') ?? null,
+            ],
+        ]);
+
         return $this->response->setJSON([
             'status'  => 'success',
             'message' => lang('app.enter_billing_status'),
@@ -2159,6 +2235,22 @@ class POSController extends BaseController
             'closed_by'  => session()->get('user_id') ?: null,
             'closed_at'  => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $this->writeAuditLog([
+            'branch_id'    => (int) ($order['branch_id'] ?? 0) ?: null,
+            'target_type'  => 'order',
+            'target_id'    => $orderId,
+            'action_key'   => 'cashier.close_bill',
+            'action_label' => lang('app.audit_log_close_bill'),
+            'ref_code'     => (string) ($order['order_number'] ?? ''),
+            'order_id'     => $orderId,
+            'table_id'     => (int) ($order['table_id'] ?? 0) ?: null,
+            'meta_json'    => [
+                'from_status' => 'open',
+                'to_status'   => 'billing',
+                'override_by' => session('override_approved_by_name') ?? null,
+            ],
         ]);
 
         return $this->response->setJSON([
@@ -2225,6 +2317,24 @@ class POSController extends BaseController
         }
 
         $this->storeManagerOverrideApproval($actionKey, $orderId, $approver);
+
+        $this->writeAuditLog([
+            'branch_id'    => (int) ($order['branch_id'] ?? 0) ?: null,
+            'user_id'      => (int) ($approver['id'] ?? 0) ?: null,
+            'actor_name'   => (string) ($approver['full_name'] ?? $approver['username'] ?? $this->currentActorName()),
+            'target_type'  => 'manager_override',
+            'target_id'    => $orderId,
+            'action_key'   => 'cashier.manager_override',
+            'action_label' => lang('app.audit_log_manager_override'),
+            'ref_code'     => (string) ($order['order_number'] ?? ''),
+            'order_id'     => $orderId,
+            'table_id'     => (int) ($order['table_id'] ?? 0) ?: null,
+            'meta_json'    => [
+                'override_action' => $actionKey,
+                'approved_for_user_id' => (int) (session('user_id') ?? 0),
+                'approved_for_user_name' => $this->currentActorName(),
+            ],
+        ]);
 
         return $this->response->setJSON([
             'status'           => 'success',

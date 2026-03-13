@@ -25,4 +25,6 @@ return [
 	'back_to_store'         => 'กลับสู่ระบบร้าน',
 	'branches' => 'สาขา',
 	'kitchen_monitor' => 'จอครัว',
+    'reports' => 'รายงาน',
+    'audit_logs' => 'รายงานตรวจสอบย้อนหลัง',
 ];

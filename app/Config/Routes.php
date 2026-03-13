@@ -140,6 +140,9 @@ $routes->group('', ['filter' => 'auth_subscription'], static function ($routes) 
     $routes->match(['get', 'post'], 'branches/edit/(:num)', 'Branches::edit/$1', ['filter' => 'permission:branches.edit']);
     $routes->post('branches/delete/(:num)', 'Branches::delete/$1', ['filter' => 'permission:branches.delete']);
     $routes->post('branches/switch/(:num)', 'Branches::switch/$1', ['filter' => 'permission:branches.switch']);
+
+    $routes->get('audit-logs', 'AuditLogs::index', ['filter' => 'permission:audit_logs.view']);
+    $routes->get('audit-logs/order/(:num)', 'AuditLogs::orderTimeline/$1', ['filter' => 'permission:audit_logs.view']);
 });
 
 /*

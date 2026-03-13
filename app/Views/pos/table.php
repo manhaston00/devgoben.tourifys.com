@@ -416,17 +416,13 @@
             </div>
             <div class="modal-body">
                 <div class="alert alert-warning py-2 small mb-3" id="managerOverrideHelpText">
-                    <?= esc(lang('app.manager_override_help')) ?>
+                    <?= esc(lang('app.manager_override_help_pin_only')) ?>
                 </div>
                 <input type="hidden" id="managerOverrideAction" value="">
                 <input type="hidden" id="managerOverrideOrderId" value="">
-                <div class="mb-3">
-                    <label class="form-label fw-semibold"><?= esc(lang('app.manager_username')) ?></label>
-                    <input type="text" class="form-control" id="managerOverrideUsername" autocomplete="username">
-                </div>
                 <div class="mb-0">
                     <label class="form-label fw-semibold"><?= esc(lang('app.manager_pin_code')) ?></label>
-                    <input type="password" class="form-control" id="managerOverridePinCode" inputmode="numeric" autocomplete="one-time-code">
+                    <input type="password" class="form-control text-center fs-4 tracking-wide" id="managerOverridePinCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" placeholder="••••">
                 </div>
             </div>
             <div class="modal-footer">
@@ -512,6 +508,7 @@ $(function () {
         paymentFailed: <?= json_encode(lang('app.payment_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         paymentSuccess: <?= json_encode(lang('app.payment_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         managerOverrideRequired: <?= json_encode(lang('app.manager_override_required'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        managerOverrideHelpPinOnly: <?= json_encode(lang('app.manager_override_help_pin_only'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         managerOverrideApproved: <?= json_encode(lang('app.manager_override_approved'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         managerOverrideFailed: <?= json_encode(lang('app.manager_override_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         managerOverrideActionPay: <?= json_encode(lang('app.manager_override_action_pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -597,12 +594,12 @@ $(function () {
             managerOverrideResolver = resolve;
             $('#managerOverrideAction').val(actionKey || '');
             $('#managerOverrideOrderId').val(orderId || CURRENT_ORDER_ID || 0);
-            $('#managerOverrideUsername').val('');
             $('#managerOverridePinCode').val('');
-            $('#managerOverrideHelpText').text((TXT.managerOverrideRequired || '') + ' - ' + managerOverrideActionLabel(actionKey));
+            $('#managerOverrideHelpText').text((TXT.managerOverrideHelpPinOnly || TXT.managerOverrideRequired || '') + ' - ' + managerOverrideActionLabel(actionKey));
 
             if (managerOverrideModal) {
                 managerOverrideModal.show();
+                setTimeout(function () { $('#managerOverridePinCode').trigger('focus').trigger('select'); }, 150);
             } else {
                 resolve(false);
             }
@@ -1811,11 +1808,10 @@ $(function () {
     $(document).on('click', '#btnConfirmManagerOverride', function () {
         const actionKey = $('#managerOverrideAction').val() || '';
         const orderId = parseInt($('#managerOverrideOrderId').val() || CURRENT_ORDER_ID || 0, 10);
-        const managerUsername = $.trim($('#managerOverrideUsername').val() || '');
         const managerPinCode = $.trim($('#managerOverridePinCode').val() || '');
         const $btn = $(this);
 
-        if (!actionKey || !orderId || !managerUsername || !managerPinCode) {
+        if (!actionKey || !orderId || !managerPinCode) {
             alert(TXT.managerOverrideFailed);
             return;
         }
@@ -1825,7 +1821,6 @@ $(function () {
         $.post("<?= site_url('pos/manager-override') ?>", {
             action_key: actionKey,
             order_id: orderId,
-            manager_username: managerUsername,
             manager_pin_code: managerPinCode
         })
         .done(function (res) {
@@ -1844,8 +1839,8 @@ $(function () {
 				resolver(true);
 			}
 
-			const approvedByText = res.approved_by ? (' ' + (TX.by || 'by') + ' ' + res.approved_by) : '';
-			alert((res.message || TX.managerOverrideApproved || 'Manager override approved') + approvedByText);
+			const approvedByText = res.approved_by ? (' ' + (TXT.by || 'by') + ' ' + res.approved_by) : '';
+			alert((res.message || TXT.managerOverrideApproved || 'Manager override approved') + approvedByText);
         })
         .fail(function (xhr) {
             console.error('manager override error:', xhr.responseText);

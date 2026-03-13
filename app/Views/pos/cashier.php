@@ -630,6 +630,13 @@
         itemServed: <?= json_encode(lang('app.served'), JSON_UNESCAPED_UNICODE) ?>,
         itemCancelled: <?= json_encode(lang('app.cancelled'), JSON_UNESCAPED_UNICODE) ?>,
         openBillSuccessBilling: <?= json_encode(lang('app.close_bill_success_billing'), JSON_UNESCAPED_UNICODE) ?>,
+        managerOverrideRequired: <?= json_encode(lang('app.manager_override_required'), JSON_UNESCAPED_UNICODE) ?>,
+        managerOverrideHelpPinOnly: <?= json_encode(lang('app.manager_override_help_pin_only'), JSON_UNESCAPED_UNICODE) ?>,
+        managerOverrideApproved: <?= json_encode(lang('app.manager_override_approved'), JSON_UNESCAPED_UNICODE) ?>,
+        managerOverrideFailed: <?= json_encode(lang('app.manager_override_failed'), JSON_UNESCAPED_UNICODE) ?>,
+        managerOverrideActionPay: <?= json_encode(lang('app.manager_override_action_pay'), JSON_UNESCAPED_UNICODE) ?>,
+        managerOverrideActionCloseBill: <?= json_encode(lang('app.manager_override_action_close_bill'), JSON_UNESCAPED_UNICODE) ?>,
+        by: <?= json_encode(lang('app.by'), JSON_UNESCAPED_UNICODE) ?>,
     };
 
     const managerOverrideModalEl = document.getElementById('managerOverrideModal');
@@ -818,12 +825,12 @@
             managerOverrideResolver = resolve;
             document.getElementById('managerOverrideAction').value = String(actionKey || '');
             document.getElementById('managerOverrideOrderId').value = String(orderId || 0);
-            document.getElementById('managerOverrideUsername').value = '';
             document.getElementById('managerOverridePinCode').value = '';
-            document.getElementById('managerOverrideHelpText').textContent = `${lang.managerOverrideRequired} - ${managerOverrideActionLabel(actionKey)}`;
+            document.getElementById('managerOverrideHelpText').textContent = `${lang.managerOverrideHelpPinOnly || lang.managerOverrideRequired} - ${managerOverrideActionLabel(actionKey)}`;
 
             if (managerOverrideModal) {
                 managerOverrideModal.show();
+                setTimeout(() => document.getElementById('managerOverridePinCode')?.focus(), 150);
             } else {
                 resolve(false);
             }
@@ -1182,10 +1189,9 @@
         const btn = document.getElementById('btnConfirmManagerOverride');
         const actionKey = String(document.getElementById('managerOverrideAction')?.value || '');
         const orderId = Number(document.getElementById('managerOverrideOrderId')?.value || 0);
-        const managerUsername = String(document.getElementById('managerOverrideUsername')?.value || '').trim();
         const managerPinCode = String(document.getElementById('managerOverridePinCode')?.value || '').trim();
 
-        if (!actionKey || !orderId || !managerUsername || !managerPinCode) {
+        if (!actionKey || !orderId || !managerPinCode) {
             alert(lang.managerOverrideFailed);
             return;
         }
@@ -1195,7 +1201,6 @@
             const response = await postJson('<?= site_url('pos/manager-override') ?>', {
                 action_key: actionKey,
                 order_id: orderId,
-                manager_username: managerUsername,
                 manager_pin_code: managerPinCode,
             });
 
@@ -1209,8 +1214,8 @@
                 resolver(true);
             }
 
-            alert((response.message || lang.managerOverrideApproved) + (response.approved_by ? `
-${response.approved_by}` : ''));
+            const approvedByText = response.approved_by ? ` ${lang.by || 'by'} ${response.approved_by}` : '';
+            alert((response.message || lang.managerOverrideApproved) + approvedByText);
         } catch (error) {
             alert(error.message || lang.managerOverrideFailed);
         } finally {
@@ -1316,16 +1321,12 @@ ${response.approved_by}` : ''));
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-warning py-2 small mb-3" id="managerOverrideHelpText"><?= esc(lang('app.manager_override_help')) ?></div>
+                <div class="alert alert-warning py-2 small mb-3" id="managerOverrideHelpText"><?= esc(lang('app.manager_override_help_pin_only')) ?></div>
                 <input type="hidden" id="managerOverrideAction" value="">
                 <input type="hidden" id="managerOverrideOrderId" value="">
-                <div class="mb-3">
-                    <label class="form-label fw-semibold"><?= esc(lang('app.manager_username')) ?></label>
-                    <input type="text" class="form-control" id="managerOverrideUsername" autocomplete="username">
-                </div>
                 <div class="mb-0">
                     <label class="form-label fw-semibold"><?= esc(lang('app.manager_pin_code')) ?></label>
-                    <input type="password" class="form-control" id="managerOverridePinCode" inputmode="numeric" autocomplete="one-time-code">
+                    <input type="password" class="form-control text-center fs-4 tracking-wide" id="managerOverridePinCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" placeholder="••••">
                 </div>
             </div>
             <div class="modal-footer">
