@@ -82,7 +82,7 @@ if (! function_exists('kds_lang')) {
         </div>
 
         <div class="row g-3 mb-3" id="kdsSummaryRow">
-            <div class="col-xl-3 col-md-6">
+            <div class="col-12 col-sm-6 col-xl-4 col-xxl-2">
                 <div class="kds-summary-card kds-summary-card-main">
                     <div class="kds-summary-label"><?= esc(lang('app.kitchen_queue_total')) ?></div>
                     <div class="kds-summary-number" id="summary-total-active">0</div>
@@ -90,7 +90,7 @@ if (! function_exists('kds_lang')) {
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6">
+            <div class="col-12 col-sm-6 col-xl-4 col-xxl-2">
                 <div class="kds-summary-card kds-summary-card-new">
                     <div class="kds-summary-label"><?= esc(lang('app.status_new')) ?></div>
                     <div class="kds-summary-number" id="summary-new">0</div>
@@ -98,7 +98,7 @@ if (! function_exists('kds_lang')) {
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6">
+            <div class="col-12 col-sm-6 col-xl-4 col-xxl-2">
                 <div class="kds-summary-card kds-summary-card-preparing">
                     <div class="kds-summary-label"><?= esc(lang('app.status_preparing')) ?></div>
                     <div class="kds-summary-number" id="summary-preparing">0</div>
@@ -106,7 +106,7 @@ if (! function_exists('kds_lang')) {
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6">
+            <div class="col-12 col-sm-6 col-xl-4 col-xxl-2">
                 <div class="kds-summary-card kds-summary-card-ready">
                     <div class="kds-summary-label"><?= esc(lang('app.status_ready')) ?></div>
                     <div class="kds-summary-number" id="summary-ready">0</div>
@@ -114,7 +114,7 @@ if (! function_exists('kds_lang')) {
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6">
+            <div class="col-12 col-sm-6 col-xl-4 col-xxl-2">
                 <div class="kds-summary-card kds-summary-card-cancel-request">
                     <div class="kds-summary-label"><?= esc(kds_lang('app.kds_cancel_requests', 'คำขอยกเลิก', 'Cancel requests', $kdsLocale)) ?></div>
                     <div class="kds-summary-number" id="summary-cancel-request">0</div>
@@ -122,7 +122,7 @@ if (! function_exists('kds_lang')) {
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6">
+            <div class="col-12 col-sm-6 col-xl-4 col-xxl-2">
                 <div class="kds-summary-card kds-summary-card-served">
                     <div class="kds-summary-label"><?= esc(kds_lang('app.kds_served', 'เสิร์ฟแล้ว', 'Served', $kdsLocale)) ?></div>
                     <div class="kds-summary-number" id="summary-served">0</div>
@@ -130,13 +130,6 @@ if (! function_exists('kds_lang')) {
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6">
-                <div class="kds-summary-card kds-summary-card-cancelled">
-                    <div class="kds-summary-label"><?= esc(kds_lang('app.kds_cancelled', 'ยกเลิกแล้ว', 'Cancelled', $kdsLocale)) ?></div>
-                    <div class="kds-summary-number" id="summary-cancelled">0</div>
-                    <div class="kds-summary-help"><?= esc(kds_lang('app.kds_cancelled_help', 'รายการที่อนุมัติยกเลิกแล้วในประวัติย้อนหลัง', 'Items approved as cancelled in history', $kdsLocale)) ?></div>
-                </div>
-            </div>
         </div>
 
         </div>
@@ -231,7 +224,10 @@ if (! function_exists('kds_lang')) {
             <div class="modal-header">
                 <div>
                     <h5 class="modal-title mb-1" id="servedHistoryTitle"><?= esc(kds_lang('app.kds_history', 'ประวัติย้อนหลัง', 'History', $kdsLocale)) ?></h5>
-                    <div class="small text-muted" id="servedHistorySubTitle"><?= esc(lang('app.kitchen_monitor_desc')) ?></div>
+                    <div class="small text-muted d-flex align-items-center gap-2 flex-wrap" id="servedHistorySubTitle">
+                        <span><?= esc(lang('app.kitchen_monitor_desc')) ?></span>
+                        <span class="badge rounded-pill bg-success d-none" id="servedHistoryLiveBadge">+0 ใหม่</span>
+                    </div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -284,19 +280,36 @@ if (! function_exists('kds_lang')) {
     </div>
 </div>
 
+
 <style>
-    .kds-search-group {
-        min-width: 320px;
+    .kitchen-monitor-page,
+    #kdsHeaderBlock,
+    #kdsStickyFilterBar,
+    #kdsSummaryRow,
+    #kdsBoard {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
-    .kds-station-filter {
-        min-width: 220px;
+    .kds-header-block { overflow: hidden; }
+    .kds-top-toolbar { transition: all .2s ease; }
+    .kds-top-toolbar > div:last-child {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .5rem;
     }
+
+    .kds-search-group { min-width: 280px; flex: 1 1 360px; }
+    .kds-station-filter { min-width: 220px; flex: 0 1 220px; }
 
     .kitchen-filter-btn {
         font-size: 13px;
         padding: 6px 12px;
         border-radius: 10px;
+        white-space: nowrap;
     }
 
     .kitchen-filter-btn.active {
@@ -305,57 +318,18 @@ if (! function_exists('kds_lang')) {
         border-color: #111827 !important;
     }
 
-    #kdsSummaryRow {
-        display: grid;
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-        gap: 1rem;
-    }
-
-    #kdsSummaryRow > [class*="col-"] {
-        width: auto;
-        max-width: none;
-        padding-left: 0;
-        padding-right: 0;
-    }
+    #kdsSummaryRow { margin-left: 0; margin-right: 0; }
+    #kdsSummaryRow > [class*="col-"] { min-width: 0; padding-left: 0; padding-right: 0; }
 
     #kdsBoard {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 1rem;
+        margin-left: 0;
+        margin-right: 0;
         align-items: start;
     }
 
     #kdsBoard > .kds-col-wrap {
-        width: 100%;
+        min-width: 0;
         margin: 0;
-    }
-
-    #kdsBoard > .kds-col-wrap .kds-column-card {
-        height: 100%;
-    }
-
-    @media (min-width: 768px) and (max-width: 1399.98px) {
-        #kdsBoard > .kds-col-wrap[data-col="served"] .kds-column-body {
-            max-height: 56vh;
-        }
-    }
-
-    @media (max-width: 1399.98px) {
-        #kdsSummaryRow {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-    }
-
-    @media (max-width: 991.98px) {
-        #kdsSummaryRow {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @media (max-width: 575.98px) {
-        #kdsSummaryRow {
-            grid-template-columns: 1fr;
-        }
     }
 
     .kds-summary-card {
@@ -367,6 +341,7 @@ if (! function_exists('kds_lang')) {
         min-height: 108px;
         position: relative;
         overflow: hidden;
+        height: 100%;
     }
 
     .kds-summary-card::before {
@@ -380,80 +355,21 @@ if (! function_exists('kds_lang')) {
         opacity: .9;
     }
 
-    .kds-summary-card-new::before {
-        background: #6b7280;
-    }
+    .kds-summary-card-new::before { background: #6b7280; }
+    .kds-summary-card-preparing::before { background: #f59e0b; }
+    .kds-summary-card-ready::before { background: #06b6d4; }
+    .kds-summary-card-cancel-request::before { background: #dc3545; }
+    .kds-summary-card-served::before { background: #198754; }
 
-    .kds-summary-card-preparing::before {
-        background: #f59e0b;
-    }
-
-    .kds-summary-card-ready::before {
-        background: #06b6d4;
-    }
-
-    .kds-summary-card-cancel-request::before {
-        background: #dc3545;
-    }
-
-    .kds-summary-card-served::before {
-        background: #198754;
-    }
-
-    .kds-summary-card-cancelled::before {
-        background: #6f42c1;
-    }
-
-    .kds-summary-label {
-        font-size: 12px;
-        font-weight: 800;
-        color: #374151;
-        margin-bottom: 8px;
-        text-transform: uppercase;
-        letter-spacing: .3px;
-    }
-
-    .kds-summary-number {
-        font-size: 36px;
-        line-height: 1;
-        font-weight: 900;
-        color: #111827;
-        margin-bottom: 6px;
-    }
-
-    .kds-summary-card-main .kds-summary-number {
-        font-size: 40px;
-    }
-
-    .kds-summary-card-preparing .kds-summary-number {
-        color: #d97706;
-    }
-
-    .kds-summary-card-ready .kds-summary-number {
-        color: #0891b2;
-    }
-
-    .kds-summary-card-new .kds-summary-number {
-        color: #4b5563;
-    }
-
-    .kds-summary-card-cancel-request .kds-summary-number {
-        color: #b91c1c;
-    }
-
-    .kds-summary-card-served .kds-summary-number {
-        color: #15803d;
-    }
-
-    .kds-summary-card-cancelled .kds-summary-number {
-        color: #7c3aed;
-    }
-
-    .kds-summary-help {
-        font-size: 12px;
-        color: #6b7280;
-        line-height: 1.35;
-    }
+    .kds-summary-label { font-size: 12px; font-weight: 800; color: #374151; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .3px; }
+    .kds-summary-number { font-size: 36px; line-height: 1; font-weight: 900; color: #111827; margin-bottom: 6px; }
+    .kds-summary-card-main .kds-summary-number { font-size: 40px; }
+    .kds-summary-card-preparing .kds-summary-number { color: #d97706; }
+    .kds-summary-card-ready .kds-summary-number { color: #0891b2; }
+    .kds-summary-card-new .kds-summary-number { color: #4b5563; }
+    .kds-summary-card-cancel-request .kds-summary-number { color: #b91c1c; }
+    .kds-summary-card-served .kds-summary-number { color: #15803d; }
+    .kds-summary-help { font-size: 12px; color: #6b7280; line-height: 1.35; }
 
     .kds-col-header {
         font-size: 14px;
@@ -466,9 +382,7 @@ if (! function_exists('kds_lang')) {
         border-bottom: 1px solid rgba(0,0,0,.06);
     }
 
-    .kds-column-card {
-        overflow: hidden;
-    }
+    .kds-column-card { overflow: hidden; height: 100%; }
 
     .kds-column-body {
         height: 62vh;
@@ -478,18 +392,9 @@ if (! function_exists('kds_lang')) {
         scrollbar-width: thin;
     }
 
-    .kds-column-body::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .kds-column-body::-webkit-scrollbar-thumb {
-        background: rgba(107, 114, 128, .45);
-        border-radius: 999px;
-    }
-
-    .kds-column-body::-webkit-scrollbar-track {
-        background: transparent;
-    }
+    .kds-column-body::-webkit-scrollbar { width: 8px; }
+    .kds-column-body::-webkit-scrollbar-thumb { background: rgba(107, 114, 128, .45); border-radius: 999px; }
+    .kds-column-body::-webkit-scrollbar-track { background: transparent; }
 
     .kds-card {
         border: 1px solid rgba(0,0,0,.08);
@@ -500,114 +405,36 @@ if (! function_exists('kds_lang')) {
         min-height: 200px;
     }
 
-    .kds-card:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 .35rem .75rem rgba(0,0,0,.08);
-    }
+    .kds-card:hover { transform: translateY(-1px); box-shadow: 0 .35rem .75rem rgba(0,0,0,.08); }
+    .kds-card.kds-urgent { border: 2px solid #ef4444; background: #fff5f5; }
+    .kds-card.kds-warning { border: 2px solid #fb923c; background: #fff8f1; }
+    .kds-age-normal { background: #facc15; color: #111827; }
+    .kds-age-warning { background: #fb923c; color: #fff; }
+    .kds-age-danger { background: #ef4444; color: #fff; }
+    .kds-card.kds-new-attention { border: 2px solid #2563eb; background: #eff6ff; animation: kdsPulseBlue 1.25s infinite; }
+    .kds-card.kds-warning-flash { animation: kdsPulseOrange 1.35s infinite; }
+    .kds-card.kds-danger-flash { animation: kdsPulseRed 1s infinite; }
 
-    .kds-card.kds-urgent {
-        border: 2px solid #ef4444;
-        background: #fff5f5;
-    }
+    .kds-attention-strip { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 6px; }
+    .kds-attention-chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; line-height: 1; letter-spacing: .1px; }
+    .kds-attention-chip-new { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+    .kds-attention-chip-do { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+    .kds-attention-chip-serve { background: #dcfce7; color: #166534; border: 1px solid #22c55e; }
+    .kds-attention-chip-warn { background: #ffedd5; color: #c2410c; border: 1px solid #fb923c; }
+    .kds-attention-chip-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #ef4444; }
+    .kds-help-line { margin-top: 8px; font-size: 12px; font-weight: 700; color: #6b7280; }
 
-    .kds-card.kds-warning {
-        border: 2px solid #fb923c;
-        background: #fff8f1;
-    }
-
-    .kds-age-normal {
-        background: #facc15;
-        color: #111827;
-    }
-
-    .kds-age-warning {
-        background: #fb923c;
-        color: #fff;
-    }
-
-    .kds-age-danger {
-        background: #ef4444;
-        color: #fff;
-    }
-
-    .kds-card.kds-new-attention {
-        border: 2px solid #2563eb;
-        background: #eff6ff;
-        animation: kdsPulseBlue 1.25s infinite;
-    }
-
-    .kds-card.kds-warning-flash {
-        animation: kdsPulseOrange 1.35s infinite;
-    }
-
-    .kds-card.kds-danger-flash {
-        animation: kdsPulseRed 1s infinite;
-    }
-
-    .kds-attention-strip {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin: 10px 0 6px;
-    }
-
-    .kds-attention-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        border-radius: 999px;
-        padding: 6px 10px;
-        font-size: 12px;
-        font-weight: 800;
-        line-height: 1;
-        letter-spacing: .1px;
-    }
-
-    .kds-attention-chip-new {
-        background: #dbeafe;
-        color: #1d4ed8;
-        border: 1px solid #93c5fd;
-    }
-
-    .kds-attention-chip-do {
-        background: #fef3c7;
-        color: #92400e;
-        border: 1px solid #f59e0b;
-    }
-
-    .kds-attention-chip-serve {
-        background: #dcfce7;
-        color: #166534;
-        border: 1px solid #22c55e;
-    }
-
-    .kds-attention-chip-warn {
-        background: #ffedd5;
-        color: #c2410c;
-        border: 1px solid #fb923c;
-    }
-
-    .kds-attention-chip-danger {
-        background: #fee2e2;
-        color: #b91c1c;
-        border: 1px solid #ef4444;
-    }
-
-    .kds-help-line {
-        margin-top: 8px;
-        font-size: 12px;
-        font-weight: 700;
-        color: #6b7280;
-    }
-
-    .kitchen-cancel-btn {
+    .kitchen-cancel-btn,
+    .kitchen-status-btn {
         width: 100%;
         min-height: 50px;
         font-size: 18px;
         font-weight: 800;
         border-radius: 12px;
-        margin-top: 10px !important;
     }
+
+    .kitchen-cancel-btn { margin-top: 10px !important; }
+    .kitchen-status-btn { margin-top: 12px !important; }
 
     @keyframes kdsPulseBlue {
         0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45); }
@@ -627,50 +454,15 @@ if (! function_exists('kds_lang')) {
         100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
-    .kds-col-wrap.is-hidden {
-        display: none !important;
-    }
-
-    .kds-card.is-search-hidden {
-        display: none !important;
-    }
+    .kds-col-wrap.is-hidden,
+    .kds-card.is-search-hidden { display: none !important; }
 
     .kds-queue-badge,
-    .kds-station-badge {
-        font-size: 11px;
-        font-weight: 700;
-        border-radius: 999px;
-        padding: 5px 9px;
-    }
-
-    .kds-item-title {
-        font-size: 18px;
-        line-height: 1.25;
-        font-weight: 800;
-    }
-
-    .kds-item-sub {
-        font-size: 14px;
-        line-height: 1.4;
-    }
-
-    .kds-meta {
-        font-size: 13px;
-    }
-
-    .kitchen-status-btn {
-        width: 100%;
-        min-height: 50px;
-        font-size: 18px;
-        font-weight: 800;
-        border-radius: 12px;
-        margin-top: 12px !important;
-    }
-
-    .kds-col-count {
-        min-width: 28px;
-        text-align: center;
-    }
+    .kds-station-badge { font-size: 11px; font-weight: 700; border-radius: 999px; padding: 5px 9px; }
+    .kds-item-title { font-size: 18px; line-height: 1.25; font-weight: 800; }
+    .kds-item-sub { font-size: 14px; line-height: 1.4; }
+    .kds-meta { font-size: 13px; }
+    .kds-col-count { min-width: 28px; text-align: center; }
 
     .kds-sticky-filter-bar {
         position: sticky;
@@ -685,9 +477,7 @@ if (! function_exists('kds_lang')) {
     .kds-focus-mode aside,
     .kds-focus-mode .navbar,
     .kds-focus-mode .topbar,
-    .kds-focus-mode .main-sidebar {
-        display: none !important;
-    }
+    .kds-focus-mode .main-sidebar { display: none !important; }
 
     .kds-focus-mode .content-wrapper,
     .kds-focus-mode .main-content,
@@ -707,191 +497,33 @@ if (! function_exists('kds_lang')) {
         width: 100% !important;
     }
 
-    .kds-focus-mode .kitchen-monitor-page {
-        border-radius: 0 !important;
-        margin: 0 !important;
-    }
+    .kds-focus-mode .kitchen-monitor-page { border-radius: 0 !important; margin: 0 !important; }
+    .kds-browser-fullscreen .kds-column-body { height: 74vh; }
 
-    .kds-browser-fullscreen .kds-column-body {
-        height: 74vh;
-    }
-
-    .kds-move-box {
-        border: 1px dashed rgba(255, 193, 7, 0.55);
-        background: rgba(255, 193, 7, 0.08);
-        border-radius: 10px;
-        padding: 8px 10px;
-        margin-top: 10px;
-    }
-
-    .kds-merge-box {
-        border: 1px dashed rgba(13, 110, 253, 0.55);
-        background: rgba(13, 110, 253, 0.08);
-        border-radius: 10px;
-        padding: 8px 10px;
-        margin-top: 10px;
-    }
-
+    .kds-move-box,
+    .kds-merge-box,
     .kds-cancel-request-box {
-        border: 1px dashed rgba(220, 53, 69, 0.55);
-        background: rgba(220, 53, 69, 0.08);
         border-radius: 10px;
         padding: 8px 10px;
         margin-top: 10px;
     }
 
-    .kds-cancel-decision-actions {
-        display: grid;
-        gap: 8px;
-        margin-top: 10px;
-    }
+    .kds-move-box { border: 1px dashed rgba(255, 193, 7, 0.55); background: rgba(255, 193, 7, 0.08); }
+    .kds-merge-box { border: 1px dashed rgba(13, 110, 253, 0.55); background: rgba(13, 110, 253, 0.08); }
+    .kds-cancel-request-box { border: 1px dashed rgba(220, 53, 69, 0.55); background: rgba(220, 53, 69, 0.08); }
+    .kds-cancel-decision-actions { display: grid; gap: 8px; margin-top: 10px; }
+    .kds-cancel-decision-btn { width: 100%; min-height: 46px; font-size: 16px; font-weight: 800; border-radius: 12px; }
 
-    .kds-cancel-decision-btn {
-        width: 100%;
-        min-height: 46px;
-        font-size: 16px;
-        font-weight: 800;
-        border-radius: 12px;
-    }
+    .kds-header-block { transition: all .2s ease; }
 
-    @media (max-width: 1200px) {
-        .kds-search-group {
-            min-width: 260px;
-        }
-
-        .kds-item-title {
-            font-size: 17px;
-        }
-
-        .kitchen-status-btn {
-            font-size: 17px;
-        }
-
-        .kds-column-body {
-            height: 56vh;
-        }
-    }
-
-    .kds-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 12px;
-    }
-
-    .kds-column {
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        height: calc(100vh - 180px);
-    }
-
-    .kds-column-body {
-        overflow-y: auto;
-        padding-right: 4px;
-    }
-
-    .kds-card {
-        border-radius: 14px;
-        padding: 10px;
-        margin-bottom: 10px;
-        font-size: 0.95rem;
-    }
-
-    .kds-card .kds-title {
-        font-size: 1rem;
-        line-height: 1.2;
-    }
-
-    .kds-card .kds-meta,
-    .kds-card .kds-items {
-        font-size: 0.85rem;
-        line-height: 1.2;
-    }
-
-    @media (max-width: 1199.98px) and (min-width: 768px) {
-        .kds-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 8px;
-        }
-
-        .kds-card {
-            padding: 8px;
-            margin-bottom: 8px;
-            font-size: 0.82rem;
-        }
-
-        .kds-card .kds-title {
-            font-size: 0.9rem;
-        }
-
-        .kds-card .kds-meta,
-        .kds-card .kds-items {
-            font-size: 0.75rem;
-        }
-
-        .kds-column {
-            height: calc(100vh - 140px);
-        }
-    }
-
-    @media (max-width: 767.98px) {
-        .kds-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    .kds-top-toolbar {
-        transition: all .2s ease;
-    }
-
-    .kds-header-block {
-        transition: all .2s ease;
-    }
-
-    .kds-sticky-filter-bar {
-        position: sticky;
-        top: 0;
-        z-index: 5;
-        background: #fff;
-        padding-top: 4px;
-        padding-bottom: 8px;
-    }
-
-    .kds-compact .kitchen-monitor-page .card-body {
-        padding-top: 12px;
-    }
-
-    .kds-compact #kdsHeaderBlock {
-        margin-bottom: 8px !important;
-    }
-
-    .kds-compact .kds-top-toolbar {
-        gap: .5rem !important;
-        margin-bottom: .5rem !important;
-        align-items: center !important;
-    }
-
-    .kds-compact .kds-top-toolbar > div:first-child {
-        display: none !important;
-    }
-
-    .kds-compact .kds-top-toolbar .d-flex.align-items-center.gap-2.flex-wrap {
-        width: 100%;
-    }
-
-    .kds-compact .kds-search-group {
-        min-width: 280px;
-        flex: 1 1 320px;
-    }
-
-    .kds-compact .kds-station-filter {
-        min-width: 200px;
-    }
-
-    .kds-compact #kdsSummaryRow {
-        display: none !important;
-    }
-
+    .kds-compact .kitchen-monitor-page .card-body { padding-top: 12px; }
+    .kds-compact #kdsHeaderBlock { margin-bottom: 8px !important; }
+    .kds-compact .kds-top-toolbar { gap: .5rem !important; margin-bottom: .5rem !important; align-items: center !important; }
+    .kds-compact .kds-top-toolbar > div:first-child { display: none !important; }
+    .kds-compact .kds-top-toolbar > div:last-child { width: 100%; }
+    .kds-compact .kds-search-group { min-width: 280px; flex: 1 1 320px; }
+    .kds-compact .kds-station-filter { min-width: 200px; }
+    .kds-compact #kdsSummaryRow { display: none !important; }
     .kds-compact .kds-sticky-filter-bar {
         position: sticky;
         top: 0;
@@ -901,66 +533,247 @@ if (! function_exists('kds_lang')) {
         margin-bottom: 10px !important;
         border-bottom: 1px solid rgba(0,0,0,.06);
     }
+    .kds-compact .kds-column-body { height: 78vh; }
+    .kds-compact .kds-col-header { padding: 8px 12px; }
 
-    .kds-compact .kds-column-body {
-        height: 78vh;
+    .served-history-meta { font-size: 13px; color: #6b7280; }
+    .served-history-card { border: 1px solid rgba(0,0,0,.08); border-radius: 14px; background: #fff; padding: 12px 14px; margin-bottom: 12px; box-shadow: 0 .125rem .25rem rgba(0,0,0,.04); }
+    .served-history-card .title { font-size: 18px; font-weight: 800; line-height: 1.2; }
+    .served-history-card .sub { color: #6b7280; font-size: 13px; }
+    .served-history-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid rgba(0,0,0,.08); background: #f8fafc; }
+    .served-history-empty { border: 1px dashed rgba(0,0,0,.12); border-radius: 14px; padding: 20px; text-align: center; color: #6b7280; background: #fafafa; }
+    .served-history-tabs .nav-link { font-weight: 800; border-radius: 12px 12px 0 0; }
+
+    @media (min-width: 1200px) {
+        #kdsBoard {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 1rem;
+            overflow: visible;
+        }
+
+        #kdsBoard > .kds-col-wrap {
+            width: auto;
+            max-width: none;
+            flex: initial;
+        }
     }
 
-    .kds-compact .kds-col-header {
-        padding: 8px 12px;
+    @media (max-width: 1199.98px) {
+        .kitchen-monitor-page .card-body { padding: 14px; }
+
+        .kds-top-toolbar {
+            align-items: stretch !important;
+            gap: .75rem !important;
+        }
+
+        .kds-top-toolbar > div:first-child { width: 100%; }
+        .kds-top-toolbar > div:last-child { align-items: stretch !important; }
+        .kds-search-group { flex: 1 1 100%; min-width: 0; }
+        .kds-station-filter { flex: 1 1 220px; min-width: 0; }
+        .kds-top-toolbar button,
+        .kds-top-toolbar .btn { flex: 1 1 auto; }
+
+        #kdsBoard {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 1rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: .5rem;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x proximity;
+        }
+
+        #kdsBoard > .kds-col-wrap {
+            flex: 0 0 280px;
+            max-width: 280px;
+            scroll-snap-align: start;
+        }
+
+        .kds-column-body { height: 58vh; }
     }
 
-    .served-history-meta {
-        font-size: 13px;
-        color: #6b7280;
+    @media (max-width: 1024.98px) {
+        .kds-top-toolbar > div:last-child {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .5rem !important;
+            width: 100%;
+        }
+
+        .kds-search-group,
+        .kds-station-filter {
+            grid-column: 1 / -1;
+        }
+
+        .kds-sticky-filter-bar {
+            align-items: flex-start !important;
+            gap: .75rem !important;
+        }
+
+        #quickFilters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem !important;
+            width: 100%;
+        }
+
+        .kds-sticky-filter-bar .form-check.form-switch {
+            margin-left: auto;
+            padding-top: .35rem;
+        }
     }
 
-    .served-history-card {
-        border: 1px solid rgba(0,0,0,.08);
-        border-radius: 14px;
-        background: #fff;
-        padding: 12px 14px;
-        margin-bottom: 12px;
-        box-shadow: 0 .125rem .25rem rgba(0,0,0,.04);
+    @media (max-width: 767.98px) {
+        .kitchen-monitor-page .card-body { padding: 12px; }
+
+        .kds-top-toolbar > div:last-child {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .5rem !important;
+            width: 100%;
+            align-items: stretch !important;
+        }
+
+        .kds-top-toolbar > div:last-child > * {
+            min-width: 0;
+        }
+
+        .kds-search-group,
+        .kds-station-filter {
+            min-width: 0;
+            grid-column: 1 / -1;
+            width: 100%;
+        }
+
+        .kds-top-toolbar > div:last-child > .btn,
+        .kds-top-toolbar > div:last-child > button.btn {
+            width: 100% !important;
+            min-height: 42px;
+            padding: .5rem .7rem;
+            font-size: 13px;
+            line-height: 1.2;
+            white-space: normal;
+        }
+
+        .kds-sticky-filter-bar {
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+
+        #quickFilters {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: .5rem !important;
+            width: 100%;
+            padding-bottom: .25rem;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #quickFilters .kitchen-filter-btn { flex: 0 0 auto; }
+
+        .kds-sticky-filter-bar .form-check.form-switch {
+            margin-left: 0;
+            align-self: flex-end;
+        }
+
+        #kdsBoard > .kds-col-wrap {
+            flex: 0 0 240px;
+            max-width: 240px;
+        }
+
+        .kds-column-body { height: 52vh; }
+        .kds-item-title { font-size: 16px; }
+        .kds-item-sub, .kds-meta { font-size: 12px; }
+        .kitchen-status-btn, .kitchen-cancel-btn { min-height: 46px; font-size: 16px; }
     }
 
-    .served-history-card .title {
-        font-size: 18px;
-        font-weight: 800;
-        line-height: 1.2;
+    @media (max-width: 575.98px) {
+        .kds-top-toolbar {
+            gap: .5rem !important;
+            margin-bottom: .75rem !important;
+        }
+
+        .kds-search-group {
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr) 78px;
+            align-items: stretch;
+        }
+
+        .kds-search-group > .input-group-text,
+        .kds-search-group > .form-control,
+        .kds-search-group > .btn {
+            width: 100%;
+            min-width: 0;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .kds-search-group > .input-group-text {
+            justify-content: center;
+            padding: .55rem .5rem;
+        }
+
+        .kds-search-group > .form-control {
+            padding: .55rem .7rem;
+            font-size: 14px;
+        }
+
+        .kds-search-group > .btn {
+            padding: .55rem .6rem;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .kds-search-group > :first-child {
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+
+        .kds-search-group > :last-child {
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .kds-station-filter {
+            min-height: 42px;
+            font-size: 14px;
+        }
+
+        .kds-top-toolbar > div:last-child > .btn,
+        .kds-top-toolbar > div:last-child > button.btn {
+            min-height: 40px;
+            padding: .45rem .55rem;
+            font-size: 12px;
+            border-radius: 10px;
+        }
+
+        #kdsBoard > .kds-col-wrap {
+            flex: 0 0 86vw;
+            max-width: 86vw;
+        }
     }
 
-    .served-history-card .sub {
-        color: #6b7280;
-        font-size: 13px;
-    }
+    @media (max-width: 390px) {
+        .kds-search-group {
+            grid-template-columns: 40px minmax(0, 1fr) 70px;
+        }
 
-    .served-history-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 10px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 700;
-        border: 1px solid rgba(0,0,0,.08);
-        background: #f8fafc;
-    }
+        .kds-top-toolbar > div:last-child {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
 
-    .served-history-empty {
-        border: 1px dashed rgba(0,0,0,.12);
-        border-radius: 14px;
-        padding: 20px;
-        text-align: center;
-        color: #6b7280;
-        background: #fafafa;
-    }
-
-    .served-history-tabs .nav-link {
-        font-weight: 800;
-        border-radius: 12px 12px 0 0;
+        .kds-top-toolbar > div:last-child > .btn,
+        .kds-top-toolbar > div:last-child > button.btn {
+            font-size: 11px;
+            padding: .45rem .45rem;
+        }
     }
 </style>
+
 
 <?= $this->endSection() ?>
 
@@ -971,17 +784,19 @@ if (! function_exists('kds_lang')) {
     const searchInput = document.getElementById('searchInput');
     const clearSearchBtn = document.getElementById('clearSearchBtn');
     const refreshBoardBtn = document.getElementById('refreshBoardBtn');
-    const boardRoot = document.getElementById('kdsBoard');
     const servedHistoryBtn = document.getElementById('servedHistoryBtn');
     const compactHeaderBtn = document.getElementById('compactHeaderBtn');
     const focusModeBtn = document.getElementById('focusModeBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const hideEmptyColumns = document.getElementById('hideEmptyColumns');
+    const boardRoot = document.getElementById('kdsBoard');
+    const summaryRow = document.getElementById('kdsSummaryRow');
     const servedHistorySearchInput = document.getElementById('servedHistorySearchInput');
     const servedHistoryRange = document.getElementById('servedHistoryRange');
     const servedHistoryClearBtn = document.getElementById('servedHistoryClearBtn');
     const servedHistoryMeta = document.getElementById('servedHistoryMeta');
     const servedHistoryList = document.getElementById('servedHistoryList');
+    const servedHistoryLiveBadge = document.getElementById('servedHistoryLiveBadge');
     const cancelledHistoryList = document.getElementById('cancelledHistoryList');
     const servedHistoryModalEl = document.getElementById('servedHistoryModal');
     const servedHistoryModal = servedHistoryModalEl ? new bootstrap.Modal(servedHistoryModalEl) : null;
@@ -994,6 +809,8 @@ if (! function_exists('kds_lang')) {
     let focusMode = false;
     let compactMode = false;
     let servedHistoryRows = [];
+    let servedHistoryLastSignature = '';
+    let servedHistoryPendingNewCount = 0;
     let lastBoardData = { new: [], preparing: [], ready: [], cancel_request: [], served: [] };
 
     const locale = '<?= esc(service('request')->getLocale()) ?>';
@@ -1061,7 +878,9 @@ if (! function_exists('kds_lang')) {
         cancelRequestReject: '<?= esc(lang('app.cancel_request_reject')) ?>',
         cancelRequestApproved: '<?= esc(lang('app.cancel_request_approved')) ?>',
         cancelRequestRejected: '<?= esc(lang('app.cancel_request_rejected')) ?>',
-        historyReason: '<?= esc(lang('app.history_reason')) ?>'
+        historyReason: '<?= esc(lang('app.history_reason')) ?>',
+        newItemsAdded: '<?= esc(kds_lang('app.kds_new_items_added', 'มีรายการใหม่เพิ่ม', 'New items added', $kdsLocale)) ?>',
+        newItemsAddedSuffix: '<?= esc(kds_lang('app.kds_new_items_suffix', 'ใหม่', 'new', $kdsLocale)) ?>'
     };
 
     const csrfName = <?= json_encode(csrf_token()) ?>;
@@ -1678,42 +1497,6 @@ if (! function_exists('kds_lang')) {
         }
     }
 
-    function updateBoardAutoLayout() {
-        if (!boardRoot) {
-            return;
-        }
-
-        const visibleCols = Array.from(document.querySelectorAll('.kds-col-wrap')).filter((col) => !col.classList.contains('is-hidden'));
-        const visibleCount = Math.max(visibleCols.length, 1);
-        const ww = window.innerWidth || document.documentElement.clientWidth || 0;
-        let template = '';
-
-        if (ww <= 767.98) {
-            const mobileCols = visibleCount >= 2 ? 2 : 1;
-            template = `repeat(${mobileCols}, minmax(0, 1fr))`;
-            visibleCols.forEach((col) => {
-                const key = String(col.getAttribute('data-col') || '');
-                if (key === 'cancel_request' || key === 'served') {
-                    col.style.gridColumn = '1 / -1';
-                } else {
-                    col.style.gridColumn = '';
-                }
-            });
-        } else if (ww <= 1399.98) {
-            template = `repeat(${visibleCount}, minmax(220px, 1fr))`;
-            visibleCols.forEach((col) => {
-                col.style.gridColumn = '';
-            });
-        } else {
-            template = `repeat(${visibleCount}, minmax(0, 1fr))`;
-            visibleCols.forEach((col) => {
-                col.style.gridColumn = '';
-            });
-        }
-
-        boardRoot.style.gridTemplateColumns = template;
-    }
-
     function applyClientFilters() {
         const keyword = String(searchInput ? searchInput.value : '').trim().toLowerCase();
         const cards = document.querySelectorAll('.kds-card');
@@ -1735,8 +1518,38 @@ if (! function_exists('kds_lang')) {
             col.classList.toggle('is-hidden', shouldHide);
         });
 
-        updateBoardAutoLayout();
+        syncResponsiveBoardLayout();
     }
+
+    function debounce(fn, wait = 120) {
+        let timer = null;
+        return function (...args) {
+            window.clearTimeout(timer);
+            timer = window.setTimeout(() => fn.apply(this, args), wait);
+        };
+    }
+
+    function syncResponsiveBoardLayout() {
+        if (!boardRoot) {
+            return;
+        }
+
+        const visibleCols = Array.from(boardRoot.querySelectorAll('.kds-col-wrap')).filter((col) => !col.classList.contains('is-hidden'));
+        const visibleCount = Math.max(visibleCols.length, 1);
+        const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1440;
+
+        boardRoot.style.minWidth = '';
+        boardRoot.style.gridTemplateColumns = '';
+
+        if (viewportWidth >= 1200) {
+            boardRoot.style.gridTemplateColumns = `repeat(${visibleCount}, minmax(0, 1fr))`;
+            return;
+        }
+
+        boardRoot.style.gridTemplateColumns = '';
+    }
+
+    const debouncedSyncResponsiveBoardLayout = debounce(syncResponsiveBoardLayout, 120);
 
     function getServedHistoryStorageKey() {
         const branch = <?= json_encode((string) (session('branch_id') ?? '0')) ?>;
@@ -1762,6 +1575,42 @@ if (! function_exists('kds_lang')) {
         } catch (e) {
             console.error('Served history storage error:', e);
         }
+    }
+
+
+    function buildServedHistorySignature(rows) {
+        return (Array.isArray(rows) ? rows : []).map((row) => {
+            return [
+                Number(row.item_id || 0),
+                String(row.history_status || ''),
+                String(row.served_at || ''),
+                String(row.decided_at || ''),
+                String(row.note || ''),
+                String(row.cancel_request_status || '')
+            ].join('|');
+        }).join('||');
+    }
+
+    function isServedHistoryModalOpen() {
+        return !!(servedHistoryModalEl && servedHistoryModalEl.classList.contains('show'));
+    }
+
+    function updateServedHistoryLiveBadge(count = 0) {
+        if (!servedHistoryLiveBadge) {
+            return;
+        }
+
+        const normalizedCount = Math.max(0, Number(count || 0));
+        servedHistoryPendingNewCount = normalizedCount;
+
+        if (normalizedCount <= 0) {
+            servedHistoryLiveBadge.classList.add('d-none');
+            servedHistoryLiveBadge.textContent = '';
+            return;
+        }
+
+        servedHistoryLiveBadge.classList.remove('d-none');
+        servedHistoryLiveBadge.textContent = `+${normalizedCount} ${i18n.newItemsAddedSuffix}`;
     }
 
     function normalizeServedHistoryItem(row) {
@@ -1800,37 +1649,56 @@ if (! function_exists('kds_lang')) {
 
     function syncServedHistory(rows) {
         const incoming = (rows || []).map(normalizeServedHistoryItem).filter((row) => Number(row.item_id || 0) > 0);
-        if (!incoming.length) {
-            return;
-        }
+        const oldMap = new Map();
 
-        const map = new Map();
-
-        (servedHistoryRows || []).forEach((row) => {
-            map.set(String(row.history_key || row.item_id || ''), row);
+        (Array.isArray(servedHistoryRows) ? servedHistoryRows : []).forEach((row) => {
+            oldMap.set(String(row.history_key || row.item_id || ''), row);
         });
+
+        const newMap = new Map();
+        let newItemsDetected = 0;
 
         incoming.forEach((row) => {
             const key = String(row.history_key || row.item_id || '');
-            const existing = map.get(key);
+            const existing = oldMap.get(key);
 
             if (!existing) {
-                map.set(key, row);
+                newItemsDetected++;
+                newMap.set(key, row);
                 return;
             }
 
-            map.set(key, {
+            const merged = {
                 ...existing,
                 ...row,
-                history_status: existing.history_status && existing.history_status !== 'served'
-                    ? existing.history_status
-                    : row.history_status,
-                decided_at: existing.decided_at || row.decided_at || '',
-                note: existing.note || row.note || ''
-            });
+                history_status: row.history_status || existing.history_status,
+                decided_at: row.decided_at || existing.decided_at || '',
+                note: row.note || existing.note || ''
+            };
+
+            const beforeSignature = [
+                String(existing.history_status || ''),
+                String(existing.served_at || ''),
+                String(existing.decided_at || ''),
+                String(existing.note || ''),
+                String(existing.cancel_request_status || '')
+            ].join('|');
+            const afterSignature = [
+                String(merged.history_status || ''),
+                String(merged.served_at || ''),
+                String(merged.decided_at || ''),
+                String(merged.note || ''),
+                String(merged.cancel_request_status || '')
+            ].join('|');
+
+            if (beforeSignature !== afterSignature) {
+                newItemsDetected++;
+            }
+
+            newMap.set(key, merged);
         });
 
-        servedHistoryRows = Array.from(map.values())
+        servedHistoryRows = Array.from(newMap.values())
             .sort((a, b) => {
                 const da = new Date(String(a.served_at || a.decided_at || '').replace(' ', 'T')).getTime() || 0;
                 const db = new Date(String(b.served_at || b.decided_at || '').replace(' ', 'T')).getTime() || 0;
@@ -1838,8 +1706,20 @@ if (! function_exists('kds_lang')) {
             })
             .slice(0, 300);
 
+        const nextSignature = buildServedHistorySignature(servedHistoryRows);
+        const changed = nextSignature !== servedHistoryLastSignature;
+        servedHistoryLastSignature = nextSignature;
+
         persistServedHistory();
-        renderServedHistory();
+
+        if (changed) {
+            if (isServedHistoryModalOpen() && newItemsDetected > 0) {
+                updateServedHistoryLiveBadge(newItemsDetected);
+            } else if (!isServedHistoryModalOpen()) {
+                updateServedHistoryLiveBadge(0);
+            }
+            renderServedHistory();
+        }
     }
 
     function filterServedHistoryRows(historyTab = 'all') {
@@ -2028,6 +1908,7 @@ if (! function_exists('kds_lang')) {
 }
 
     function openServedHistory() {
+        updateServedHistoryLiveBadge(0);
         renderServedHistory();
         if (servedHistoryModal) {
             servedHistoryModal.show();
@@ -2105,6 +1986,7 @@ if (! function_exists('kds_lang')) {
         renderColumn('col-served', data.served || []);
         updateCounts(data, summaryMeta);
         applyClientFilters();
+        debouncedSyncResponsiveBoardLayout();
 
         if (boardLoadedOnce && newCount > lastNewCount) {
             playBeep();
@@ -2373,7 +2255,7 @@ if (! function_exists('kds_lang')) {
         hideEmptyColumns.addEventListener('change', applyClientFilters);
     }
 
-    window.addEventListener('resize', updateBoardAutoLayout);
+    window.addEventListener('resize', debouncedSyncResponsiveBoardLayout);
 
     try {
         if (localStorage.getItem('kds_focus_mode') === '1') {
@@ -2386,11 +2268,32 @@ if (! function_exists('kds_lang')) {
         console.error('Mode restore error:', e);
     }
 
+
+    if (servedHistoryModalEl) {
+        servedHistoryModalEl.addEventListener('shown.bs.modal', function () {
+            updateServedHistoryLiveBadge(0);
+            renderServedHistory();
+        });
+
+        servedHistoryModalEl.addEventListener('hidden.bs.modal', function () {
+            updateServedHistoryLiveBadge(0);
+        });
+    }
+
+    document.querySelectorAll('#servedHistoryTabs button[data-bs-toggle="tab"]').forEach((tabEl) => {
+        tabEl.addEventListener('shown.bs.tab', function () {
+            if (isServedHistoryModalOpen()) {
+                renderServedHistory();
+            }
+        });
+    });
+
     restoreServedHistory();
+    servedHistoryLastSignature = buildServedHistorySignature(servedHistoryRows);
     renderServedHistory();
     applyFilterButtonStyles('all');
-    updateBoardAutoLayout();
     updateFullscreenButton();
+    syncResponsiveBoardLayout();
     loadBoard();
     setInterval(loadBoard, pollSeconds * 1000);
 })();

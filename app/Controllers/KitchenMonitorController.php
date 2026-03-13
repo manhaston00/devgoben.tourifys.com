@@ -152,10 +152,12 @@ class KitchenMonitorController extends BaseController
             $status    = (string) ($row['status'] ?? 'pending');
             $lineTotal = $this->isNonBillableStatus($status) ? 0.0 : ($unitPrice * $qty);
 
-            $this->directUpdateOrderItem((int) ($row['id'] ?? 0), [
-                'line_total' => $lineTotal,
-                'updated_at' => date('Y-m-d H:i:s'),
-            ]);
+            $currentLineTotal = (float) ($row['line_total'] ?? 0);
+            if (abs($currentLineTotal - $lineTotal) > 0.00001) {
+                $this->directUpdateOrderItem((int) ($row['id'] ?? 0), [
+                    'line_total' => $lineTotal,
+                ]);
+            }
 
             $total += $lineTotal;
         }
@@ -486,6 +488,33 @@ class KitchenMonitorController extends BaseController
             $grouped['served'] = array_slice($grouped['served'], 0, $this->servedBoardLimit());
         }
 
+        $historyRows = $this->kitchenTicketModel->getMonitorHistoryRows(
+            $this->currentTenantId(),
+            $this->currentBranchId(),
+            $stationId > 0 ? $stationId : null,
+            $mode === 'station',
+            $locale,
+            300,
+            7
+        );
+
+        $history = [
+            'served'    => [],
+            'cancelled' => [],
+        ];
+
+        foreach ($historyRows as $historyRow) {
+            $historyRow = $this->attachMergeInfoToRow($historyRow);
+            $historyRow = $this->attachCancelRequestInfoToRow($historyRow);
+
+            $historyStatus = strtolower((string) ($historyRow['history_status'] ?? 'served'));
+            if ($historyStatus === 'cancelled') {
+                $history['cancelled'][] = $historyRow;
+            } else {
+                $history['served'][] = $historyRow;
+            }
+        }
+
         return $this->response->setJSON([
             'status' => 'success',
             'data'   => $grouped,
@@ -495,6 +524,11 @@ class KitchenMonitorController extends BaseController
                 'settings' => [
                     'served_board_limit'   => $this->servedBoardLimit(),
                     'served_board_minutes' => $this->servedBoardMinutes(),
+                ],
+                'history' => $history,
+                'summary' => [
+                    'served_history_count'    => count($history['served']),
+                    'cancelled_history_count' => count($history['cancelled']),
                 ],
             ],
         ]);
@@ -524,6 +558,22 @@ class KitchenMonitorController extends BaseController
         $fromStatus = (string) ($item['status'] ?? '');
         $now = date('Y-m-d H:i:s');
         $userId = (int) (session('user_id') ?? 0);
+
+        if ($requestedStatus === 'cancel_approved' && in_array(strtolower($fromStatus), ['cancel', 'cancelled', 'canceled'], true)) {
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => $this->flowText('รายการนี้ถูกยกเลิกแล้ว', 'This item is already cancelled.'),
+                'token'   => csrf_hash(),
+            ]);
+        }
+
+        if ($requestedStatus === 'cancel_rejected' && strtolower((string) ($item['cancel_request_status'] ?? '')) === 'rejected') {
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => $this->flowText('รายการนี้ถูกปฏิเสธคำขอยกเลิกแล้ว', 'This cancel request has already been rejected.'),
+                'token'   => csrf_hash(),
+            ]);
+        }
 
         if ($requestedStatus === 'cancel_approved') {
             $data = [

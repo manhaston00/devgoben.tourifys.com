@@ -206,7 +206,13 @@ class KitchenTicketModel extends TenantScopedModel
             ->groupEnd()
             ->orGroupStart()
                 ->whereIn('oi.status', ['cancel', 'cancelled', 'canceled'])
-                ->where('oi.updated_at >=', date('Y-m-d H:i:s', strtotime('-20 minutes')))
+                ->groupStart()
+                    ->where('oi.cancelled_at >=', date('Y-m-d H:i:s', strtotime('-20 minutes')))
+                    ->orGroupStart()
+                        ->where('oi.cancelled_at', null)
+                        ->where('oi.updated_at >=', date('Y-m-d H:i:s', strtotime('-20 minutes')))
+                    ->groupEnd()
+                ->groupEnd()
             ->groupEnd()
         ->groupEnd();
 
@@ -224,4 +230,122 @@ class KitchenTicketModel extends TenantScopedModel
 
         return $builder->get()->getResultArray();
     }
+
+    public function getMonitorHistoryRows(
+        int $tenantId,
+        int $branchId = 0,
+        ?int $stationId = null,
+        bool $stationOnly = false,
+        string $locale = 'th',
+        int $limit = 300,
+        int $daysBack = 7
+    ): array {
+        if ($tenantId <= 0) {
+            return [];
+        }
+
+        $locale = strtolower(trim($locale));
+        if (! in_array($locale, ['th', 'en'], true)) {
+            $locale = 'th';
+        }
+
+        $limit = max(20, min(1000, (int) $limit));
+        $daysBack = max(1, min(30, (int) $daysBack));
+        $fromDate = date('Y-m-d H:i:s', strtotime('-' . $daysBack . ' days'));
+
+        $stationDisplaySql = $locale === 'th'
+            ? "CASE
+                    WHEN COALESCE(ks.station_name_th, '') <> '' THEN ks.station_name_th
+                    WHEN COALESCE(ks.station_name, '') <> '' THEN ks.station_name
+                    ELSE COALESCE(ks.station_name_en, '')
+               END"
+            : "CASE
+                    WHEN COALESCE(ks.station_name_en, '') <> '' THEN ks.station_name_en
+                    WHEN COALESCE(ks.station_name, '') <> '' THEN ks.station_name
+                    ELSE COALESCE(ks.station_name_th, '')
+               END";
+
+        $builder = $this->db->table('order_items oi');
+        $builder->select("
+            oi.id AS order_item_id,
+            oi.id AS item_id,
+            o.id AS order_id,
+            o.order_number,
+            o.table_id,
+            rt.table_name,
+            oi.product_id,
+            oi.product_name,
+            oi.item_detail,
+            oi.qty,
+            oi.note,
+            oi.status AS item_status,
+            oi.sent_at,
+            oi.served_at,
+            oi.cancelled_at,
+            oi.updated_at,
+            oi.cancel_request_status,
+            oi.cancel_request_note,
+            oi.cancel_request_reason,
+            oi.cancel_requested_at,
+            oi.cancel_request_prev_status,
+            oi.cancel_decided_at,
+            oi.cancel_decided_by,
+            oi.cancel_rejected_note,
+            oi.cancel_rejected_reason,
+            p.kitchen_station_id,
+            ks.station_name,
+            ks.station_name_th,
+            ks.station_name_en,
+            {$stationDisplaySql} AS station_display_name,
+            CASE
+                WHEN oi.status = 'served' THEN 'served'
+                WHEN oi.status IN ('cancel', 'cancelled', 'canceled') OR COALESCE(oi.cancel_request_status, '') = 'approved' THEN 'cancelled'
+                ELSE 'served'
+            END AS history_status
+        ");
+
+        $builder->join('orders o', 'o.id = oi.order_id', 'inner');
+        $builder->join('products p', 'p.id = oi.product_id', 'left');
+        $builder->join('restaurant_tables rt', 'rt.id = o.table_id', 'left');
+        $builder->join('kitchen_stations ks', 'ks.id = p.kitchen_station_id', 'left');
+
+        $builder->where('oi.tenant_id', $tenantId);
+        $builder->where('o.tenant_id', $tenantId);
+
+        if ($branchId > 0) {
+            $builder->where('o.branch_id', $branchId);
+        }
+
+        $builder->groupStart()
+            ->groupStart()
+                ->where('oi.status', 'served')
+                ->where('oi.served_at IS NOT NULL', null, false)
+                ->where('oi.served_at >=', $fromDate)
+            ->groupEnd()
+            ->orGroupStart()
+                ->whereIn('oi.status', ['cancel', 'cancelled', 'canceled'])
+                ->groupStart()
+                    ->where('oi.cancelled_at >=', $fromDate)
+                    ->orGroupStart()
+                        ->where('oi.cancelled_at', null)
+                        ->where('oi.updated_at >=', $fromDate)
+                    ->groupEnd()
+                ->groupEnd()
+            ->groupEnd()
+        ->groupEnd();
+
+        if ($stationId) {
+            $builder->where('p.kitchen_station_id', $stationId);
+        }
+
+        if ($stationOnly) {
+            $builder->where('p.kitchen_station_id IS NOT NULL', null, false);
+        }
+
+        $builder->orderBy("COALESCE(oi.served_at, oi.cancelled_at, oi.cancel_decided_at, oi.updated_at)", 'DESC', false);
+        $builder->limit($limit);
+
+        return $builder->get()->getResultArray();
+    }
+
 }
