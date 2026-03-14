@@ -488,6 +488,22 @@
     </div>
 </div>
 
+<div class="modal fade" id="moveAuditModal" tabindex="-1" aria-labelledby="moveAuditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title" id="moveAuditModalLabel"><?= esc(lang('app.move_audit_title')) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= esc(lang('app.close')) ?>"></button>
+            </div>
+            <div class="modal-body">
+                <div id="moveAuditModalBody">
+                    <div class="text-muted"><?= esc(lang('app.no_data')) ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 $(function () {
     const TABLE_ID = <?= json_encode((int) ($table['id'] ?? 0)) ?>;
@@ -1072,6 +1088,89 @@ $(function () {
         $('#mergeTraceBox').html('');
     }
 
+
+    function renderMoveTrace(order = null) {
+        const traces = Array.isArray(order && order.move_trace) ? order.move_trace : [];
+        const movedNotice = order && order.moved_notice ? order.moved_notice : null;
+
+        if (!traces.length) {
+            $('#billMoveAuditBox').html('');
+            $('#moveAuditModalBody').html('<div class="text-muted">' + escapeHtml(TXT.noData) + '</div>');
+
+            if (movedNotice && movedNotice.to_table_name) {
+                const destinationTableName = escapeHtml(movedNotice.to_table_name || '-');
+                const destinationOrderNumber = escapeHtml(movedNotice.order_number || '-');
+                const destinationReason = $.trim(movedNotice.reason || '') !== ''
+                    ? escapeHtml(movedNotice.reason || '')
+                    : escapeHtml(TXT.noMoveReason);
+                const movedAt = escapeHtml(movedNotice.moved_at || '-');
+
+                $('#billMoveAuditBox').html(`
+                    <div class="border rounded-4 px-3 py-2 bg-light-subtle">
+                        <div class="small text-muted mb-1">${escapeHtml(TXT.movedBillNotice)}</div>
+                        <div class="fw-semibold">${escapeHtml(TXT.movedTo)}: ${destinationTableName}</div>
+                        <div class="small text-muted">#${destinationOrderNumber} · ${escapeHtml(TXT.movedAt)}: ${movedAt}</div>
+                        <div class="small text-muted">${escapeHtml(TXT.moveReason)}: ${destinationReason}</div>
+                    </div>
+                `);
+            }
+            return;
+        }
+
+        const compactFromTableNames = traces
+            .map(function (trace) {
+                return $.trim(trace.from_table_name || '');
+            })
+            .filter(function (value, index, array) {
+                return value !== '' && array.indexOf(value) === index;
+            });
+
+        const compactLabel = compactFromTableNames.length ? compactFromTableNames.join(', ') : '-';
+        const summaryHtml = `
+            <div class="border rounded-4 px-3 py-2 bg-light-subtle">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                        <div class="small text-muted mb-1">${escapeHtml(TXT.moveAuditSummary)}</div>
+                        <div class="fw-semibold">${escapeHtml(TXT.movedFromTables)}: ${escapeHtml(compactLabel)}</div>
+                        <div class="small text-muted">${escapeHtml(TXT.moveAuditCount)}: ${escapeHtml(String(traces.length))}</div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" id="btnViewMoveAudit">${escapeHtml(TXT.viewMoveAudit)}</button>
+                </div>
+            </div>
+        `;
+
+        $('#billMoveAuditBox').html(summaryHtml);
+
+        const itemsHtml = traces.map(function (trace, index) {
+            const fromTableName = escapeHtml(trace.from_table_name || '-');
+            const toTableName = escapeHtml(trace.to_table_name || '-');
+            const orderNumber = escapeHtml(trace.order_number || '-');
+            const movedByName = escapeHtml(trace.moved_by_name || '-');
+            const movedAt = escapeHtml(trace.moved_at || '-');
+            const reason = $.trim(trace.reason || '') !== ''
+                ? escapeHtml(trace.reason || '')
+                : escapeHtml(TXT.noMoveReason);
+
+            return `
+                <div class="border rounded-4 p-3 ${index > 0 ? 'mt-2' : ''}">
+                    <div class="d-flex flex-wrap gap-2 mb-2 align-items-center">
+                        <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.moveTable)}</span>
+                        <span class="badge rounded-pill text-bg-dark">${fromTableName}</span>
+                        <span class="badge rounded-pill text-bg-info">→ ${toTableName}</span>
+                        <span class="badge rounded-pill text-bg-secondary">#${orderNumber}</span>
+                    </div>
+                    <div class="small text-muted">${escapeHtml(TXT.movedFrom)}: ${fromTableName}</div>
+                    <div class="small text-muted">${escapeHtml(TXT.movedTo)}: ${toTableName}</div>
+                    <div class="small text-muted">${escapeHtml(TXT.movedBy)}: ${movedByName}</div>
+                    <div class="small text-muted">${escapeHtml(TXT.movedAt)}: ${movedAt}</div>
+                    <div class="small text-muted">${escapeHtml(TXT.moveReason)}: ${reason}</div>
+                </div>
+            `;
+        }).join('');
+
+        $('#moveAuditModalBody').html(itemsHtml);
+    }
+
     function renderOrderMetaIndicators(order = null) {
         const indicators = [];
         const mergedNotice = order && order.merged_notice ? order.merged_notice : null;
@@ -1094,6 +1193,26 @@ $(function () {
             `);
         }
 
+        const moveTraces = Array.isArray(order && order.move_trace) ? order.move_trace : [];
+        const movedNotice = order && order.moved_notice ? order.moved_notice : null;
+
+        if (moveTraces.length > 0) {
+            indicators.push(`
+                <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.moveTable)}</span>
+                <span class="badge rounded-pill text-bg-secondary">${escapeHtml(TXT.moveAuditCount)}: ${escapeHtml(String(moveTraces.length))}</span>
+            `);
+        }
+
+        if (movedNotice && movedNotice.to_table_name) {
+            const movedToTableName = escapeHtml(movedNotice.to_table_name || '-');
+            const movedOrderNumber = escapeHtml(movedNotice.order_number || '-');
+
+            indicators.push(`
+                <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.moveTable)} → ${movedToTableName}</span>
+                <span class="badge rounded-pill text-bg-dark">#${movedOrderNumber}</span>
+            `);
+        }
+
         $('#orderMetaIndicators').html(indicators.join(''));
     }
 
@@ -1105,6 +1224,7 @@ $(function () {
 
         renderOrderMetaIndicators(order);
         renderMergeTrace(order);
+        renderMoveTrace(order);
 
 		if (!TABLE_IS_ACTIVE) {
 			$('#btnOpenOrder').prop('disabled', true).text(TXT.tableDisabled);
@@ -2072,6 +2192,12 @@ $(function () {
     $(document).on('click', '#btnViewMergeAudit', function () {
         if (mergeAuditModal) {
             mergeAuditModal.show();
+        }
+    });
+
+    $(document).on('click', '#btnViewMoveAudit', function () {
+        if (moveAuditModal) {
+            moveAuditModal.show();
         }
     });
 
