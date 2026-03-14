@@ -3,6 +3,13 @@
 
 <?php
 $scopeBase = $isSuperAdmin ? 'platform' : 'tenant';
+$scopeDesc = lang('settings_control.settings_control_scope_desc');
+if ($scopeDesc === 'settings_control.settings_control_scope_desc') {
+    $scopeDesc = lang('settings_control.settings_control_scope_helper_desc');
+}
+if ($scopeDesc === 'settings_control.settings_control_scope_helper_desc') {
+    $scopeDesc = 'Choose the correct scope before saving changes.';
+}
 $scopeBaseUrl = $baseUrl . '?scope=' . $scopeBase;
 $scopeBranchUrl = $baseUrl . '?scope=branch'
     . ($tenantId > 0 ? '&tenant_id=' . (int) $tenantId : '')
@@ -58,7 +65,7 @@ $showScopePicker = $isSuperAdmin;
             <div class="col-12 <?= (! empty($tenant) || ! empty($branch)) ? 'col-lg-4' : 'col-lg-12' ?>">
                 <div class="small text-muted mb-1"><?= esc(lang('settings_control.settings_control_scope')) ?></div>
                 <div class="text-muted small">
-                    <?= esc(lang('settings_control.settings_control_scope_desc')) ?>
+                    <?= esc($scopeDesc) ?>
                 </div>
             </div>
         </div>
@@ -129,7 +136,7 @@ $showScopePicker = $isSuperAdmin;
                                 $settingType = (string) ($setting['type'] ?? '');
                                 $inputName = (string) ($setting['input_name'] ?? '');
                                 $planAllowed = ! empty($setting['plan_allowed']);
-                                $editable = ! empty($canEdit) && $planAllowed;
+                                $editable = ! empty($canEdit) && $planAllowed && ! empty($setting['editable_in_scope']);
                                 ?>
                                 <div class="col-12 col-xl-6">
                                     <div class="border rounded-3 p-3 h-100 bg-body-tertiary">

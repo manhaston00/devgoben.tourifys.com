@@ -161,9 +161,10 @@ class SettingsControlService
                 $resolved                  = $this->resolveSetting($setting, $appMap, $tenantMap, $branchMap);
                 $setting['effective_value'] = $resolved['value'];
                 $setting['value_source']    = $resolved['source'];
-                $setting['plan_allowed']    = $this->isPlanAllowed($setting, $planFeatureMap, $isSuperAdmin);
-                $setting['is_visible']      = $this->isSettingVisibleForScope($setting, $scope);
-                $setting['input_name']      = $this->inputName((string) ($setting['key'] ?? ''));
+                $setting['plan_allowed']     = $this->isPlanAllowed($setting, $planFeatureMap, $isSuperAdmin);
+                $setting['is_visible']       = $this->isSettingVisibleForScope($setting, $scope);
+                $setting['editable_in_scope'] = $this->canPersistSettingForScope($setting, $scope, $tenantId, $branchId);
+                $setting['input_name']       = $this->inputName((string) ($setting['key'] ?? ''));
             }
             unset($setting);
 
@@ -185,9 +186,10 @@ class SettingsControlService
             return ['changed' => [], 'old' => [], 'new' => []];
         }
 
-        $appMap    = $this->appSettingModel->getMap();
-        $tenantMap = $tenantId > 0 ? $this->tenantSettingModel->getMap((int) $tenantId) : [];
-        $branchMap = $branchId > 0 ? $this->branchSettingModel->getMap((int) $branchId) : [];
+        $appMap         = $this->appSettingModel->getMap();
+        $tenantMap      = $tenantId > 0 ? $this->tenantSettingModel->getMap((int) $tenantId) : [];
+        $branchMap      = $branchId > 0 ? $this->branchSettingModel->getMap((int) $branchId) : [];
+        $planFeatureMap = $this->getPlanFeatureMap($tenantId, function_exists('is_super_admin') && is_super_admin());
 
         $changed = [];
         $old     = [];
@@ -198,12 +200,24 @@ class SettingsControlService
                 continue;
             }
 
-            $key        = (string) $setting['key'];
-            $postedKey  = $this->inputName($key);
-            $rawValue   = array_key_exists($postedKey, $input) ? $input[$postedKey] : ($input[$key] ?? null);
-            $posted     = $this->normalizePostedValue($setting, $rawValue);
-            $resolved   = $this->resolveSetting($setting, $appMap, $tenantMap, $branchMap);
-            $oldValue   = $resolved['value'];
+            if (! $this->canPersistSettingForScope($setting, $scope, $tenantId, $branchId)) {
+                continue;
+            }
+
+            if (! $this->isPlanAllowed($setting, $planFeatureMap, function_exists('is_super_admin') && is_super_admin())) {
+                continue;
+            }
+
+            [$present, $rawValue] = $this->extractPostedValue($setting, $input);
+
+            if (! $present) {
+                continue;
+            }
+
+            $key      = (string) ($setting['key'] ?? '');
+            $posted   = $this->normalizePostedValue($setting, $rawValue);
+            $resolved = $this->resolveSetting($setting, $appMap, $tenantMap, $branchMap);
+            $oldValue = $resolved['value'];
 
             if ($this->valuesEqual($oldValue, $posted)) {
                 continue;
@@ -213,12 +227,13 @@ class SettingsControlService
 
             if ($scope === 'platform') {
                 $this->appSettingModel->setValue($key, $posted, (string) $sectionKey);
+                $appMap[$key] = $posted;
                 $saved = true;
-            } elseif ($scope === 'tenant' && $tenantId > 0 && ($setting['scope'] ?? 'tenant') === 'tenant') {
+            } elseif ($scope === 'tenant') {
                 $this->tenantSettingModel->setValue((int) $tenantId, $key, $posted);
                 $tenantMap[$key] = $posted;
                 $saved = true;
-            } elseif ($scope === 'branch' && $branchId > 0 && ($setting['scope'] ?? 'tenant') === 'branch') {
+            } elseif ($scope === 'branch') {
                 $this->branchSettingModel->setValue((int) $branchId, $key, $posted);
                 $branchMap[$key] = $posted;
                 $saved = true;
@@ -331,6 +346,38 @@ class SettingsControlService
         }
 
         return (string) $value;
+    }
+
+
+    protected function canPersistSettingForScope(array $setting, string $scope, ?int $tenantId, ?int $branchId): bool
+    {
+        if ($scope === 'platform') {
+            return true;
+        }
+
+        $settingScope = (string) ($setting['scope'] ?? 'tenant');
+
+        if ($scope === 'tenant') {
+            return $settingScope === 'tenant' && (int) $tenantId > 0;
+        }
+
+        return $settingScope === 'branch' && (int) $branchId > 0;
+    }
+
+    protected function extractPostedValue(array $setting, array $input): array
+    {
+        $key       = (string) ($setting['key'] ?? '');
+        $postedKey = $this->inputName($key);
+
+        if (array_key_exists($postedKey, $input)) {
+            return [true, $input[$postedKey]];
+        }
+
+        if (array_key_exists($key, $input)) {
+            return [true, $input[$key]];
+        }
+
+        return [false, null];
     }
 
     protected function normalizePostedValue(array $setting, $value)

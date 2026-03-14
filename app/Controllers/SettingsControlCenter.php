@@ -106,7 +106,8 @@ class SettingsControlCenter extends BaseController
         $branchId = $this->resolveBranchId($scope, $isSuperAdmin, true);
 
         try {
-            $result = $this->service->saveSection($sectionKey, $scope, $tenantId, $branchId, (array) $this->request->getPost());
+            $postData = (array) $this->request->getPost();
+            $result   = $this->service->saveSection($sectionKey, $scope, $tenantId, $branchId, $postData);
         } catch (\Throwable $e) {
             log_message('error', 'SettingsControlCenter save failed: ' . $e->getMessage());
 
