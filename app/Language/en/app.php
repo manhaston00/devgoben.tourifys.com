@@ -1148,4 +1148,11 @@ return [
 'audit_details_item_count' => 'Items',
 'audit_logs_no_additional_details' => 'No additional details',
 
+
+	'branch_settings' => 'Branch Settings',
+	'date_from' => 'Date From',
+	'date_to' => 'Date To',
+	'user' => 'User',
+	'order_number' => 'Order Number',
+
 ];

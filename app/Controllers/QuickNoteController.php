@@ -14,6 +14,19 @@ class QuickNoteController extends BaseController
         $this->quickNoteModel = new QuickNoteModel();
     }
 
+    protected function denyIfQuickNotesDisabled()
+    {
+        if (function_exists('is_super_admin') && is_super_admin()) {
+            return null;
+        }
+
+        if (function_exists('module_runtime_enabled') && ! module_runtime_enabled('quick_notes')) {
+            return redirect()->to(site_url('/'))->with('error', lang('app.feature_not_available_for_plan'));
+        }
+
+        return null;
+    }
+
     protected function notePayload(): array
     {
         $nameTh = trim((string) $this->request->getPost('note_name_th'));
@@ -44,23 +57,31 @@ class QuickNoteController extends BaseController
     }
 
     public function index()
-	{
-		$items = $this->quickNoteModel
-			->scopedBuilder()
-			->where('quick_notes.deleted_at IS NULL', null, false)
-			->orderBy('quick_notes.sort_order', 'ASC')
-			->orderBy('quick_notes.id', 'DESC')
-			->get()
-			->getResultArray();
+    {
+        if ($response = $this->denyIfQuickNotesDisabled()) {
+            return $response;
+        }
 
-		return view('quick_notes/index', [
-			'title' => lang('app.quick_notes'),
-			'items' => $items,
-		]);
-	}
+        $items = $this->quickNoteModel
+            ->scopedBuilder()
+            ->where('quick_notes.deleted_at IS NULL', null, false)
+            ->orderBy('quick_notes.sort_order', 'ASC')
+            ->orderBy('quick_notes.id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        return view('quick_notes/index', [
+            'title' => lang('app.quick_notes'),
+            'items' => $items,
+        ]);
+    }
 
     public function create()
     {
+        if ($response = $this->denyIfQuickNotesDisabled()) {
+            return $response;
+        }
+
         return view('quick_notes/form', [
             'title'  => lang('app.create_quick_note'),
             'item'   => null,
@@ -70,6 +91,10 @@ class QuickNoteController extends BaseController
 
     public function store()
     {
+        if ($response = $this->denyIfQuickNotesDisabled()) {
+            return $response;
+        }
+
         if ($response = $this->denyIfDemoReadonly()) {
             return $response;
         }
@@ -88,6 +113,10 @@ class QuickNoteController extends BaseController
 
     public function edit($id = null)
     {
+        if ($response = $this->denyIfQuickNotesDisabled()) {
+            return $response;
+        }
+
         $id   = (int) $id;
         $item = $this->tenantScopedRowOr404($this->quickNoteModel, $id);
 
@@ -100,6 +129,10 @@ class QuickNoteController extends BaseController
 
     public function update($id = null)
     {
+        if ($response = $this->denyIfQuickNotesDisabled()) {
+            return $response;
+        }
+
         if ($response = $this->denyIfDemoReadonly()) {
             return $response;
         }
@@ -126,6 +159,10 @@ class QuickNoteController extends BaseController
 
     public function toggle($id = null)
     {
+        if ($response = $this->denyIfQuickNotesDisabled()) {
+            return $response;
+        }
+
         if ($response = $this->denyIfDemoReadonly()) {
             return $response;
         }
@@ -151,6 +188,10 @@ class QuickNoteController extends BaseController
 
     public function delete($id = null)
     {
+        if ($response = $this->denyIfQuickNotesDisabled()) {
+            return $response;
+        }
+
         if ($response = $this->denyIfDemoReadonly()) {
             return $response;
         }

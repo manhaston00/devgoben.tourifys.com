@@ -11,6 +11,21 @@
         </div>
 
         <div class="row g-3">
+            <?php if (! empty($canControlCenter)): ?>
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="app-section h-100 border border-primary-subtle">
+                        <div class="app-section-title"><?= esc(lang('settings_control.settings_control_title')) ?></div>
+                        <div class="app-section-subtitle"><?= esc(lang('settings_control.settings_control_manage')) ?></div>
+
+                        <div class="d-grid gap-2">
+                            <a href="<?= site_url('settings/control-center') ?>" class="btn btn-primary">
+                                <?= esc(lang('settings_control.settings_control_open')) ?>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <?php if (! empty($canBranchSettings)): ?>
                 <div class="col-12 col-md-6 col-xl-4">
                     <div class="app-section h-100">
@@ -18,7 +33,7 @@
                         <div class="app-section-subtitle"><?= esc(lang('app.current_branch')) ?></div>
 
                         <div class="d-grid gap-2">
-                            <a href="<?= site_url('settings/branch') ?>" class="btn btn-primary">
+                            <a href="<?= site_url('settings/branch') ?>" class="btn btn-outline-primary">
                                 <?= esc(lang('app.branch_settings')) ?>
                             </a>
 

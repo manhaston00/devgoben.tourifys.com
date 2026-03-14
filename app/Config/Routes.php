@@ -101,14 +101,14 @@ $routes->group('', ['filter' => 'auth_subscription'], static function ($routes) 
     $routes->post('product-quick-options/update/(:num)', 'ProductQuickOptionController::update/$1', ['filter' => 'permission:product_quick_options.edit']);
     $routes->post('product-quick-options/delete/(:num)', 'ProductQuickOptionController::delete/$1', ['filter' => 'permission:product_quick_options.delete']);
 
-    $routes->group('quick-options', ['filter' => 'permission:product_quick_options.view,feature_gate:pos.access'], static function ($routes) {
-        $routes->get('/', 'QuickOptionController::index');
-        $routes->get('create', 'QuickOptionController::create');
-        $routes->post('store', 'QuickOptionController::store');
-        $routes->get('edit/(:num)', 'QuickOptionController::edit/$1');
-        $routes->post('update/(:num)', 'QuickOptionController::update/$1');
-        $routes->post('delete/(:num)', 'QuickOptionController::delete/$1');
-        $routes->post('toggle/(:num)', 'QuickOptionController::toggle/$1');
+    $routes->group('quick-options', ['filter' => 'feature_gate:pos.access'], static function ($routes) {
+        $routes->get('/', 'QuickOptionController::index', ['filter' => 'permission:product_quick_options.view']);
+        $routes->get('create', 'QuickOptionController::create', ['filter' => 'permission:product_quick_options.create']);
+        $routes->post('store', 'QuickOptionController::store', ['filter' => 'permission:product_quick_options.create']);
+        $routes->get('edit/(:num)', 'QuickOptionController::edit/$1', ['filter' => 'permission:product_quick_options.edit']);
+        $routes->post('update/(:num)', 'QuickOptionController::update/$1', ['filter' => 'permission:product_quick_options.edit']);
+        $routes->post('delete/(:num)', 'QuickOptionController::delete/$1', ['filter' => 'permission:product_quick_options.delete']);
+        $routes->post('toggle/(:num)', 'QuickOptionController::toggle/$1', ['filter' => 'permission:product_quick_options.edit']);
     });
 
     $routes->get('quick-notes', 'QuickNoteController::index', ['filter' => 'permission:quick_notes.view']);
@@ -120,8 +120,27 @@ $routes->group('', ['filter' => 'auth_subscription'], static function ($routes) 
     $routes->post('quick-notes/toggle/(:num)', 'QuickNoteController::toggle/$1', ['filter' => 'permission:quick_notes.edit']);
 
     if (class_exists('App\\Controllers\\Settings')) {
-        $routes->match(['get', 'post'], 'settings', 'Settings::index', ['filter' => 'permission:settings.view']);
-        $routes->get('settings/locale/(:segment)', 'Settings::switchLocale/$1');
+        $routes->get('settings', 'Settings::index', [
+            'filter' => 'permission:settings.view,settings.edit,settings.control_center.view,branches.settings,branches.edit,branches.view,users.view,roles.view,audit_logs.view'
+        ]);
+
+        $routes->get('settings/branch', 'Settings::branch', [
+            'filter' => 'permission:branches.settings,branches.edit'
+        ]);
+
+        $routes->get('settings/locale/(:segment)', 'Settings::switchLocale/$1', [
+            'filter' => 'permission:settings.view,settings.edit,settings.control_center.view,branches.settings,branches.edit,branches.view,users.view,roles.view,audit_logs.view'
+        ]);
+    }
+
+    if (class_exists('App\\Controllers\\SettingsControlCenter')) {
+        $routes->get('settings/control-center', 'SettingsControlCenter::index', [
+            'filter' => 'permission:settings.control_center.view,settings.view,branches.settings'
+        ]);
+
+        $routes->post('settings/control-center/save', 'SettingsControlCenter::save', [
+            'filter' => 'permission:settings.control_center.edit,settings.edit,branches.edit,branches.settings'
+        ]);
     }
 
     if (class_exists('App\\Controllers\\Licenses')) {
@@ -310,6 +329,16 @@ $routes->group('super-admin', ['filter' => 'super_admin'], static function ($rou
     $routes->post('subscription-plans/update/(:num)', 'SuperAdmin\SubscriptionPlans::update/$1', ['filter' => 'permission:plans.edit']);
     $routes->post('subscription-plans/delete/(:num)', 'SuperAdmin\SubscriptionPlans::delete/$1', ['filter' => 'permission:plans.delete']);
     $routes->post('subscription-plans/restore/(:num)', 'SuperAdmin\SubscriptionPlans::restore/$1', ['filter' => 'permission:plans.delete']);
+
+    if (class_exists('App\\Controllers\\SettingsControlCenter')) {
+        $routes->get('settings/control-center', 'SettingsControlCenter::index', [
+            'filter' => 'permission:settings.platform.view'
+        ]);
+
+        $routes->post('settings/control-center/save', 'SettingsControlCenter::save', [
+            'filter' => 'permission:settings.platform.edit'
+        ]);
+    }
 });
 
 /*

@@ -625,10 +625,19 @@
 		|| $sessionRoleName === 'super-admin'
 		|| $sessionRoleCode === 'super_admin';
 
-    $canCashierMenu = function_exists('can') && (can('cashier.view') || can('cashier.request_bill') || can('cashier.close_bill') || can('cashier.pay'));
-    $canAuditLogsMenu = function_exists('can') && can('audit_logs.view');
+    $canPosMenu = function_exists('can') && can('pos.view') && function_exists('module_menu_visible') && module_menu_visible('pos');
+    $canCashierMenu = function_exists('can')
+        && (can('cashier.view') || can('cashier.request_bill') || can('cashier.close_bill') || can('cashier.pay'))
+        && function_exists('module_menu_visible') && module_menu_visible('cashier');
+    $canReservationsMenu = function_exists('can') && can('reservations.view') && function_exists('module_menu_visible') && module_menu_visible('reservations');
+    $canKdsMenu = function_exists('can') && (can('kitchen.view') || can('kitchen_stations.view')) && function_exists('module_menu_visible') && module_menu_visible('kds');
+    $canQuickNotesMenu = function_exists('can') && can('quick_notes.view') && function_exists('module_menu_visible') && module_menu_visible('quick_notes');
+    $canProductQuickOptionsMenu = function_exists('can') && can('product_quick_options.view') && function_exists('module_menu_visible') && module_menu_visible('product_quick_options');
+    $canAuditLogsMenu = function_exists('can') && can('audit_logs.view') && function_exists('module_menu_visible') && module_menu_visible('audit_logs');
     $canBranchMenu = function_exists('can') && (can('branches.view') || can('branches.settings'));
-    $canSettingsMenu = function_exists('can') && (can('settings.view') || can('branches.settings') || can('branches.edit') || can('users.view') || can('roles.view') || can('branches.view'));
+    $canSettingsMenu = function_exists('can')
+        && (can('settings.view') || can('branches.settings') || can('branches.edit') || can('users.view') || can('roles.view') || can('branches.view'))
+        && function_exists('module_menu_visible') && module_menu_visible('settings');
 ?>
 <div class="app-shell">
 
@@ -686,7 +695,7 @@
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && can('pos.view')): ?>
+            <?php if ($canPosMenu): ?>
                 <a href="<?= site_url('pos') ?>" class="sidebar-link <?= menu_active(['pos'], $currentPath) === 'active' && !menu_active(['pos/cashier'], $currentPath) ? 'active' : '' ?>">
                     <?= lang('menu.pos') ?>
                 </a>
@@ -698,7 +707,7 @@
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && can('reservations.view')): ?>
+            <?php if ($canReservationsMenu): ?>
                 <a href="<?= site_url('reservations') ?>" class="sidebar-link <?= menu_active(['reservations'], $currentPath) ?>">
                     <?= lang('menu.reservations') ?>
                 </a>
@@ -736,7 +745,7 @@
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && (can('kitchen.view') || can('kitchen_stations.view'))): ?>
+            <?php if ($canKdsMenu): ?>
                 <a href="<?= site_url('kitchen-monitor') ?>" class="sidebar-link <?= menu_active(['kitchen-monitor'], $currentPath) ?>">
                     <?= lang('menu.kitchen_monitor') ?>
                 </a>
@@ -748,13 +757,13 @@
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && can('quick_notes.view')): ?>
+            <?php if ($canQuickNotesMenu): ?>
                 <a href="<?= site_url('quick-notes') ?>" class="sidebar-link <?= menu_active(['quick-notes'], $currentPath) ?>">
                     <?= lang('menu.quick_notes') ?>
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && can('product_quick_options.view')): ?>
+            <?php if ($canProductQuickOptionsMenu): ?>
                 <a href="<?= site_url('product-quick-options') ?>" class="sidebar-link <?= menu_active(['product-quick-options'], $currentPath) ?>">
                     <?= lang('menu.product_quick_options') ?>
                 </a>
@@ -784,19 +793,8 @@
                 </a>
             <?php endif; ?>
 
-			<?php if ($canAuditLogsMenu): ?>
-                <a href="<?= site_url('audit-logs') ?>" class="sidebar-link <?= menu_active(['audit-logs'], $currentPath) ?>">
-                    <?= lang('menu.audit_logs') ?>
-                </a>
-            <?php endif; ?>
-
-            <?php if ($canSettingsMenu): ?>
-                <a href="<?= site_url('settings') ?>" class="sidebar-link <?= menu_active(['settings'], $currentPath) ?>">
-                    <?= lang('app.settings') ?>
-                </a>
-            <?php endif; ?>
-
 			<div class="sidebar-group-title"><?= lang('menu.system') ?></div>
+			<a href="<?= site_url('logout') ?>" class="sidebar-link text-warning"><?= lang('app.logout') ?></a>
         </div>
     </aside>
 
@@ -891,7 +889,7 @@
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && can('pos.view')): ?>
+            <?php if ($canPosMenu): ?>
                 <a href="<?= site_url('pos') ?>" class="sidebar-link <?= menu_active(['pos'], $currentPath) === 'active' && !menu_active(['pos/cashier'], $currentPath) ? 'active' : '' ?>">
                     <?= lang('menu.pos') ?>
                 </a>
@@ -903,7 +901,7 @@
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && can('reservations.view')): ?>
+            <?php if ($canReservationsMenu): ?>
                 <a href="<?= site_url('reservations') ?>" class="sidebar-link <?= menu_active(['reservations'], $currentPath) ?>">
                     <?= lang('menu.reservations') ?>
                 </a>
@@ -941,7 +939,7 @@
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && (can('kitchen.view') || can('kitchen_stations.view'))): ?>
+            <?php if ($canKdsMenu): ?>
                 <a href="<?= site_url('kitchen-monitor') ?>" class="sidebar-link <?= menu_active(['kitchen-monitor'], $currentPath) ?>">
                     <?= lang('menu.kitchen_monitor') ?>
                 </a>
@@ -953,13 +951,13 @@
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && can('quick_notes.view')): ?>
+            <?php if ($canQuickNotesMenu): ?>
                 <a href="<?= site_url('quick-notes') ?>" class="sidebar-link <?= menu_active(['quick-notes'], $currentPath) ?>">
                     <?= lang('menu.quick_notes') ?>
                 </a>
             <?php endif; ?>
 
-            <?php if (function_exists('can') && can('product_quick_options.view')): ?>
+            <?php if ($canProductQuickOptionsMenu): ?>
                 <a href="<?= site_url('product-quick-options') ?>" class="sidebar-link <?= menu_active(['product-quick-options'], $currentPath) ?>">
                     <?= lang('menu.product_quick_options') ?>
                 </a>
@@ -990,6 +988,7 @@
             <?php endif; ?>
 
 			<div class="sidebar-group-title"><?= lang('menu.system') ?></div>
+			<a href="<?= site_url('logout') ?>" class="sidebar-link text-warning"><?= lang('app.logout') ?></a>
         </div>
     </div>
 

@@ -105,6 +105,16 @@
             </a>
         </div>
     </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="sa-link-card border border-primary-subtle">
+            <h5 class="mb-2"><?= esc(lang('settings_control.settings_control_title')) ?></h5>
+            <div class="text-muted mb-3"><?= esc(lang('settings_control.settings_control_desc')) ?></div>
+            <a href="<?= site_url('super-admin/settings/control-center') ?>" class="btn btn-outline-primary">
+                <?= esc(lang('settings_control.settings_control_open')) ?>
+            </a>
+        </div>
+    </div>
 </div>
 
 <?= $this->endSection() ?>

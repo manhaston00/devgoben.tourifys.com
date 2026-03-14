@@ -82,9 +82,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach (($rows ?? []) as $row): ?>
+                    <?php foreach (($rows ?? []) as $index => $row): ?>
                         <tr>
-                            <td>0</td>
+                            <td><?= (int) $index + 1 ?></td>
                             <td>
                                 <div class="fw-semibold"><?= esc($row['created_at'] ?? '-') ?></div>
                                 <?php if (! empty($row['ip_address'])): ?>

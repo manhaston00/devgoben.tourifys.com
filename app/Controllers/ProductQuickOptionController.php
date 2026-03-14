@@ -20,6 +20,19 @@ class ProductQuickOptionController extends BaseController
         $this->categoryModel           = new CategoryModel();
     }
 
+    protected function denyIfProductQuickOptionsDisabled()
+    {
+        if (function_exists('is_super_admin') && is_super_admin()) {
+            return null;
+        }
+
+        if (function_exists('module_runtime_enabled') && ! module_runtime_enabled('product_quick_options')) {
+            return redirect()->to(site_url('/'))->with('error', lang('app.feature_not_available_for_plan'));
+        }
+
+        return null;
+    }
+
     protected function currentTenantId(): int
     {
         return (int) (session('tenant_id') ?? 0);
@@ -72,6 +85,10 @@ class ProductQuickOptionController extends BaseController
 
     public function index()
     {
+        if ($response = $this->denyIfProductQuickOptionsDisabled()) {
+            return $response;
+        }
+
         $tenantId = $this->currentTenantId();
 
         $options = $this->productQuickOptionModel->builder()
@@ -119,11 +136,23 @@ class ProductQuickOptionController extends BaseController
 
     public function create()
     {
+        if ($response = $this->denyIfProductQuickOptionsDisabled()) {
+            return $response;
+        }
+
         return redirect()->to(site_url('product-quick-options'));
     }
 
     public function store()
     {
+        if ($response = $this->denyIfProductQuickOptionsDisabled()) {
+            return $response;
+        }
+
+        if ($response = $this->denyIfDemoReadonly()) {
+            return $response;
+        }
+
         $tenantId = $this->currentTenantId();
 
         $productId  = (int) ($this->request->getPost('product_id') ?? 0);
@@ -172,11 +201,23 @@ class ProductQuickOptionController extends BaseController
 
     public function edit(int $id)
     {
+        if ($response = $this->denyIfProductQuickOptionsDisabled()) {
+            return $response;
+        }
+
         return redirect()->to(site_url('product-quick-options'));
     }
 
     public function update(int $id)
     {
+        if ($response = $this->denyIfProductQuickOptionsDisabled()) {
+            return $response;
+        }
+
+        if ($response = $this->denyIfDemoReadonly()) {
+            return $response;
+        }
+
         $row = $this->findTenantOption($id);
 
         if (! $row) {
@@ -229,6 +270,14 @@ class ProductQuickOptionController extends BaseController
 
     public function delete(int $id)
     {
+        if ($response = $this->denyIfProductQuickOptionsDisabled()) {
+            return $response;
+        }
+
+        if ($response = $this->denyIfDemoReadonly()) {
+            return $response;
+        }
+
         $row = $this->findTenantOption($id);
 
         if (! $row) {

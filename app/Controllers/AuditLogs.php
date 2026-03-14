@@ -19,17 +19,54 @@ class AuditLogs extends BaseController
         $this->userModel     = new UserModel();
     }
 
-    protected function writeAuditLog(array $payload): void
+
+    protected function denyIfAuditLogsDisabled()
+    {
+        if (function_exists('is_super_admin') && is_super_admin()) {
+            return null;
+        }
+
+        if (function_exists('module_runtime_enabled') && ! module_runtime_enabled('audit_logs')) {
+            return redirect()->to(site_url('/'))->with('error', lang('app.feature_not_available_for_plan'));
+        }
+
+        return null;
+    }
+
+    protected function writeAuditLog(array $payload, ?string $dedupeKey = null, int $dedupeSeconds = 0): void
     {
         try {
+            if ($dedupeKey !== null && $dedupeSeconds > 0 && ! $this->shouldWriteAuditLog($dedupeKey, $dedupeSeconds)) {
+                return;
+            }
+
             $this->auditLogModel->add($payload);
         } catch (\Throwable $e) {
             log_message('error', 'AuditLogs writeAuditLog error: ' . $e->getMessage());
         }
     }
 
+    protected function shouldWriteAuditLog(string $key, int $seconds = 5): bool
+    {
+        $sessionKey = '_audit_dedupe.' . md5($key);
+        $lastAt     = (int) (session($sessionKey) ?? 0);
+        $now        = time();
+
+        if ($lastAt > 0 && ($now - $lastAt) < $seconds) {
+            return false;
+        }
+
+        session()->set($sessionKey, $now);
+
+        return true;
+    }
+
     public function index()
     {
+        if ($response = $this->denyIfAuditLogsDisabled()) {
+            return $response;
+        }
+
         $filters = [
             'branch_id' => (int) ($this->request->getGet('branch_id') ?? 0),
             'user_id'   => (int) ($this->request->getGet('user_id') ?? 0),
@@ -55,7 +92,7 @@ class AuditLogs extends BaseController
             'meta_json'    => [
                 'filters' => array_filter($filters, static fn ($value) => $value !== '' && $value !== 0),
             ],
-        ]);
+        ], 'audit.index.' . md5(json_encode($filters)), 5);
 
         $rows = $this->auditLogModel->search($filters, 500);
         foreach ($rows as &$row) {
@@ -79,6 +116,10 @@ class AuditLogs extends BaseController
 
     public function orderTimeline($orderId = null)
     {
+        if ($response = $this->denyIfAuditLogsDisabled()) {
+            return $response;
+        }
+
         $orderId = (int) $orderId;
 
         $this->writeAuditLog([
@@ -90,7 +131,7 @@ class AuditLogs extends BaseController
             'meta_json'    => [
                 'screen' => 'order_timeline',
             ],
-        ]);
+        ], 'audit.timeline.' . $orderId, 5);
 
         $rows = $this->auditLogModel->getTimelineByOrderId($orderId);
 

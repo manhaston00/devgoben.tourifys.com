@@ -1128,4 +1128,11 @@ return [
 'audit_details_item_count' => 'จำนวนรายการ',
 'audit_logs_no_additional_details' => 'ไม่มีรายละเอียดเพิ่มเติม',
 
+
+	'branch_settings' => 'ตั้งค่าสาขา',
+	'date_from' => 'วันที่เริ่ม',
+	'date_to' => 'วันที่สิ้นสุด',
+	'user' => 'ผู้ใช้งาน',
+	'order_number' => 'เลขออเดอร์',
+
 ];

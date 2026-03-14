@@ -71,10 +71,14 @@ class POSController extends BaseController
     }
 
 
-    protected function writeAuditLog(array $payload): void
+    protected function writeAuditLog(array $payload, ?string $dedupeKey = null, int $dedupeSeconds = 0): void
     {
         try {
             if (! isset($this->auditLogModel) || ! $this->auditLogModel) {
+                return;
+            }
+
+            if ($dedupeKey !== null && $dedupeSeconds > 0 && ! $this->shouldWriteAuditLog($dedupeKey, $dedupeSeconds)) {
                 return;
             }
 
@@ -82,6 +86,21 @@ class POSController extends BaseController
         } catch (\Throwable $e) {
             log_message('error', 'writeAuditLog error: ' . $e->getMessage());
         }
+    }
+
+    protected function shouldWriteAuditLog(string $key, int $seconds = 5): bool
+    {
+        $sessionKey = '_audit_dedupe.' . md5($key);
+        $lastAt     = (int) (session($sessionKey) ?? 0);
+        $now        = time();
+
+        if ($lastAt > 0 && ($now - $lastAt) < $seconds) {
+            return false;
+        }
+
+        session()->set($sessionKey, $now);
+
+        return true;
     }
 
     protected function currentActorName(): string
@@ -967,7 +986,7 @@ class POSController extends BaseController
                 'screen'    => 'cashier',
                 'branch_id' => $this->getCurrentBranchId(),
             ],
-        ]);
+        ], 'cashier.screen.' . $this->getCurrentBranchId(), 5);
 
         $orders = $this->getCashierOrdersForBranch();
 
@@ -1039,7 +1058,7 @@ class POSController extends BaseController
                 'screen'    => 'cashier_order',
                 'branch_id' => $this->getCurrentBranchId(),
             ],
-        ]);
+        ], 'cashier.order.' . $orderId . '.' . $this->getCurrentBranchId(), 3);
 
         return $this->response->setJSON([
             'status' => 'success',
