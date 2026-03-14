@@ -255,7 +255,7 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
     ]);
 
     $routes->post('reopen-bill', 'POSController::reopenBill', [
-        'filter' => 'permission:cashier.close_bill,cashier.manager_override,feature_gate:pos.sell'
+        'filter' => 'permission:cashier.reopen_bill,cashier.manager_override,feature_gate:pos.sell'
     ]);
 
     $routes->post('pay', 'POSController::pay', [

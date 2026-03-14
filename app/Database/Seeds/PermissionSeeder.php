@@ -79,6 +79,8 @@ class PermissionSeeder extends Seeder
             ['module_key' => 'branches', 'action_key' => 'create', 'permission_key' => 'branches.create', 'label' => 'เพิ่มสาขา'],
             ['module_key' => 'branches', 'action_key' => 'edit', 'permission_key' => 'branches.edit', 'label' => 'แก้ไขสาขา'],
             ['module_key' => 'branches', 'action_key' => 'delete', 'permission_key' => 'branches.delete', 'label' => 'ลบสาขา'],
+
+            ['module_key' => 'cashier', 'action_key' => 'reopen_bill', 'permission_key' => 'cashier.reopen_bill', 'label' => 'Reopen Bill'],
         ];
 
         foreach ($permissions as $row) {
@@ -118,6 +120,7 @@ class PermissionSeeder extends Seeder
             'licenses.view', 'licenses.create', 'licenses.edit',
             'promotions.view', 'promotions.create', 'promotions.edit', 'promotions.delete',
             'branches.view', 'branches.create', 'branches.edit', 'branches.delete',
+            'cashier.reopen_bill',
         ];
 
         $adminRole = $this->db->table('roles')->where('role_name', 'admin')->get()->getRowArray();

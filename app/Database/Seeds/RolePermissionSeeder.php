@@ -88,6 +88,8 @@ class RolePermissionSeeder extends Seeder
                 'reservations.cancel',
                 'reservations.no_show',
                 'reservations.complete',
+
+                'cashier.reopen_bill',
             ],
 
             'manager' => [
@@ -145,6 +147,8 @@ class RolePermissionSeeder extends Seeder
                 'reservations.cancel',
                 'reservations.no_show',
                 'reservations.complete',
+
+                'cashier.reopen_bill',
             ],
 
             'staff' => [
