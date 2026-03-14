@@ -649,7 +649,7 @@
         'view' => (bool) ($cashierPermissions['view'] ?? false),
         'request_bill' => (bool) ($cashierPermissions['request_bill'] ?? false),
         'close_bill' => (bool) ($cashierPermissions['close_bill'] ?? false),
-        'reopen_bill' => (bool) ($cashierPermissions['close_bill'] ?? false),
+        'reopen_bill' => (bool) ($cashierPermissions['reopen_bill'] ?? false),
         'pay' => (bool) ($cashierPermissions['pay'] ?? false),
         'manager_override' => (bool) ($cashierPermissions['manager_override'] ?? false),
     ], JSON_UNESCAPED_UNICODE) ?>;
