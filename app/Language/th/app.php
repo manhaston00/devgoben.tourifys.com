@@ -426,6 +426,13 @@ return [
     'enter_billing_status' => 'เข้าสู่สถานะรอชำระเงินแล้ว',
 
     'order_already_paid' => 'บิลนี้ชำระแล้ว',
+    'order_cannot_reopen_bill' => 'บิลนี้ไม่สามารถ Reopen ได้',
+    'order_paid_reopen_requires_void' => 'บิลที่ชำระเงินแล้วต้องใช้ Refund/Void ก่อนจึงจะ Reopen ได้',
+    'order_already_open' => 'บิลนี้เปิดอยู่แล้ว',
+    'reopen_bill' => 'Reopen Bill',
+    'reopen_bill_confirm' => 'ยืนยัน Reopen Bill และกลับไปแก้ไขบิลนี้?',
+    'reopen_bill_success' => 'Reopen Bill สำเร็จ กลับเข้าสู่สถานะเปิดบิลแล้ว',
+    'reopen_bill_failed' => 'Reopen Bill ไม่สำเร็จ',
     'order_cannot_close_bill' => 'บิลนี้ไม่สามารถปิดบิลได้',
     'close_bill_success_billing' => 'ปิดบิลสำเร็จ เข้าสู่สถานะรอชำระเงิน',
 
@@ -1109,6 +1116,7 @@ return [
 'audit_log_access' => 'ดูรายงานตรวจสอบย้อนหลัง',
 'audit_log_sent_to_kitchen' => 'ส่งรายการเข้าครัว',
 'audit_log_request_bill' => 'เรียกเก็บเงิน',
+'audit_log_reopen_bill' => 'Reopen Bill',
 'audit_log_close_bill' => 'ปิดบิล',
 'audit_log_payment_received' => 'รับชำระเงิน',
 'audit_log_manager_override' => 'ผู้จัดการอนุมัติแทน',

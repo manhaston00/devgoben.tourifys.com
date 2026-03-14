@@ -235,6 +235,15 @@
 
                     <button
                         type="button"
+                        class="btn btn-outline-warning"
+                        id="btnReopenBill"
+                        <?= $tableDisabled ? 'disabled' : '' ?>
+                    >
+                        <?= esc(lang('app.reopen_bill')) ?>
+                    </button>
+
+                    <button
+                        type="button"
                         class="btn btn-outline-primary"
                         id="btnMoveTable"
                         <?= $tableDisabled ? 'disabled' : '' ?>
@@ -582,6 +591,8 @@ $(function () {
         managerOverrideApproved: <?= json_encode(lang('app.manager_override_approved'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         managerOverrideFailed: <?= json_encode(lang('app.manager_override_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         managerOverrideActionPay: <?= json_encode(lang('app.manager_override_action_pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        managerOverrideActionCloseBill: <?= json_encode(lang('app.manager_override_action_close_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        managerOverrideActionReopenBill: <?= json_encode(lang('app.manager_override_action_reopen_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         closeBillSuccess: <?= json_encode(lang('app.close_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         changeLabel: <?= json_encode(lang('app.change'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         allProductsDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -714,6 +725,12 @@ $(function () {
     function managerOverrideActionLabel(actionKey) {
         if (actionKey === 'pay') {
             return TXT.managerOverrideActionPay || TXT.managerOverrideRequired;
+        }
+        if (actionKey === 'close_bill') {
+            return TXT.managerOverrideActionCloseBill || TXT.managerOverrideRequired;
+        }
+        if (actionKey === 'reopen_bill') {
+            return TXT.managerOverrideActionReopenBill || TXT.managerOverrideActionCloseBill || TXT.managerOverrideRequired;
         }
         return TXT.managerOverrideRequired;
     }
@@ -1255,6 +1272,7 @@ $(function () {
 			$('#btnOpenOrder').prop('disabled', true).text(TXT.tableDisabled);
 			$('#btnSendKitchen').prop('disabled', true);
 			$('#btnPay').prop('disabled', true);
+			$('#btnReopenBill').prop('disabled', true);
 			$('#btnMoveTable').prop('disabled', true);
 			$('#btnMergeBill').prop('disabled', true);
 			$('.product-btn').prop('disabled', true);
@@ -1267,6 +1285,7 @@ $(function () {
 
 			$('#btnSendKitchen').prop('disabled', CURRENT_ORDER_STATUS !== 'open');
 			$('#btnPay').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
+			$('#btnReopenBill').prop('disabled', CURRENT_ORDER_STATUS !== 'billing');
 			$('#btnMoveTable').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
 			$('#btnMergeBill').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
 			$('.product-btn').prop('disabled', false);
@@ -1279,6 +1298,8 @@ $(function () {
 		} else {
 			$('#btnPay').text(<?= json_encode(lang('app.close_bill_pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
 		}
+
+		$('#btnReopenBill').text(<?= json_encode(lang('app.reopen_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
 
 		if (order && order.order_number) {
 			$('#orderNoLabel').text(order.order_number);
@@ -1936,6 +1957,50 @@ $(function () {
             }
         });
     });
+
+    $(document).on('click', '#btnReopenBill', function () {
+		if (!TABLE_IS_ACTIVE) {
+			notify(TXT.tableDisabled);
+			return;
+		}
+
+		if (!CURRENT_ORDER_ID) {
+			notify(TXT.noBillYet);
+			return;
+		}
+
+		if (CURRENT_ORDER_STATUS !== 'billing') {
+			notify(TXT.orderCannotReopenBill);
+			return;
+		}
+
+		if (!confirm(TXT.reopenBillConfirm)) {
+			return;
+		}
+
+		$.post("<?= site_url('pos/reopen-bill') ?>", {
+			order_id: CURRENT_ORDER_ID
+		}).done(async function (res) {
+			if (!res || res.status !== 'success') {
+				if (res && res.code === 'MANAGER_OVERRIDE_REQUIRED') {
+					const approved = await requestManagerOverride('reopen_bill', CURRENT_ORDER_ID);
+					if (approved) {
+						$('#btnReopenBill').trigger('click');
+					}
+					return;
+				}
+				notify((res && res.message) ? res.message : TXT.reopenBillFailed);
+				return;
+			}
+
+			notify(res.message || TXT.reopenBillSuccess);
+			CURRENT_ORDER_STATUS = 'open';
+			loadOrder();
+		}).fail(function (xhr) {
+			console.error('reopenBill error:', xhr.responseText);
+			notify(TXT.reopenBillFailed);
+		});
+	});
 
     $(document).on('click', '#btnPay', function () {
 		if (!TABLE_IS_ACTIVE) {

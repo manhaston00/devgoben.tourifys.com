@@ -615,6 +615,11 @@
         receivedAmount: <?= json_encode(lang('app.received_amount'), JSON_UNESCAPED_UNICODE) ?>,
         change: <?= json_encode(lang('app.change'), JSON_UNESCAPED_UNICODE) ?>,
         closeBillPay: <?= json_encode(lang('app.close_bill_pay'), JSON_UNESCAPED_UNICODE) ?>,
+        reopenBill: <?= json_encode(lang('app.reopen_bill'), JSON_UNESCAPED_UNICODE) ?>,
+        reopenBillSuccess: <?= json_encode(lang('app.reopen_bill_success'), JSON_UNESCAPED_UNICODE) ?>,
+        reopenBillConfirm: <?= json_encode(lang('app.reopen_bill_confirm'), JSON_UNESCAPED_UNICODE) ?>,
+        reopenBillFailed: <?= json_encode(lang('app.reopen_bill_failed'), JSON_UNESCAPED_UNICODE) ?>,
+        orderCannotReopenBill: <?= json_encode(lang('app.order_cannot_reopen_bill'), JSON_UNESCAPED_UNICODE) ?>,
         cash: <?= json_encode(lang('app.cash'), JSON_UNESCAPED_UNICODE) ?>,
         transfer: <?= json_encode(lang('app.transfer'), JSON_UNESCAPED_UNICODE) ?>,
         card: <?= json_encode(lang('app.card'), JSON_UNESCAPED_UNICODE) ?>,
@@ -636,6 +641,7 @@
         managerOverrideFailed: <?= json_encode(lang('app.manager_override_failed'), JSON_UNESCAPED_UNICODE) ?>,
         managerOverrideActionPay: <?= json_encode(lang('app.manager_override_action_pay'), JSON_UNESCAPED_UNICODE) ?>,
         managerOverrideActionCloseBill: <?= json_encode(lang('app.manager_override_action_close_bill'), JSON_UNESCAPED_UNICODE) ?>,
+        managerOverrideActionReopenBill: <?= json_encode(lang('app.manager_override_action_reopen_bill'), JSON_UNESCAPED_UNICODE) ?>,
         by: <?= json_encode(lang('app.by'), JSON_UNESCAPED_UNICODE) ?>,
     };
 
@@ -643,6 +649,7 @@
         'view' => (bool) ($cashierPermissions['view'] ?? false),
         'request_bill' => (bool) ($cashierPermissions['request_bill'] ?? false),
         'close_bill' => (bool) ($cashierPermissions['close_bill'] ?? false),
+        'reopen_bill' => (bool) ($cashierPermissions['close_bill'] ?? false),
         'pay' => (bool) ($cashierPermissions['pay'] ?? false),
         'manager_override' => (bool) ($cashierPermissions['manager_override'] ?? false),
     ], JSON_UNESCAPED_UNICODE) ?>;
@@ -824,6 +831,9 @@
         }
         if (actionKey === 'close_bill') {
             return lang.managerOverrideActionCloseBill || lang.managerOverrideRequired;
+        }
+        if (actionKey === 'reopen_bill') {
+            return lang.managerOverrideActionReopenBill || lang.managerOverrideActionCloseBill || lang.managerOverrideRequired;
         }
         return lang.managerOverrideRequired;
     }
@@ -1022,6 +1032,11 @@
                                     ${escapeHtml(lang.cashierMarkBilling)}
                                 </button>
                             ` : ''}
+                            ${(cashierPermissions.reopen_bill && String(order.status || '') === 'billing') ? `
+                                <button type="button" class="btn btn-outline-secondary" id="cashierReopenBillBtn">
+                                    ${escapeHtml(lang.reopenBill)}
+                                </button>
+                            ` : ''}
                             ${canPay ? `
                                 <button type="button" class="btn btn-success" id="cashierPayBtn">
                                     ${escapeHtml(lang.closeBillPay)}
@@ -1089,15 +1104,45 @@
                     await refreshOrders(Number(order.id || 0));
                 } catch (error) {
                     if (error && error.payload && error.payload.code === 'MANAGER_OVERRIDE_REQUIRED') {
-                        const approved = await requestManagerOverride('close_bill', Number(order.id || 0));
+                        const approved = await requestManagerOverride('pay', Number(order.id || 0));
                         if (approved) {
-                            markBillingBtn.click();
+                            payBtn.click();
                         }
                     } else {
                         alert(error.message || lang.orderNotFound);
                     }
                 } finally {
                     markBillingBtn.disabled = false;
+                }
+            });
+        }
+
+        const reopenBtn = document.getElementById('cashierReopenBillBtn');
+        if (reopenBtn) {
+            reopenBtn.addEventListener('click', async () => {
+                if (!confirm(lang.reopenBillConfirm)) {
+                    return;
+                }
+
+                reopenBtn.disabled = true;
+                try {
+                    const response = await postJson('<?= site_url('pos/reopen-bill') ?>', {
+                        order_id: Number(order.id || 0),
+                    });
+
+                    alert(response.message || lang.reopenBillSuccess);
+                    await refreshOrders(Number(order.id || 0));
+                } catch (error) {
+                    if (error && error.payload && error.payload.code === 'MANAGER_OVERRIDE_REQUIRED') {
+                        const approved = await requestManagerOverride('reopen_bill', Number(order.id || 0));
+                        if (approved) {
+                            reopenBtn.click();
+                        }
+                    } else {
+                        alert(error.message || lang.reopenBillFailed);
+                    }
+                } finally {
+                    reopenBtn.disabled = false;
                 }
             });
         }
@@ -1124,9 +1169,9 @@
                     await refreshOrders();
                 } catch (error) {
                     if (error && error.payload && error.payload.code === 'MANAGER_OVERRIDE_REQUIRED') {
-                        const approved = await requestManagerOverride('close_bill', Number(order.id || 0));
+                        const approved = await requestManagerOverride('pay', Number(order.id || 0));
                         if (approved) {
-                            markBillingBtn.click();
+                            payBtn.click();
                         }
                     } else {
                         alert(error.message || lang.orderNotFound);

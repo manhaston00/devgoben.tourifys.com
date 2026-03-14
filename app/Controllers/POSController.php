@@ -248,6 +248,7 @@ class POSController extends BaseController
         return [
             'request_bill' => 'cashier.request_bill',
             'close_bill'   => 'cashier.close_bill',
+            'reopen_bill'  => 'cashier.close_bill',
             'pay'          => 'cashier.pay',
         ];
     }
@@ -2584,6 +2585,111 @@ class POSController extends BaseController
             'status'  => 'success',
             'message' => lang('app.close_bill_success_billing'),
         ]);
+    }
+
+
+    public function reopenBill()
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
+
+        if ($response = $this->jsonFeatureDenied('feature.reopen_bill.enabled')) {
+            return $response;
+        }
+
+        $orderId = (int) $this->request->getPost('order_id');
+
+        if ($response = $this->ensurePermissionOrManagerOverride('cashier.close_bill', 'reopen_bill', $orderId)) {
+            return $response;
+        }
+
+        $order = $this->getScopedOrder($orderId);
+        if (! $order) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
+
+        $currentStatus = (string) ($order['status'] ?? '');
+
+        if ($currentStatus === 'open') {
+            return $this->response->setJSON([
+                'status'  => 'warning',
+                'message' => lang('app.order_already_open'),
+            ]);
+        }
+
+        if ($currentStatus === 'paid') {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_paid_reopen_requires_void'),
+            ]);
+        }
+
+        if ($currentStatus !== 'billing') {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_cannot_reopen_bill'),
+            ]);
+        }
+
+        $db = \Config\Database::connect();
+        $db->transBegin();
+
+        try {
+            $this->recalculateOrderTotal($orderId);
+
+            $now = date('Y-m-d H:i:s');
+
+            $this->orderModel->update($orderId, [
+                'status'     => 'open',
+                'closed_by'  => null,
+                'closed_at'  => null,
+                'updated_at' => $now,
+            ]);
+
+            if ($db->transStatus() === false) {
+                $db->transRollback();
+
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.reopen_bill_failed'),
+                ]);
+            }
+
+            $db->transCommit();
+
+            $this->writeAuditLog([
+                'branch_id'    => (int) ($order['branch_id'] ?? 0) ?: null,
+                'target_type'  => 'order',
+                'target_id'    => $orderId,
+                'action_key'   => 'cashier.reopen_bill',
+                'action_label' => lang('app.audit_log_reopen_bill'),
+                'ref_code'     => (string) ($order['order_number'] ?? ''),
+                'order_id'     => $orderId,
+                'table_id'     => (int) ($order['table_id'] ?? 0) ?: null,
+                'meta_json'    => [
+                    'from_status' => 'billing',
+                    'to_status'   => 'open',
+                    'override_by' => session('override_approved_by_name') ?? null,
+                ],
+            ]);
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => lang('app.reopen_bill_success'),
+            ]);
+        } catch (\Throwable $e) {
+            $db->transRollback();
+            log_message('error', 'reopenBill error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.reopen_bill_failed'),
+            ]);
+        }
     }
 
 
