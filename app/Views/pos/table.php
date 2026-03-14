@@ -47,7 +47,9 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    height: calc(100vh - 150px);
     min-height: calc(100vh - 150px);
+    overflow: hidden;
 }
 
 .pos-touch-header {
@@ -107,9 +109,10 @@
 .pos-touch-layout {
     flex: 1;
     display: grid;
-    grid-template-columns: minmax(210px, 240px) minmax(0, 1fr) minmax(360px, 420px);
+    grid-template-columns: minmax(210px, 232px) minmax(0, 1fr) minmax(330px, 390px);
     gap: 12px;
     min-height: 0;
+    overflow: hidden;
 }
 
 .pos-pane,
@@ -119,6 +122,7 @@
 
 .pos-pane-card {
     height: 100%;
+    min-height: 0;
     border: 1px solid rgba(148, 163, 184, 0.18);
     border-radius: 24px;
     overflow: hidden;
@@ -132,6 +136,7 @@
     flex-direction: column;
     min-height: 0;
     padding: 16px;
+    overflow: hidden;
 }
 
 .pos-section-title {
@@ -164,20 +169,25 @@
 
 .pos-products-toolbar {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: .75rem;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .pos-products-toolbar .small {
     color: #64748b;
 }
 
+.pos-products-search-block {
+    margin-bottom: 10px;
+}
+
 #productGrid {
     flex: 1;
     overflow: auto;
-    margin: 0;
+    margin: 0 !important;
+    padding-top: .35rem;
     padding-right: .25rem;
     align-content: flex-start;
 }
@@ -205,7 +215,8 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: .75rem;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
 }
 
 .pos-bill-scroll {
@@ -213,12 +224,15 @@
     overflow: auto;
     min-height: 0;
     padding-right: .25rem;
+    padding-bottom: .35rem;
 }
 
 .pos-bill-summary {
     border-top: 1px solid rgba(148, 163, 184, 0.18);
-    margin-top: 12px;
+    margin-top: 10px;
     padding-top: 12px;
+    flex-shrink: 0;
+    background: #fff;
 }
 
 .pos-bill-total-row {
@@ -255,15 +269,135 @@
     border-radius: 12px;
 }
 
+.pos-products-search {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: .5rem;
+    align-items: center;
+}
+
+.pos-products-search .form-control,
+.pos-products-search .btn {
+    min-height: 46px;
+    border-radius: 14px;
+}
+
+.pos-products-inline-meta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 .75rem;
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    color: #64748b;
+    font-size: .8rem;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.pos-inline-shortcuts {
+    display: none;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .45rem;
+    min-width: 0;
+}
+
+.pos-inline-shortcuts.show {
+    display: flex;
+}
+
+.pos-inline-shortcuts-label {
+    flex: 0 0 auto;
+    color: #64748b;
+    font-size: .8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pos-inline-shortcuts-list {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    overflow: hidden;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.pos-inline-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: .3rem .75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.42);
+    background: #fff;
+    color: #475569;
+    font-size: .82rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pos-inline-chip:hover,
+.pos-inline-chip:focus {
+    border-color: rgba(59, 130, 246, 0.45);
+    color: #1d4ed8;
+    background: #eff6ff;
+}
+
+.pos-inline-chip-more {
+    background: #f8fafc;
+}
+
+.pos-empty-products {
+    display: none;
+    border: 1px dashed rgba(148, 163, 184, 0.45);
+    border-radius: 18px;
+    padding: 1rem;
+    text-align: center;
+    color: #64748b;
+    background: #f8fafc;
+}
+
+.pos-empty-products.show {
+    display: block;
+}
+
+.pos-bill-pane-close {
+    display: none;
+}
+
+.pos-mobile-bill-summary {
+    display: none;
+}
+
+.pos-mobile-bill-backdrop {
+    display: none;
+}
+
 @media (max-width: 1399.98px) {
+    .pos-touch-shell {
+        height: calc(100vh - 138px);
+        min-height: calc(100vh - 138px);
+    }
+
     .pos-touch-layout {
-        grid-template-columns: minmax(190px, 220px) minmax(0, 1fr) minmax(320px, 380px);
+        grid-template-columns: minmax(182px, 210px) minmax(0, 1fr) minmax(310px, 360px);
     }
 }
 
 @media (max-width: 1199.98px) {
+    .mobile-bottom-space {
+        padding-bottom: 128px;
+    }
+
     .pos-touch-shell {
+        height: auto;
         min-height: auto;
+        overflow: visible;
     }
 
     .pos-touch-layout {
@@ -274,6 +408,10 @@
         height: auto;
     }
 
+    .pos-pane-body {
+        overflow: visible;
+    }
+
     .pos-category-pane {
         display: none;
     }
@@ -282,10 +420,92 @@
         display: block;
     }
 
-    #productGrid,
-    .pos-bill-scroll {
+    #productGrid {
+        min-height: 240px;
         max-height: none;
         overflow: visible;
+        margin-top: 0;
+        padding-top: .35rem;
+        padding-bottom: 112px;
+    }
+
+    .pos-bill-scroll {
+        overflow: auto;
+    }
+
+    .pos-bill-pane {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1060;
+        padding: 0 10px 10px;
+        transform: translateY(calc(100% + 24px));
+        transition: transform .22s ease;
+        pointer-events: none;
+    }
+
+    .pos-bill-pane .pos-pane-card {
+        height: min(82vh, 720px);
+        border-radius: 24px 24px 20px 20px;
+        box-shadow: 0 -18px 40px rgba(15, 23, 42, 0.22);
+    }
+
+    .pos-bill-pane-close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: 12px;
+    }
+
+    .pos-mobile-bill-summary {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        z-index: 1055;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        padding: .85rem 1rem;
+        border-radius: 18px;
+        background: rgba(15, 23, 42, 0.94);
+        color: #fff;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.28);
+    }
+
+    .pos-mobile-bill-summary .btn {
+        min-height: 46px;
+        border-radius: 14px;
+        white-space: nowrap;
+    }
+
+    .pos-mobile-bill-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        background: rgba(15, 23, 42, 0.35);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity .2s ease, visibility .2s ease;
+        display: block;
+    }
+
+    body.pos-bill-drawer-open .pos-bill-pane {
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    body.pos-bill-drawer-open .pos-mobile-bill-backdrop {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    body.pos-bill-drawer-open {
+        overflow: hidden;
     }
 }
 
@@ -313,8 +533,99 @@
         padding: 14px;
     }
 
+    .pos-products-search {
+        grid-template-columns: 1fr auto;
+    }
+
+    .pos-products-inline-meta {
+        display: none;
+    }
+
+    .pos-inline-shortcuts {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .35rem;
+    }
+
+    .pos-inline-shortcuts-list {
+        width: 100%;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: .15rem;
+    }
+
     .pos-action-grid {
         grid-template-columns: 1fr;
+    }
+
+    #productGrid {
+        grid-auto-rows: 1fr;
+        max-height: none !important;
+        overflow: visible !important;
+        margin-top: 0 !important;
+        padding-top: .35rem;
+        padding-bottom: 128px;
+    }
+
+    .product-card {
+        min-height: 96px;
+    }
+
+    .pos-inline-shortcuts {
+        margin-top: .35rem;
+        margin-bottom: .15rem;
+    }
+
+    .pos-inline-shortcuts-list {
+        scrollbar-width: none;
+    }
+
+    .pos-inline-shortcuts-list::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+@media (max-height: 880px) and (min-width: 1200px) {
+    .pos-touch-shell {
+        height: calc(100vh - 126px);
+        min-height: calc(100vh - 126px);
+    }
+
+    .pos-touch-header {
+        padding: 14px 16px;
+    }
+
+    .pos-pane-body {
+        padding: 14px;
+    }
+
+    .pos-category-list {
+        gap: .5rem;
+    }
+
+    .pos-category-list .category-btn,
+    .product-btn,
+    #btnOpenOrder,
+    #btnSendKitchen,
+    #btnPay,
+    #btnMoveTable,
+    #btnMergeBill {
+        min-height: 44px;
+        border-radius: 14px;
+    }
+
+    .pos-products-search .form-control,
+    .pos-products-search .btn {
+        min-height: 42px;
+    }
+
+    .pos-action-grid .btn {
+        min-height: 50px;
+        font-size: .95rem;
+    }
+
+    #billTotal {
+        font-size: 1.4rem;
     }
 }
 </style>
@@ -322,6 +633,10 @@
     $tableIsActive = (int) ($table['is_active'] ?? 0) === 1;
     $tableStatus   = strtolower((string) ($table['status'] ?? 'available'));
     $tableDisabled = (!$tableIsActive || $tableStatus === 'disabled');
+    $recentItemsLabel = lang('app.recent_items');
+    if ($recentItemsLabel === 'app.recent_items') {
+        $recentItemsLabel = service('request')->getLocale() === 'th' ? 'เมนูล่าสุด' : 'Recent items';
+    }
 ?>
 <div class="pos-touch-shell mobile-bottom-space">
     <div class="pos-touch-header">
@@ -443,10 +758,39 @@
                         </div>
                     </div>
 
+                    <div class="pos-products-search-block compact-mode">
+                        <div class="pos-products-search">
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="productSearch"
+                                placeholder="<?= esc(lang('app.search')) ?>..."
+                                autocomplete="off"
+                            >
+                            <div class="pos-products-inline-meta">
+                                <span id="productResultCount"><?= count($products ?? []) ?></span>
+                                <span class="mx-1">•</span>
+                                <span id="activeCategoryLabel"><?= esc(lang('app.all')) ?></span>
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary" id="btnClearProductSearch">×</button>
+                        </div>
+
+                        <div class="pos-inline-shortcuts" id="recentProductToolbar">
+                            <span class="pos-inline-shortcuts-label"><?= esc($recentItemsLabel) ?></span>
+                            <div class="pos-inline-shortcuts-list" id="recentProductChips"></div>
+                        </div>
+                    </div>
+
+                    <div class="pos-empty-products" id="productEmptyState"><?= esc(lang('app.no_data')) ?></div>
+
                     <div class="row g-3" id="productGrid">
                         <?php foreach ($products as $product): ?>
                             <?php $productName = lfield($product, 'product_name', '-'); ?>
-                            <div class="col-6 col-md-4 product-card" data-category="<?= (int) ($product['category_id'] ?? 0) ?>">
+                            <div
+                                class="col-6 col-md-4 product-card"
+                                data-category="<?= (int) ($product['category_id'] ?? 0) ?>"
+                                data-name="<?= esc(mb_strtolower($productName, 'UTF-8')) ?>"
+                            >
                                 <button
                                     type="button"
                                     class="btn btn-light border w-100 text-start rounded-4 p-3 product-btn h-100"
@@ -464,7 +808,7 @@
             </div>
         </div>
 
-        <div class="pos-pane">
+        <div class="pos-pane pos-bill-pane">
             <div class="pos-pane-card">
                 <div class="pos-pane-body">
                     <div class="pos-bill-header">
@@ -472,6 +816,7 @@
                             <div class="pos-section-title"><?= esc(lang('app.current_bill')) ?></div>
                             <div class="pos-section-note" id="orderNoLabel">-</div>
                         </div>
+                        <button type="button" class="btn btn-outline-secondary pos-bill-pane-close" id="btnCloseBillDrawer">×</button>
                     </div>
 
                     <div class="pos-bill-scroll">
@@ -536,6 +881,18 @@
         </div>
     </div>
 </div>
+
+<div class="pos-mobile-bill-summary" id="mobileBillSummary">
+    <div class="d-flex flex-column">
+        <strong><?= esc(lang('app.current_bill')) ?></strong>
+        <span class="small text-white-50" id="mobileBillSummaryMeta">0</span>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <strong id="mobileBillSummaryTotal">฿0.00</strong>
+        <button type="button" class="btn btn-light" id="btnOpenBillDrawer"><?= esc(lang('app.current_bill')) ?></button>
+    </div>
+</div>
+<div class="pos-mobile-bill-backdrop" id="mobileBillBackdrop"></div>
 
 <div class="modal fade" id="productOptionModal" tabindex="-1" aria-labelledby="productOptionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -842,8 +1199,6 @@ $(function () {
         openBillFirst: <?= json_encode(lang('app.please_open_bill_first'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         billCannotAddItems: <?= json_encode(lang('app.bill_status_cannot_add_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         itemCannotEdit: <?= json_encode(lang('app.item_cannot_edit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        orderCannotEditItems: <?= json_encode(lang('app.order_cannot_edit_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        orderCannotSendKitchen: <?= json_encode(lang('app.order_cannot_send_kitchen'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         billNotFound: <?= json_encode(lang('app.bill_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         editItemNotFound: <?= json_encode(lang('app.edit_item_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         selectedItemNotFound: <?= json_encode(lang('app.selected_item_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -909,7 +1264,9 @@ $(function () {
         requestCancelSentToKitchen: <?= json_encode(service('request')->getLocale() === 'th' ? 'ส่งคำขอยกเลิกไปที่ครัวแล้ว' : 'Cancel request sent to kitchen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         canceledItemsSection: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการที่ยกเลิกแล้ว' : 'Cancelled items', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         canceledItemsNoCharge: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการนี้ไม่คิดเงินแล้ว' : 'This item is no longer billable', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        noData: <?= json_encode(lang('app.no_data'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+        noData: <?= json_encode(lang('app.no_data'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        recentItems: <?= json_encode($recentItemsLabel, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        more: <?= json_encode(service('request')->getLocale() === 'th' ? 'เพิ่มเติม' : 'More', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
     };
 
     const productOptionModalEl = document.getElementById('productOptionModal');
@@ -1000,6 +1357,84 @@ $(function () {
             return TXT.managerOverrideActionPay || TXT.managerOverrideRequired;
         }
         return TXT.managerOverrideRequired;
+    }
+
+
+    function normalizeSearchText(text) {
+        return String(text || '').toLowerCase().trim();
+    }
+
+    function setBillDrawerOpen(isOpen) {
+        $('body').toggleClass('pos-bill-drawer-open', !!isOpen);
+    }
+
+    function updateMobileBillSummary(itemCount, totalAmount) {
+        $('#mobileBillSummaryMeta').text((itemCount || 0) + ' · ' + ($('#orderNoLabel').text().trim() || '-'));
+        $('#mobileBillSummaryTotal').text(money(totalAmount || 0));
+    }
+
+    function renderRecentProductToolbar(items) {
+        const list = Array.isArray(items) ? items : [];
+        const seen = new Set();
+        const recent = [];
+
+        list.forEach(function (item) {
+            const productId = Number(item && item.product_id ? item.product_id : 0);
+            const productName = $.trim(item && item.product_name ? item.product_name : '');
+            const productPrice = parseFloat(item && item.price ? item.price : 0);
+
+            if (!productId || !productName || seen.has(productId)) {
+                return;
+            }
+
+            seen.add(productId);
+            recent.push({
+                product_id: productId,
+                product_name: productName,
+                price: productPrice
+            });
+        });
+
+        const visible = recent.slice(0, 2);
+        const extraCount = Math.max(recent.length - visible.length, 0);
+        let html = '';
+
+        visible.forEach(function (item) {
+            html += '<button type="button" class="btn pos-inline-chip btn-inline-recent" data-id="' + item.product_id + '" data-name="' + escapeHtml(item.product_name) + '" data-price="' + item.price + '">' + escapeHtml(item.product_name) + '</button>';
+        });
+
+        if (extraCount > 0) {
+            html += '<button type="button" class="btn pos-inline-chip pos-inline-chip-more" id="btnRecentItemsMore">+' + extraCount + '</button>';
+        }
+
+        $('#recentProductChips').html(html);
+        $('#recentProductToolbar').toggleClass('show', recent.length > 0);
+    }
+
+    function applyProductFilters() {
+        const activeCategoryId = String($('.category-btn.active').data('id') || 'all');
+        const keyword = normalizeSearchText($('#productSearch').val());
+        let visibleCount = 0;
+
+        $('#activeCategoryLabel').text($('.category-btn.active').first().text().trim() || '<?= esc(lang('app.all')) ?>');
+
+        $('.product-card').each(function () {
+            const $card = $(this);
+            const categoryId = String($card.data('category') || '');
+            const searchName = normalizeSearchText($card.data('name') || $card.find('.fw-bold').text());
+            const categoryMatch = activeCategoryId === 'all' || categoryId === activeCategoryId;
+            const keywordMatch = !keyword || searchName.indexOf(keyword) !== -1;
+            const show = categoryMatch && keywordMatch;
+
+            $card.toggle(show);
+
+            if (show) {
+                visibleCount++;
+            }
+        });
+
+        $('#productResultCount').text(String(visibleCount));
+        $('#productEmptyState').toggleClass('show', visibleCount === 0);
     }
 
     function requestManagerOverride(actionKey, orderId) {
@@ -1743,9 +2178,17 @@ $(function () {
             `;
         }
 
+        const activeItemCount = items.filter(function (item) {
+            const normalizedStatus = normalizeItemStatus(item.status || 'pending');
+            const requestState = getRequestStateMeta(item);
+            return !(normalizedStatus === 'cancel' || normalizedStatus === 'cancelled' || normalizedStatus === 'canceled' || (requestState && requestState.key === 'approved'));
+        }).length;
+
         $('#orderBox').html(activeHtml);
         $('#canceledItemsBox').html(canceledHtml);
         $('#billTotal').text(money(order.total_price || 0));
+        updateMobileBillSummary(activeItemCount, order.total_price || 0);
+        renderRecentProductToolbar(items || []);
     }
 
     function isAnyModalOpen() {
@@ -1755,11 +2198,8 @@ $(function () {
             || $('#mergeBillModal').hasClass('show');
     }
 
-    function loadOrder(callback) {
+    function loadOrder() {
 		if (isAnyModalOpen()) {
-            if (typeof callback === 'function') {
-                callback(null);
-            }
 			return;
 		}
 
@@ -1771,9 +2211,6 @@ $(function () {
 					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
 					$('#billTotal').text('฿0.00');
 					updateOrderHeader(null);
-                    if (typeof callback === 'function') {
-                        callback(null);
-                    }
 					return;
 				}
 
@@ -1787,9 +2224,6 @@ $(function () {
                         moved_notice: res.moved_notice || null,
                         move_trace: Array.isArray(res.move_trace) ? res.move_trace : []
 					});
-                    if (typeof callback === 'function') {
-                        callback(res);
-                    }
 					return;
 				}
 
@@ -1799,9 +2233,6 @@ $(function () {
 					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
 					$('#billTotal').text('฿0.00');
 					updateOrderHeader(null);
-                    if (typeof callback === 'function') {
-                        callback(res);
-                    }
 					return;
 				}
 
@@ -1817,46 +2248,13 @@ $(function () {
 
 				renderItems(orderData, res.items || []);
 				updateOrderHeader(orderData);
-                if (typeof callback === 'function') {
-                    callback(res);
-                }
 			})
 			.fail(function (xhr) {
 				console.error('loadOrder error:', xhr.responseText);
 				$('#orderBox').html('<div class="text-danger">' + TXT.loadBillFailed + '</div>');
 				$('#billTotal').text('฿0.00');
-                if (typeof callback === 'function') {
-                    callback(null);
-                }
 			});
 	}
-
-    function ensureOrderOpenState(onReady, failMessage) {
-        const proceed = function () {
-            if (typeof onReady === 'function') {
-                onReady();
-            }
-        };
-
-        if (!CURRENT_ORDER_ID) {
-            notify(TXT.noBillYet);
-            return;
-        }
-
-        if (CURRENT_ORDER_STATUS === 'open') {
-            proceed();
-            return;
-        }
-
-        loadOrder(function () {
-            if (CURRENT_ORDER_STATUS === 'open') {
-                proceed();
-                return;
-            }
-
-            notify(failMessage || TXT.orderCannotEditItems);
-        });
-    }
 
     function startAutoRefresh() {
         if (AUTO_REFRESH_TIMER) {
@@ -1959,16 +2357,40 @@ $(function () {
             return;
         }
 
-        const $btn = $(this);
-        const productId = $btn.data('id');
-        const productName = $btn.data('name') || $btn.find('.fw-bold').text().trim();
-        const productPriceText = $btn.find('.text-muted').text().replace('฿', '').replace(/,/g, '').trim();
+        if (!(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')) {
+            notify(TXT.billCannotAddItems);
+            return;
+        }
+
+        const productId = $(this).data('id');
+        const productName = $(this).data('name') || $(this).find('.fw-bold').text().trim();
+        const productPriceText = $(this).find('.text-muted').text().replace('฿', '').replace(/,/g, '').trim();
         const productPrice = parseFloat(productPriceText || 0);
 
-        ensureOrderOpenState(function () {
-            openProductModal(productId, productName, productPrice);
-            loadProductQuickOptions(productId);
-        }, TXT.billCannotAddItems);
+        openProductModal(productId, productName, productPrice);
+        loadProductQuickOptions(productId);
+    });
+
+    $(document).on('click', '.btn-inline-recent', function () {
+        if (!CURRENT_ORDER_ID) {
+            notify(TXT.openBillFirst);
+            return;
+        }
+
+        const productId = Number($(this).data('id') || 0);
+        const productName = $(this).data('name') || '';
+        const productPrice = parseFloat($(this).data('price') || 0);
+
+        if (!productId || !productName) {
+            return;
+        }
+
+        openProductModal(productId, productName, productPrice);
+        loadProductQuickOptions(productId);
+    });
+
+    $(document).on('click', '#btnRecentItemsMore', function () {
+        $('#orderBox .pos-bill-item, #orderBox .border.rounded-4').first().get(0)?.scrollIntoView({behavior: 'smooth', block: 'nearest'});
     });
 
     $(document).on('click', '.btn-edit-item', function () {
@@ -1987,9 +2409,7 @@ $(function () {
             return;
         }
 
-        ensureOrderOpenState(function () {
-            openEditItemModal(item);
-        }, TXT.orderCannotEditItems);
+        openEditItemModal(item);
     });
 
     $(document).on('click', '.modal-quick-detail', function () {
@@ -2097,47 +2517,38 @@ $(function () {
     });
 
     $(document).on('click', '.btn-qty', function () {
-        const itemId = $(this).data('id');
-        const type = $(this).data('type');
-
-        ensureOrderOpenState(function () {
-            $.post("<?= site_url('pos/update-item-qty') ?>", {
-                item_id: itemId,
-                type: type
-            })
-            .done(function (res) {
-                if (res && res.status === 'error') {
-                    notify(res.message || TXT.updateItemFailed);
-                    return;
-                }
-                loadOrder();
-            })
-            .fail(function (xhr) {
-                console.error('updateItemQty error:', xhr.responseText);
-                notify(TXT.updateItemFailed);
-            });
-        }, TXT.orderCannotEditItems);
+        $.post("<?= site_url('pos/update-item-qty') ?>", {
+            item_id: $(this).data('id'),
+            type: $(this).data('type')
+        })
+        .done(function (res) {
+            if (res && res.status === 'error') {
+                notify(res.message || TXT.updateItemFailed);
+                return;
+            }
+            loadOrder();
+        })
+        .fail(function (xhr) {
+            console.error('updateItemQty error:', xhr.responseText);
+            notify(TXT.updateItemFailed);
+        });
     });
 
     $(document).on('click', '.btn-cancel-direct', function () {
-        const itemId = $(this).data('id');
-
-        ensureOrderOpenState(function () {
-            $.post("<?= site_url('pos/remove-item') ?>", {
-                item_id: itemId
-            })
-            .done(function (res) {
-                if (res && res.status === 'error') {
-                    notify(res.message || TXT.removeItemFailed);
-                    return;
-                }
-                loadOrder();
-            })
-            .fail(function (xhr) {
-                console.error('cancelDirect error:', xhr.responseText);
-                notify(TXT.removeItemFailed);
-            });
-        }, TXT.orderCannotEditItems);
+        $.post("<?= site_url('pos/remove-item') ?>", {
+            item_id: $(this).data('id')
+        })
+        .done(function (res) {
+            if (res && res.status === 'error') {
+                notify(res.message || TXT.removeItemFailed);
+                return;
+            }
+            loadOrder();
+        })
+        .fail(function (xhr) {
+            console.error('cancelDirect error:', xhr.responseText);
+            notify(TXT.removeItemFailed);
+        });
     });
 
     $(document).on('click', '.btn-request-cancel', function () {
@@ -2219,44 +2630,42 @@ $(function () {
             return;
         }
 
-        ensureOrderOpenState(function () {
-            SEND_KITCHEN_BUSY = true;
+        SEND_KITCHEN_BUSY = true;
 
-            const $btn = $('#btnSendKitchen');
-            const originalText = $btn.text();
+        const $btn = $('#btnSendKitchen');
+        const originalText = $btn.text();
 
-            $btn.prop('disabled', true);
-            $btn.text('...');
+        $btn.prop('disabled', true);
+        $btn.text('...');
 
-            const requestUuid = generateRequestUuid();
+        const requestUuid = generateRequestUuid();
 
-            $.ajax({
-                url: "<?= site_url('pos/send-kitchen') ?>",
-                type: "POST",
-                dataType: "json",
-                data: {
-                    order_id: CURRENT_ORDER_ID,
-                    request_uuid: requestUuid
-                },
-                complete: function () {
-                    SEND_KITCHEN_BUSY = false;
-                    $btn.prop('disabled', false);
-                    $btn.text(originalText);
-                },
-                success: function (res) {
-                    if (res && res.status === 'success') {
-                        notify(res.message || <?= json_encode(lang('app.sent_to_kitchen_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
-                        loadOrder();
-                    } else {
-                        notify((res && res.message) ? res.message : TXT.sendKitchenFailed);
-                    }
-                },
-                error: function (xhr) {
-                    console.error('sendKitchen error:', xhr.responseText);
-                    notify(TXT.sendKitchenFailed);
+        $.ajax({
+            url: "<?= site_url('pos/send-kitchen') ?>",
+            type: "POST",
+            dataType: "json",
+            data: {
+                order_id: CURRENT_ORDER_ID,
+                request_uuid: requestUuid
+            },
+            complete: function () {
+                SEND_KITCHEN_BUSY = false;
+                $btn.prop('disabled', false);
+                $btn.text(originalText);
+            },
+            success: function (res) {
+                if (res && res.status === 'success') {
+                    notify(res.message || <?= json_encode(lang('app.sent_to_kitchen_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
+                    loadOrder();
+                } else {
+                    notify((res && res.message) ? res.message : TXT.sendKitchenFailed);
                 }
-            });
-        }, TXT.orderCannotSendKitchen);
+            },
+            error: function (xhr) {
+                console.error('sendKitchen error:', xhr.responseText);
+                notify(TXT.sendKitchenFailed);
+            }
+        });
     });
 
     $(document).on('click', '#btnPay', function () {
@@ -2323,11 +2732,30 @@ $(function () {
         $('.category-btn').removeClass('active btn-dark').addClass('btn-outline-dark');
         $('.category-btn[data-id="' + categoryId + '"]').removeClass('btn-outline-dark').addClass('active btn-dark');
 
-        if (categoryId === 'all') {
-            $('.product-card').show();
-        } else {
-            $('.product-card').hide();
-            $('.product-card[data-category="' + categoryId + '"]').show();
+        applyProductFilters();
+    });
+
+    $(document).on('input', '#productSearch', function () {
+        applyProductFilters();
+    });
+
+    $(document).on('click', '#btnClearProductSearch', function () {
+        $('#productSearch').val('');
+        applyProductFilters();
+        $('#productSearch').trigger('focus');
+    });
+
+    $(document).on('click', '#btnOpenBillDrawer', function () {
+        setBillDrawerOpen(true);
+    });
+
+    $(document).on('click', '#btnCloseBillDrawer, #mobileBillBackdrop', function () {
+        setBillDrawerOpen(false);
+    });
+
+    $(window).on('resize', function () {
+        if (window.innerWidth > 1199) {
+            setBillDrawerOpen(false);
         }
     });
 
@@ -2627,6 +3055,8 @@ $(function () {
     }
 
     updateOrderHeader();
+    applyProductFilters();
+    renderRecentProductToolbar([]);
     loadOrder();
     startAutoRefresh();
 });
