@@ -1160,4 +1160,9 @@ return [
 'merged_by' => 'Merged by',
 'merged_at' => 'Merged at',
 'no_merge_reason' => '-',
+
+'merge_audit_title' => 'Merge audit',
+'merge_audit_summary' => 'Merge summary',
+'view_merge_audit' => 'View details',
+'merged_sources_count' => 'Source bills',
 ];

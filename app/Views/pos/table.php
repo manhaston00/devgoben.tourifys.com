@@ -195,6 +195,8 @@
 
                 <div id="orderMetaIndicators" class="d-flex flex-wrap gap-2 mb-3"></div>
 
+                <div id="billMergeAuditBox" class="mb-3"></div>
+
                 <div id="billRequestAlertBox" class="mt-2"></div>
 
                 <div id="orderBox">
@@ -469,6 +471,23 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
+
+<div class="modal fade" id="mergeAuditModal" tabindex="-1" aria-labelledby="mergeAuditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mergeAuditModalLabel"><?= esc(lang('app.merge_audit_title')) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= esc(lang('app.close')) ?>"></button>
+            </div>
+            <div class="modal-body">
+                <div id="mergeAuditModalBody">
+                    <div class="text-muted"><?= esc(lang('app.no_data')) ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 $(function () {
     const TABLE_ID = <?= json_encode((int) ($table['id'] ?? 0)) ?>;
@@ -560,6 +579,10 @@ $(function () {
         mergedAt: <?= json_encode(lang('app.merged_at'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         mergeReason: <?= json_encode(lang('app.merge_reason'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         noMergeReason: <?= json_encode(lang('app.no_merge_reason'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        mergeAuditTitle: <?= json_encode(lang('app.merge_audit_title'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        mergeAuditSummary: <?= json_encode(lang('app.merge_audit_summary'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        viewMergeAudit: <?= json_encode(lang('app.view_merge_audit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        mergedSourcesCount: <?= json_encode(lang('app.merged_sources_count'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         selectTargetBill: <?= json_encode(lang('app.select_target_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         cancelRequestPending: <?= json_encode(service('request')->getLocale() === 'th' ? 'รออนุมัติยกเลิก' : 'Waiting for cancel approval', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         cancelRequestRejected: <?= json_encode(service('request')->getLocale() === 'th' ? 'ครัวปฏิเสธการยกเลิก' : 'Kitchen rejected cancellation', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -572,7 +595,8 @@ $(function () {
         requestCancelToKitchen: <?= json_encode(service('request')->getLocale() === 'th' ? 'ขอยกเลิก' : 'Request cancel', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         requestCancelSentToKitchen: <?= json_encode(service('request')->getLocale() === 'th' ? 'ส่งคำขอยกเลิกไปที่ครัวแล้ว' : 'Cancel request sent to kitchen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         canceledItemsSection: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการที่ยกเลิกแล้ว' : 'Cancelled items', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        canceledItemsNoCharge: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการนี้ไม่คิดเงินแล้ว' : 'This item is no longer billable', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+        canceledItemsNoCharge: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการนี้ไม่คิดเงินแล้ว' : 'This item is no longer billable', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        noData: <?= json_encode(lang('app.no_data'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
     };
 
     const productOptionModalEl = document.getElementById('productOptionModal');
@@ -580,6 +604,8 @@ $(function () {
 
     const paymentModalEl = document.getElementById('paymentModal');
     const paymentModal = paymentModalEl ? new bootstrap.Modal(paymentModalEl) : null;
+    const mergeAuditModalEl = document.getElementById('mergeAuditModal');
+    const mergeAuditModal = mergeAuditModalEl ? new bootstrap.Modal(mergeAuditModalEl) : null;
     const managerOverrideModalEl = document.getElementById('managerOverrideModal');
     const managerOverrideModal = managerOverrideModalEl ? new bootstrap.Modal(managerOverrideModalEl) : null;
     let managerOverrideResolver = null;
@@ -989,10 +1015,36 @@ $(function () {
 
         if (!traces.length) {
             $('#mergeTraceBox').html('');
+            $('#billMergeAuditBox').html('');
+            $('#mergeAuditModalBody').html('<div class="text-muted">' + escapeHtml(TXT.noData) + '</div>');
             return;
         }
 
-        const itemsHtml = traces.map(function (trace) {
+        const compactTableNames = traces
+            .map(function (trace) {
+                return $.trim(trace.source_table_name || '');
+            })
+            .filter(function (value, index, array) {
+                return value !== '' && array.indexOf(value) === index;
+            });
+
+        const compactLabel = compactTableNames.length ? compactTableNames.join(', ') : '-';
+        const summaryHtml = `
+            <div class="border rounded-4 px-3 py-2 bg-light-subtle">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                        <div class="small text-muted mb-1">${escapeHtml(TXT.mergeAuditSummary)}</div>
+                        <div class="fw-semibold">${escapeHtml(TXT.mergedFromTables)}: ${escapeHtml(compactLabel)}</div>
+                        <div class="small text-muted">${escapeHtml(TXT.mergedSourcesCount)}: ${escapeHtml(String(traces.length))}</div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" id="btnViewMergeAudit">${escapeHtml(TXT.viewMergeAudit)}</button>
+                </div>
+            </div>
+        `;
+
+        $('#billMergeAuditBox').html(summaryHtml);
+
+        const itemsHtml = traces.map(function (trace, index) {
             const sourceTableName = escapeHtml(trace.source_table_name || '-');
             const sourceOrderNumber = escapeHtml(trace.source_order_number || '-');
             const mergedByName = escapeHtml(trace.merged_by_name || '-');
@@ -1002,7 +1054,7 @@ $(function () {
                 : escapeHtml(TXT.noMergeReason);
 
             return `
-                <div class="border rounded-4 p-3 bg-light-subtle mb-2">
+                <div class="border rounded-4 p-3 ${index > 0 ? 'mt-2' : ''}">
                     <div class="d-flex flex-wrap gap-2 mb-2 align-items-center">
                         <span class="badge rounded-pill text-bg-warning">${escapeHtml(TXT.mergeBill)}</span>
                         <span class="badge rounded-pill text-bg-dark">${sourceTableName}</span>
@@ -1016,17 +1068,21 @@ $(function () {
             `;
         }).join('');
 
-        $('#mergeTraceBox').html(`
-            <div class="alert alert-warning border-0 rounded-4 mb-0">
-                <div class="fw-bold mb-2">${escapeHtml(TXT.mergedFromTables)}</div>
-                ${itemsHtml}
-            </div>
-        `);
+        $('#mergeAuditModalBody').html(itemsHtml);
+        $('#mergeTraceBox').html('');
     }
 
     function renderOrderMetaIndicators(order = null) {
         const indicators = [];
         const mergedNotice = order && order.merged_notice ? order.merged_notice : null;
+        const traces = Array.isArray(order && order.merge_trace) ? order.merge_trace : [];
+
+        if (traces.length > 0) {
+            indicators.push(`
+                <span class="badge rounded-pill text-bg-warning">${escapeHtml(TXT.mergeBill)}</span>
+                <span class="badge rounded-pill text-bg-secondary">${escapeHtml(TXT.mergedSourcesCount)}: ${escapeHtml(String(traces.length))}</span>
+            `);
+        }
 
         if (mergedNotice && mergedNotice.target_table_name) {
             const targetTableName = escapeHtml(mergedNotice.target_table_name || '-');
@@ -2008,9 +2064,15 @@ $(function () {
         });
     });
 
-    $(document).on('click', '#btnMoveTable, #btnMergeBill, #btnConfirmMoveTable, #btnConfirmMergeBill', function (e) {
+    $(document).on('click', '#btnMoveTable, #btnMergeBill, #btnConfirmMoveTable, #btnConfirmMergeBill, #btnViewMergeAudit', function (e) {
         e.preventDefault();
         e.stopPropagation();
+    });
+
+    $(document).on('click', '#btnViewMergeAudit', function () {
+        if (mergeAuditModal) {
+            mergeAuditModal.show();
+        }
     });
 
     $(document).on('click', '#btnMergeBill', function () {

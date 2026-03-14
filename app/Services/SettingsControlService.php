@@ -195,6 +195,27 @@ class SettingsControlService
         $old     = [];
         $new     = [];
 
+        $submittedKeys = [];
+
+        if (isset($input['submitted_keys'])) {
+            $rawSubmittedKeys = $input['submitted_keys'];
+
+            if (! is_array($rawSubmittedKeys)) {
+                $rawSubmittedKeys = [$rawSubmittedKeys];
+            }
+
+            foreach ($rawSubmittedKeys as $submittedKey) {
+                $submittedKey = trim((string) $submittedKey);
+
+                if ($submittedKey === '') {
+                    continue;
+                }
+
+                $submittedKeys[$submittedKey] = true;
+                $submittedKeys[$this->inputName($submittedKey)] = true;
+            }
+        }
+
         foreach ($registry[$sectionKey]['settings'] as $setting) {
             if (! $this->isSettingVisibleForScope($setting, $scope)) {
                 continue;
@@ -208,13 +229,19 @@ class SettingsControlService
                 continue;
             }
 
+            $key = (string) ($setting['key'] ?? '');
+            $inputName = $this->inputName($key);
+
+            if ($submittedKeys !== [] && ! isset($submittedKeys[$key]) && ! isset($submittedKeys[$inputName])) {
+                continue;
+            }
+
             [$present, $rawValue] = $this->extractPostedValue($setting, $input);
 
             if (! $present) {
                 continue;
             }
 
-            $key      = (string) ($setting['key'] ?? '');
             $posted   = $this->normalizePostedValue($setting, $rawValue);
             $resolved = $this->resolveSetting($setting, $appMap, $tenantMap, $branchMap);
             $oldValue = $resolved['value'];

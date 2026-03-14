@@ -191,6 +191,32 @@ if (! function_exists('setting_bool')) {
     }
 }
 
+
+if (! function_exists('runtime_setting_plan_feature_key')) {
+    function runtime_setting_plan_feature_key(?string $settingKey): string
+    {
+        $settingKey = strtolower(trim((string) $settingKey));
+
+        $map = [
+            'feature.pos.enabled'                  => 'pos.access',
+            'feature.kds.enabled'                  => 'pos.access',
+            'feature.cashier.enabled'              => 'pos.access',
+            'feature.reservations.enabled'         => 'reservations.manage',
+            'feature.quick_notes.enabled'          => 'pos.access',
+            'feature.product_quick_options.enabled'=> 'pos.access',
+            'feature.tv_mode.enabled'              => 'pos.access',
+            'feature.served_history.enabled'       => 'pos.access',
+            'feature.cancel_request_flow.enabled'  => 'pos.access',
+            'feature.split_bill.enabled'           => 'pos.sell',
+            'feature.merge_bill.enabled'           => 'pos.sell',
+            'feature.move_table.enabled'           => 'pos.sell',
+            'feature.branch_switching.enabled'     => 'multi.branch',
+        ];
+
+        return $map[$settingKey] ?? '';
+    }
+}
+
 if (! function_exists('runtime_feature_key_for_module')) {
     function runtime_feature_key_for_module(?string $module): string
     {

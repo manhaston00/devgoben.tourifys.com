@@ -1140,4 +1140,9 @@ return [
 'merged_by' => 'ผู้รวมบิล',
 'merged_at' => 'เวลาที่รวม',
 'no_merge_reason' => '-',
+
+'merge_audit_title' => 'ประวัติการรวมบิล',
+'merge_audit_summary' => 'สรุปการรวมบิล',
+'view_merge_audit' => 'ดูรายละเอียด',
+'merged_sources_count' => 'จำนวนบิลต้นทาง',
 ];

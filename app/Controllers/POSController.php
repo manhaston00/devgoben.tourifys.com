@@ -145,11 +145,36 @@ class POSController extends BaseController
             ]);
         }
 
-        if (function_exists('feature_enabled') && ! feature_enabled($featureKey)) {
+        $runtimeSettingKey = '';
+        $normalizedKey     = strtolower(trim($featureKey));
+
+        if (strpos($normalizedKey, 'feature.') === 0 || strpos($normalizedKey, 'menu.') === 0 || strpos($normalizedKey, 'billing.') === 0 || strpos($normalizedKey, 'payment.') === 0 || strpos($normalizedKey, 'printing.') === 0 || strpos($normalizedKey, 'media.') === 0) {
+            $runtimeSettingKey = $featureKey;
+        }
+
+        $planFeatureKey = $runtimeSettingKey;
+
+        if ($runtimeSettingKey !== '' && function_exists('runtime_setting_plan_feature_key')) {
+            $mappedPlanFeatureKey = runtime_setting_plan_feature_key($runtimeSettingKey);
+
+            if ($mappedPlanFeatureKey !== '') {
+                $planFeatureKey = $mappedPlanFeatureKey;
+            }
+        }
+
+        if ($planFeatureKey !== '' && function_exists('feature_enabled') && ! feature_enabled($planFeatureKey)) {
             return $this->response->setJSON([
                 'status'  => 'error',
                 'message' => $messageKey ? lang($messageKey) : lang('app.feature_not_available_for_plan'),
                 'code'    => 'FEATURE_NOT_ENABLED',
+            ]);
+        }
+
+        if ($runtimeSettingKey !== '' && function_exists('setting_bool') && ! setting_bool($runtimeSettingKey, true)) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.feature_disabled_in_settings'),
+                'code'    => 'FEATURE_DISABLED_IN_SETTINGS',
             ]);
         }
 

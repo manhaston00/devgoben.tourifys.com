@@ -152,6 +152,10 @@ $showScopePicker = $isSuperAdmin;
 
                                         <div class="row g-2 align-items-end">
                                             <div class="col-12 col-md-6">
+                                                <?php if ($editable && $inputName !== ''): ?>
+                                                    <input type="hidden" name="submitted_keys[]" value="<?= esc($setting['key'] ?? '') ?>">
+                                                <?php endif; ?>
+
                                                 <?php if ($settingType === 'boolean'): ?>
                                                     <?php if ($editable && $inputName !== ''): ?>
                                                         <input type="hidden" name="<?= esc($inputName) ?>" value="0">
