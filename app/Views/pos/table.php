@@ -15,70 +15,392 @@
     border-radius: 10px;
 }
 
-    .pos-toast-container {
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        z-index: 2000;
-        display: flex;
+.pos-toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    max-width: min(92vw, 360px);
+}
+.pos-toast-item {
+    background: rgba(33, 37, 41, 0.96);
+    color: #fff;
+    border-radius: 14px;
+    padding: .9rem 1rem;
+    box-shadow: 0 12px 30px rgba(0,0,0,.22);
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity .18s ease, transform .18s ease;
+    pointer-events: auto;
+    font-size: .95rem;
+    line-height: 1.45;
+}
+.pos-toast-item.show { opacity: 1; transform: translateY(0); }
+.pos-toast-item.toast-success { background: rgba(25, 135, 84, 0.96); }
+.pos-toast-item.toast-error { background: rgba(220, 53, 69, 0.97); }
+.pos-toast-item.toast-warning { background: rgba(255, 193, 7, 0.98); color: #212529; }
+
+.pos-touch-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: calc(100vh - 150px);
+}
+
+.pos-touch-header {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 18px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #ffffff 0%, #f7f9fc 100%);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.pos-touch-header-main {
+    min-width: 0;
+}
+
+.pos-touch-title {
+    font-size: clamp(1.2rem, 1.7vw, 1.65rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: .35rem;
+}
+
+.pos-touch-subtitle {
+    color: #64748b;
+    font-size: .95rem;
+}
+
+.pos-touch-badges,
+.pos-touch-actions,
+.pos-section-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.pos-touch-actions {
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.pos-touch-btn,
+.category-btn,
+.product-btn,
+#btnOpenOrder,
+#btnSendKitchen,
+#btnPay,
+#btnMoveTable,
+#btnMergeBill {
+    min-height: 50px;
+    border-radius: 16px;
+    font-weight: 600;
+}
+
+.pos-touch-layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(210px, 240px) minmax(0, 1fr) minmax(360px, 420px);
+    gap: 12px;
+    min-height: 0;
+}
+
+.pos-pane,
+.pos-pane-card {
+    min-height: 0;
+}
+
+.pos-pane-card {
+    height: 100%;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 24px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
+}
+
+.pos-pane-body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 16px;
+}
+
+.pos-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: .25rem;
+}
+
+.pos-section-note {
+    font-size: .86rem;
+    color: #64748b;
+}
+
+.pos-category-list {
+    display: grid;
+    gap: .65rem;
+    overflow: auto;
+    padding-right: .15rem;
+}
+
+.pos-category-list .category-btn {
+    justify-content: flex-start;
+    text-align: left;
+    padding-inline: 1rem;
+}
+
+.pos-mobile-category {
+    display: none;
+}
+
+.pos-products-toolbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 12px;
+}
+
+.pos-products-toolbar .small {
+    color: #64748b;
+}
+
+#productGrid {
+    flex: 1;
+    overflow: auto;
+    margin: 0;
+    padding-right: .25rem;
+    align-content: flex-start;
+}
+
+.product-card {
+    display: flex;
+}
+
+.product-btn {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-color: rgba(148, 163, 184, 0.35) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.product-btn:hover,
+.product-btn:focus {
+    transform: translateY(-1px);
+    border-color: rgba(59, 130, 246, 0.45) !important;
+    box-shadow: 0 14px 24px rgba(59, 130, 246, 0.12);
+}
+
+.pos-bill-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 12px;
+}
+
+.pos-bill-scroll {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+    padding-right: .25rem;
+}
+
+.pos-bill-summary {
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+    margin-top: 12px;
+    padding-top: 12px;
+}
+
+.pos-bill-total-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 12px;
+}
+
+#billTotal {
+    font-size: 1.55rem;
+    line-height: 1;
+}
+
+.pos-action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+}
+
+.pos-action-grid .btn {
+    min-height: 58px;
+    font-size: 1rem;
+}
+
+#orderBox .card,
+#canceledItemsBox .card {
+    border-radius: 18px;
+}
+
+#orderBox .btn,
+#canceledItemsBox .btn {
+    border-radius: 12px;
+}
+
+@media (max-width: 1399.98px) {
+    .pos-touch-layout {
+        grid-template-columns: minmax(190px, 220px) minmax(0, 1fr) minmax(320px, 380px);
+    }
+}
+
+@media (max-width: 1199.98px) {
+    .pos-touch-shell {
+        min-height: auto;
+    }
+
+    .pos-touch-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .pos-pane-card {
+        height: auto;
+    }
+
+    .pos-category-pane {
+        display: none;
+    }
+
+    .pos-mobile-category {
+        display: block;
+    }
+
+    #productGrid,
+    .pos-bill-scroll {
+        max-height: none;
+        overflow: visible;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .pos-touch-header {
         flex-direction: column;
-        gap: .75rem;
-        max-width: min(92vw, 360px);
+        border-radius: 20px;
+        padding: 14px;
     }
-    .pos-toast-item {
-        background: rgba(33, 37, 41, 0.96);
-        color: #fff;
-        border-radius: 14px;
-        padding: .9rem 1rem;
-        box-shadow: 0 12px 30px rgba(0,0,0,.22);
-        opacity: 0;
-        transform: translateY(-6px);
-        transition: opacity .18s ease, transform .18s ease;
-        pointer-events: auto;
-        font-size: .95rem;
-        line-height: 1.45;
+
+    .pos-touch-actions {
+        width: 100%;
+        justify-content: stretch;
     }
-    .pos-toast-item.show { opacity: 1; transform: translateY(0); }
-    .pos-toast-item.toast-success { background: rgba(25, 135, 84, 0.96); }
-    .pos-toast-item.toast-error { background: rgba(220, 53, 69, 0.97); }
-    .pos-toast-item.toast-warning { background: rgba(255, 193, 7, 0.98); color: #212529; }
+
+    .pos-touch-actions > * {
+        flex: 1 1 100%;
+    }
+
+    .pos-pane-card {
+        border-radius: 20px;
+    }
+
+    .pos-pane-body {
+        padding: 14px;
+    }
+
+    .pos-action-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 <?php
     $tableIsActive = (int) ($table['is_active'] ?? 0) === 1;
     $tableStatus   = strtolower((string) ($table['status'] ?? 'available'));
     $tableDisabled = (!$tableIsActive || $tableStatus === 'disabled');
 ?>
-<div class="row g-3 mobile-bottom-space">
-    <div class="col-lg-2 d-none d-lg-block">
-        <div class="card card-soft h-100">
-            <div class="card-body">
-                <h5 class="mb-3"><?= esc(lang('app.categories')) ?></h5>
-                <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-dark category-btn active" data-id="all"><?= esc(lang('app.all')) ?></button>
-                    <?php foreach ($categories as $cat): ?>
-                        <?php $categoryName = lfield($cat, 'category_name', '-'); ?>
-                        <button type="button" class="btn btn-outline-dark category-btn" data-id="<?= (int) $cat['id'] ?>">
-                            <?= esc($categoryName) ?>
-                        </button>
-                    <?php endforeach; ?>
-                </div>
+<div class="pos-touch-shell mobile-bottom-space">
+    <div class="pos-touch-header">
+        <div class="pos-touch-header-main">
+            <div class="pos-touch-title"><?= esc(lang('app.table')) ?> <?= esc($table['table_name'] ?? '-') ?></div>
+            <div class="pos-touch-subtitle">
+                <?= $tableDisabled
+                    ? esc(lang('app.table_disabled_cannot_order'))
+                    : esc(lang('app.select_menu_to_add_bill')) ?>
             </div>
+
+            <div class="pos-touch-badges mt-3 align-items-center">
+                <?php
+                    $tableStatusText = lang('app.available');
+
+                    if ($tableDisabled) {
+                        $tableStatusText = lang('app.disabled');
+                    } else {
+                        switch ($tableStatus) {
+                            case 'occupied':
+                                $tableStatusText = lang('app.occupied');
+                                break;
+                            case 'reserved':
+                                $tableStatusText = lang('app.reserved');
+                                break;
+                            case 'cleaning':
+                                $tableStatusText = lang('app.cleaning');
+                                break;
+                            case 'disabled':
+                                $tableStatusText = lang('app.disabled');
+                                break;
+                            case 'available':
+                            default:
+                                $tableStatusText = lang('app.available');
+                                break;
+                        }
+                    }
+                ?>
+                <span class="badge <?= $tableDisabled ? 'text-bg-dark' : 'text-bg-info' ?>" id="tableStatusBadge">
+                    <?= esc(lang('app.table_status')) ?>: <?= esc($tableStatusText) ?>
+                </span>
+
+                <span class="badge text-bg-secondary" id="orderStatusBadge">
+                    <?= esc(lang('app.bill_status')) ?>: <?= esc(lang('app.no_open_bill')) ?>
+                </span>
+
+                <?php if ($tableDisabled): ?>
+                    <span class="badge text-bg-danger"><?= esc(lang('app.this_table_disabled')) ?></span>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="pos-touch-actions">
+            <button
+                type="button"
+                class="btn btn-primary pos-touch-btn"
+                id="btnOpenOrder"
+                <?= $tableDisabled ? 'disabled' : '' ?>
+            >
+                <?= $tableDisabled ? esc(lang('app.table_disabled')) : esc(lang('app.open_bill')) ?>
+            </button>
         </div>
     </div>
 
-    <div class="col-12 d-lg-none">
-        <div class="card card-soft">
-            <div class="card-body py-2">
+    <?php if ($tableDisabled): ?>
+        <div class="alert alert-warning border-0 rounded-4 mb-0">
+            <?= esc(lang('app.table_disabled_full_notice')) ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="pos-mobile-category">
+        <div class="pos-pane-card">
+            <div class="pos-pane-body">
                 <div class="small text-muted mb-2"><?= esc(lang('app.categories')) ?></div>
                 <div class="d-flex gap-2 overflow-auto pb-1 mobile-category-scroll" id="mobileCategoryBar">
                     <button type="button" class="btn btn-dark flex-shrink-0 category-btn active" data-id="all"><?= esc(lang('app.all')) ?></button>
                     <?php foreach ($categories as $cat): ?>
                         <?php $categoryName = lfield($cat, 'category_name', '-'); ?>
-                        <button
-                            type="button"
-                            class="btn btn-outline-secondary flex-shrink-0 category-btn"
-                            data-id="<?= (int) $cat['id'] ?>"
-                        >
+                        <button type="button" class="btn btn-outline-dark flex-shrink-0 category-btn" data-id="<?= (int) $cat['id'] ?>">
                             <?= esc($categoryName) ?>
                         </button>
                     <?php endforeach; ?>
@@ -87,169 +409,128 @@
         </div>
     </div>
 
-    <div class="col-lg-6">
-        <div class="card card-soft h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-                    <div>
-                        <h4 class="mb-1"><?= esc(lang('app.table')) ?> <?= esc($table['table_name'] ?? '-') ?></h4>
-                        <div class="small text-muted mb-2">
-                            <?= $tableDisabled
-                                ? esc(lang('app.table_disabled_cannot_order'))
-                                : esc(lang('app.select_menu_to_add_bill')) ?>
-                        </div>
+    <div class="pos-touch-layout">
+        <div class="pos-pane pos-category-pane">
+            <div class="pos-pane-card">
+                <div class="pos-pane-body">
+                    <div class="pos-section-title"><?= esc(lang('app.categories')) ?></div>
+                    <div class="pos-section-note mb-3"><?= esc(lang('app.select_menu_to_add_bill')) ?></div>
 
-                        <div class="d-flex flex-wrap gap-2 align-items-center">
-                            <?php
-                                $tableStatusText = lang('app.available');
-
-                                if ($tableDisabled) {
-                                    $tableStatusText = lang('app.disabled');
-                                } else {
-                                    switch ($tableStatus) {
-                                        case 'occupied':
-                                            $tableStatusText = lang('app.occupied');
-                                            break;
-                                        case 'reserved':
-                                            $tableStatusText = lang('app.reserved');
-                                            break;
-                                        case 'cleaning':
-                                            $tableStatusText = lang('app.cleaning');
-                                            break;
-                                        case 'disabled':
-                                            $tableStatusText = lang('app.disabled');
-                                            break;
-                                        case 'available':
-                                        default:
-                                            $tableStatusText = lang('app.available');
-                                            break;
-                                    }
-                                }
-                            ?>
-                            <span
-                                class="badge <?= $tableDisabled ? 'text-bg-dark' : 'text-bg-info' ?>"
-                                id="tableStatusBadge"
-                            >
-                                <?= esc(lang('app.table_status')) ?>:
-                                <?= esc($tableStatusText) ?>
-                            </span>
-
-                            <span class="badge text-bg-secondary" id="orderStatusBadge">
-                                <?= esc(lang('app.bill_status')) ?>: <?= esc(lang('app.no_open_bill')) ?>
-                            </span>
-
-                            <?php if ($tableDisabled): ?>
-                                <span class="badge text-bg-danger"><?= esc(lang('app.this_table_disabled')) ?></span>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        <button
-                            type="button"
-                            class="btn btn-primary"
-                            id="btnOpenOrder"
-                            <?= $tableDisabled ? 'disabled' : '' ?>
-                        >
-                            <?= $tableDisabled ? esc(lang('app.table_disabled')) : esc(lang('app.open_bill')) ?>
-                        </button>
-                    </div>
-                </div>
-
-                <?php if ($tableDisabled): ?>
-                    <div class="alert alert-warning border-0 rounded-4 mb-3">
-                        <?= esc(lang('app.table_disabled_full_notice')) ?>
-                    </div>
-                <?php endif; ?>
-
-                <div id="mergeTraceBox" class="mb-3"></div>
-
-                <div class="row g-3" id="productGrid">
-                    <?php foreach ($products as $product): ?>
-                        <?php $productName = lfield($product, 'product_name', '-'); ?>
-                        <div class="col-6 col-md-4 product-card" data-category="<?= (int) ($product['category_id'] ?? 0) ?>">
-                            <button
-                                type="button"
-                                class="btn btn-light border w-100 text-start rounded-4 p-3 product-btn h-100"
-                                data-id="<?= (int) $product['id'] ?>"
-                                data-name="<?= esc($productName) ?>"
-                                <?= $tableDisabled ? 'disabled' : '' ?>
-                            >
-                                <div class="fw-bold mb-1"><?= esc($productName) ?></div>
-                                <div class="text-muted small">฿<?= number_format((float) ($product['price'] ?? 0), 2) ?></div>
+                    <div class="pos-category-list">
+                        <button type="button" class="btn btn-dark category-btn active" data-id="all"><?= esc(lang('app.all')) ?></button>
+                        <?php foreach ($categories as $cat): ?>
+                            <?php $categoryName = lfield($cat, 'category_name', '-'); ?>
+                            <button type="button" class="btn btn-outline-dark category-btn" data-id="<?= (int) $cat['id'] ?>">
+                                <?= esc($categoryName) ?>
                             </button>
-                        </div>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-lg-4">
-        <div class="card card-soft h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h5 class="mb-0"><?= esc(lang('app.current_bill')) ?></h5>
-                    <span class="small text-muted" id="orderNoLabel">-</span>
+        <div class="pos-pane">
+            <div class="pos-pane-card">
+                <div class="pos-pane-body">
+                    <div class="pos-products-toolbar">
+                        <div>
+                            <div class="pos-section-title"><?= esc(lang('app.categories')) ?></div>
+                            <div class="small"><?= esc(lang('app.select_menu_to_add_bill')) ?></div>
+                        </div>
+
+                        <div class="pos-section-stack align-items-center justify-content-end">
+                            <div id="mergeTraceBox" class="w-100"></div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3" id="productGrid">
+                        <?php foreach ($products as $product): ?>
+                            <?php $productName = lfield($product, 'product_name', '-'); ?>
+                            <div class="col-6 col-md-4 product-card" data-category="<?= (int) ($product['category_id'] ?? 0) ?>">
+                                <button
+                                    type="button"
+                                    class="btn btn-light border w-100 text-start rounded-4 p-3 product-btn h-100"
+                                    data-id="<?= (int) $product['id'] ?>"
+                                    data-name="<?= esc($productName) ?>"
+                                    <?= $tableDisabled ? 'disabled' : '' ?>
+                                >
+                                    <div class="fw-bold mb-1"><?= esc($productName) ?></div>
+                                    <div class="text-muted small">฿<?= number_format((float) ($product['price'] ?? 0), 2) ?></div>
+                                </button>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
+            </div>
+        </div>
 
-                <div id="orderMetaIndicators" class="d-flex flex-wrap gap-2 mb-3"></div>
+        <div class="pos-pane">
+            <div class="pos-pane-card">
+                <div class="pos-pane-body">
+                    <div class="pos-bill-header">
+                        <div>
+                            <div class="pos-section-title"><?= esc(lang('app.current_bill')) ?></div>
+                            <div class="pos-section-note" id="orderNoLabel">-</div>
+                        </div>
+                    </div>
 
-                <div id="billMergeAuditBox" class="mb-3"></div>
+                    <div class="pos-bill-scroll">
+                        <div id="orderMetaIndicators" class="d-flex flex-wrap gap-2 mb-3"></div>
+                        <div id="billMergeAuditBox" class="mb-3"></div>
+                        <div id="billMoveAuditBox" class="mb-3"></div>
+                        <div id="billRequestAlertBox" class="mt-2 mb-3"></div>
 
-                <div id="billMoveAuditBox" class="mb-3"></div>
+                        <div id="orderBox">
+                            <div class="text-muted"><?= esc(lang('app.no_bill_yet')) ?></div>
+                        </div>
 
-                <div id="billRequestAlertBox" class="mt-2"></div>
+                        <div id="canceledItemsBox"></div>
+                    </div>
 
-                <div id="orderBox">
-                    <div class="text-muted"><?= esc(lang('app.no_bill_yet')) ?></div>
-                </div>
+                    <div class="pos-bill-summary">
+                        <div class="pos-bill-total-row">
+                            <span><?= esc(lang('app.grand_total')) ?></span>
+                            <strong id="billTotal">฿0.00</strong>
+                        </div>
 
-                <div id="canceledItemsBox"></div>
+                        <div class="pos-action-grid">
+                            <button
+                                type="button"
+                                class="btn btn-warning"
+                                id="btnSendKitchen"
+                                <?= $tableDisabled ? 'disabled' : '' ?>
+                            >
+                                <?= esc(lang('app.send_to_kitchen')) ?>
+                            </button>
 
-                <hr>
+                            <button
+                                type="button"
+                                class="btn btn-success"
+                                id="btnPay"
+                                <?= $tableDisabled ? 'disabled' : '' ?>
+                            >
+                                <?= esc(lang('app.close_bill_pay')) ?>
+                            </button>
 
-                <div class="d-flex justify-content-between mb-2">
-                    <span><?= esc(lang('app.grand_total')) ?></span>
-                    <strong id="billTotal">฿0.00</strong>
-                </div>
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                id="btnMoveTable"
+                                <?= $tableDisabled ? 'disabled' : '' ?>
+                            >
+                                <?= esc(lang('app.move_table')) ?>
+                            </button>
 
-                <div class="d-grid gap-2">
-                    <button
-                        type="button"
-                        class="btn btn-warning"
-                        id="btnSendKitchen"
-                        <?= $tableDisabled ? 'disabled' : '' ?>
-                    >
-                        <?= esc(lang('app.send_to_kitchen')) ?>
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-success"
-                        id="btnPay"
-                        <?= $tableDisabled ? 'disabled' : '' ?>
-                    >
-                        <?= esc(lang('app.close_bill_pay')) ?>
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-outline-primary"
-                        id="btnMoveTable"
-                        <?= $tableDisabled ? 'disabled' : '' ?>
-                    >
-                        <?= esc(lang('app.move_table')) ?>
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-outline-dark"
-                        id="btnMergeBill"
-                        <?= $tableDisabled ? 'disabled' : '' ?>
-                    >
-                        <?= esc(lang('app.merge_bill')) ?>
-                    </button>
+                            <button
+                                type="button"
+                                class="btn btn-outline-dark"
+                                id="btnMergeBill"
+                                <?= $tableDisabled ? 'disabled' : '' ?>
+                            >
+                                <?= esc(lang('app.merge_bill')) ?>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

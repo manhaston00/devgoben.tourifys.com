@@ -1,0 +1,167 @@
+/* POS TOUCH MODE */
+
+.pos-touch-layout{
+height:100vh;
+display:flex;
+flex-direction:column;
+overflow:hidden;
+background:#f5f6fa;
+}
+
+/* TOP BAR */
+
+.pos-topbar{
+height:60px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 16px;
+background:#ffffff;
+border-bottom:1px solid #e5e7eb;
+font-weight:600;
+}
+
+/* MAIN AREA */
+
+.pos-main{
+flex:1;
+display:flex;
+overflow:hidden;
+}
+
+/* LEFT MENU */
+
+.pos-menu{
+width:35%;
+background:#fff;
+border-right:1px solid #e5e7eb;
+display:flex;
+flex-direction:column;
+}
+
+/* CATEGORY */
+
+.pos-category{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+.pos-category button{
+flex:1 1 45%;
+height:50px;
+border-radius:10px;
+font-weight:600;
+}
+
+/* MENU GRID */
+
+.pos-items{
+flex:1;
+overflow:auto;
+padding:10px;
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+}
+
+.pos-item{
+background:#fff;
+border:1px solid #eee;
+border-radius:10px;
+height:80px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:600;
+}
+
+/* ORDER PANEL */
+
+.pos-order{
+width:65%;
+display:flex;
+flex-direction:column;
+background:#fff;
+}
+
+/* ORDER LIST */
+
+.pos-order-list{
+flex:1;
+overflow:auto;
+padding:12px;
+}
+
+.pos-order-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:8px 0;
+border-bottom:1px dashed #eee;
+}
+
+/* TOTAL */
+
+.pos-total{
+padding:12px;
+border-top:1px solid #eee;
+font-size:18px;
+font-weight:700;
+}
+
+/* ACTION BAR */
+
+.pos-actionbar{
+height:80px;
+display:flex;
+gap:8px;
+padding:10px;
+background:#fff;
+border-top:1px solid #ddd;
+}
+
+.pos-actionbar button{
+flex:1;
+height:60px;
+font-size:18px;
+font-weight:700;
+border-radius:12px;
+}
+
+/* COLORS */
+
+.btn-send{
+background:#3498db;
+color:#fff;
+}
+
+.btn-pay{
+background:#27ae60;
+color:#fff;
+}
+
+.btn-split{
+background:#f39c12;
+color:#fff;
+}
+
+.btn-merge{
+background:#8e44ad;
+color:#fff;
+}
+
+.btn-void{
+background:#e74c3c;
+color:#fff;
+}
+
+/* FOCUS MODE */
+
+.pos-focus-mode header,
+.pos-focus-mode .sidebar,
+.pos-focus-mode .breadcrumb{
+display:none!important;
+}
