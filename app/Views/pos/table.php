@@ -554,8 +554,10 @@ $(function () {
     const mergeBillModal = mergeBillModalEl ? new bootstrap.Modal(mergeBillModalEl) : null;
 
     const POS_PERMISSIONS = <?= json_encode([
+        'access' => (bool) ($posPermissions['access'] ?? false),
+        'open_table' => (bool) ($posPermissions['open_table'] ?? false),
         'sell' => (bool) ($posPermissions['sell'] ?? false),
-        'send_kitchen' => (bool) ($posPermissions['send_kitchen'] ?? ($posPermissions['sell'] ?? false)),
+        'send_kitchen' => (bool) ($posPermissions['send_kitchen'] ?? false),
         'request_bill' => (bool) ($posPermissions['request_bill'] ?? false),
         'close_bill' => (bool) ($posPermissions['close_bill'] ?? false),
         'pay' => (bool) ($posPermissions['pay'] ?? false),
@@ -1967,7 +1969,7 @@ $(function () {
     $(document).off('click', '#btnSendKitchen');
 
     $(document).on('click', '#btnSendKitchen', function () {
-		if (!canSellAction()) {
+		if (!canSendKitchenAction()) {
 			notify(TXT.noPermission);
 			return;
 		}
