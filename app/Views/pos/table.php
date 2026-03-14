@@ -215,50 +215,71 @@
                 </div>
 
                 <div class="d-grid gap-2">
+                    <?php
+                        $posPermissions = is_array($posPermissions ?? null) ? $posPermissions : [];
+                        $canSell = (bool) ($posPermissions['sell'] ?? false);
+                        $canSendKitchen = (bool) ($posPermissions['send_kitchen'] ?? $canSell);
+                        $canRequestBill = (bool) ($posPermissions['request_bill'] ?? false);
+                        $canPay = (bool) ($posPermissions['pay'] ?? false);
+                        $canMoveTable = (bool) ($posPermissions['move_table'] ?? false);
+                        $canMergeBill = (bool) ($posPermissions['merge_bill'] ?? false);
+                        $canReopenBill = (bool) ($posPermissions['reopen_bill'] ?? false);
+                    ?>
+
+                    <?php if ($canSendKitchen): ?>
                     <button
                         type="button"
                         class="btn btn-warning"
                         id="btnSendKitchen"
-                        <?= $tableDisabled ? 'disabled' : '' ?>
+                        <?= ($tableDisabled || ! $canSendKitchen) ? 'disabled' : '' ?>
                     >
                         <?= esc(lang('app.send_to_kitchen')) ?>
                     </button>
+                    <?php endif; ?>
 
+                    <?php if ($canRequestBill || $canPay): ?>
                     <button
                         type="button"
                         class="btn btn-success"
                         id="btnPay"
-                        <?= $tableDisabled ? 'disabled' : '' ?>
+                        <?= ($tableDisabled || (! $canRequestBill && ! $canPay)) ? 'disabled' : '' ?>
                     >
                         <?= esc(lang('app.close_bill_pay')) ?>
                     </button>
+                    <?php endif; ?>
 
+                    <?php if ($canReopenBill): ?>
                     <button
                         type="button"
                         class="btn btn-outline-warning"
                         id="btnReopenBill"
-                        <?= $tableDisabled ? 'disabled' : '' ?>
+                        <?= ($tableDisabled || ! $canReopenBill) ? 'disabled' : '' ?>
                     >
                         <?= esc(lang('app.reopen_bill')) ?>
                     </button>
+                    <?php endif; ?>
 
+                    <?php if ($canMoveTable): ?>
                     <button
                         type="button"
                         class="btn btn-outline-primary"
                         id="btnMoveTable"
-                        <?= $tableDisabled ? 'disabled' : '' ?>
+                        <?= ($tableDisabled || ! $canMoveTable) ? 'disabled' : '' ?>
                     >
                         <?= esc(lang('app.move_table')) ?>
                     </button>
+                    <?php endif; ?>
 
+                    <?php if ($canMergeBill): ?>
                     <button
                         type="button"
                         class="btn btn-outline-dark"
                         id="btnMergeBill"
-                        <?= $tableDisabled ? 'disabled' : '' ?>
+                        <?= ($tableDisabled || ! $canMergeBill) ? 'disabled' : '' ?>
                     >
                         <?= esc(lang('app.merge_bill')) ?>
                     </button>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -531,6 +552,18 @@ $(function () {
 
     const mergeBillModalEl = document.getElementById('mergeBillModal');
     const mergeBillModal = mergeBillModalEl ? new bootstrap.Modal(mergeBillModalEl) : null;
+
+    const POS_PERMISSIONS = <?= json_encode([
+        'sell' => (bool) ($posPermissions['sell'] ?? false),
+        'send_kitchen' => (bool) ($posPermissions['send_kitchen'] ?? ($posPermissions['sell'] ?? false)),
+        'request_bill' => (bool) ($posPermissions['request_bill'] ?? false),
+        'close_bill' => (bool) ($posPermissions['close_bill'] ?? false),
+        'pay' => (bool) ($posPermissions['pay'] ?? false),
+        'move_table' => (bool) ($posPermissions['move_table'] ?? false),
+        'merge_bill' => (bool) ($posPermissions['merge_bill'] ?? false),
+        'reopen_bill' => (bool) ($posPermissions['reopen_bill'] ?? false),
+        'manager_override' => (bool) ($posPermissions['manager_override'] ?? false),
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
     const TXT = {
         tableDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -1258,6 +1291,34 @@ $(function () {
         $('#orderMetaIndicators').html(indicators.join(''));
     }
 
+    function canRequestBillAction() {
+        return !!(POS_PERMISSIONS.request_bill || POS_PERMISSIONS.close_bill);
+    }
+
+    function canPayAction() {
+        return !!POS_PERMISSIONS.pay;
+    }
+
+    function canReopenBillAction() {
+        return !!POS_PERMISSIONS.reopen_bill;
+    }
+
+    function canMoveTableAction() {
+        return !!POS_PERMISSIONS.move_table;
+    }
+
+    function canMergeBillAction() {
+        return !!POS_PERMISSIONS.merge_bill;
+    }
+
+    function canSellAction() {
+        return !!POS_PERMISSIONS.sell;
+    }
+
+    function canSendKitchenAction() {
+        return !!(POS_PERMISSIONS.send_kitchen || POS_PERMISSIONS.sell);
+    }
+
     function updateOrderHeader(order = null) {
 		const $badge = $('#orderStatusBadge');
 		$badge.removeClass('text-bg-primary text-bg-warning text-bg-success text-bg-danger text-bg-secondary text-bg-dark');
@@ -1283,12 +1344,12 @@ $(function () {
 				$('#btnOpenOrder').prop('disabled', false).text(TXT.openBill);
 			}
 
-			$('#btnSendKitchen').prop('disabled', CURRENT_ORDER_STATUS !== 'open');
-			$('#btnPay').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
-			$('#btnReopenBill').prop('disabled', CURRENT_ORDER_STATUS !== 'billing');
-			$('#btnMoveTable').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
-			$('#btnMergeBill').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
-			$('.product-btn').prop('disabled', false);
+			$('#btnSendKitchen').prop('disabled', !(canSendKitchenAction() && CURRENT_ORDER_STATUS === 'open'));
+			$('#btnPay').prop('disabled', !((CURRENT_ORDER_STATUS === 'open' && canRequestBillAction()) || (CURRENT_ORDER_STATUS === 'billing' && canPayAction())));
+			$('#btnReopenBill').prop('disabled', !(canReopenBillAction() && CURRENT_ORDER_STATUS === 'billing'));
+			$('#btnMoveTable').prop('disabled', !(canMoveTableAction() && (CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')));
+			$('#btnMergeBill').prop('disabled', !(canMergeBillAction() && (CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')));
+			$('.product-btn').prop('disabled', !canSellAction());
 		}
 
 		if (CURRENT_ORDER_STATUS === 'open') {
@@ -1906,6 +1967,11 @@ $(function () {
     $(document).off('click', '#btnSendKitchen');
 
     $(document).on('click', '#btnSendKitchen', function () {
+		if (!canSellAction()) {
+			notify(TXT.noPermission);
+			return;
+		}
+
         if (SEND_KITCHEN_BUSY) {
             return;
         }
@@ -1959,6 +2025,11 @@ $(function () {
     });
 
     $(document).on('click', '#btnReopenBill', function () {
+		if (!canReopenBillAction()) {
+			notify(TXT.noPermission);
+			return;
+		}
+
 		if (!TABLE_IS_ACTIVE) {
 			notify(TXT.tableDisabled);
 			return;
@@ -2003,6 +2074,11 @@ $(function () {
 	});
 
     $(document).on('click', '#btnPay', function () {
+		if ((CURRENT_ORDER_STATUS === 'billing' && !canPayAction()) || (CURRENT_ORDER_STATUS !== 'billing' && !canRequestBillAction())) {
+			notify(TXT.noPermission);
+			return;
+		}
+
 		if (!TABLE_IS_ACTIVE) {
 			notify(TXT.tableDisabled);
 			return;
@@ -2230,6 +2306,11 @@ $(function () {
     });
 
     $(document).on('click', '#btnMoveTable', function () {
+		if (!canMoveTableAction()) {
+			notify(TXT.noPermission);
+			return;
+		}
+
         if (!CURRENT_ORDER_ID) {
             notify(TXT.noBillYet);
             return;
@@ -2298,6 +2379,11 @@ $(function () {
     });
 
     $(document).on('click', '#btnMergeBill', function () {
+		if (!canMergeBillAction()) {
+			notify(TXT.noPermission);
+			return;
+		}
+
         if (!CURRENT_ORDER_ID) {
             notify(TXT.noBillYet);
             return;

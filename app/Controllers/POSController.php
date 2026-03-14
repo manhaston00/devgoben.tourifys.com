@@ -848,11 +848,22 @@ class POSController extends BaseController
         $quickNotes   = $this->getTenantQuickNotesForPos();
 
         return view('pos/table', [
-            'table'        => $table,
-            'categories'   => $categories,
-            'products'     => $products,
-            'currentOrder' => $currentOrder,
-            'quickNotes'   => $quickNotes,
+            'table'          => $table,
+            'categories'     => $categories,
+            'products'       => $products,
+            'currentOrder'   => $currentOrder,
+            'quickNotes'     => $quickNotes,
+            'posPermissions' => [
+                'sell'             => $this->userHasPermissionKey('pos.sell'),
+                'send_kitchen'     => $this->userHasPermissionKey('pos.send_kitchen') || $this->userHasPermissionKey('pos.sell'),
+                'request_bill'     => $this->userHasPermissionKey('cashier.request_bill'),
+                'close_bill'       => $this->userHasPermissionKey('cashier.close_bill'),
+                'pay'              => $this->userHasPermissionKey('cashier.pay'),
+                'move_table'       => $this->userHasPermissionKey('tables.manage'),
+                'merge_bill'       => $this->userHasPermissionKey('cashier.close_bill'),
+                'reopen_bill'      => $this->userHasPermissionKey('cashier.reopen_bill') || $this->userHasPermissionKey('cashier.close_bill'),
+                'manager_override' => $this->userHasPermissionKey('cashier.manager_override'),
+            ],
         ]);
     }
 
