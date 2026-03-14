@@ -1135,4 +1135,9 @@ return [
 	'user' => 'ผู้ใช้งาน',
 	'order_number' => 'เลขออเดอร์',
 
+'merged_from_tables' => 'รวมบิลมาจากโต๊ะ',
+'source_bill' => 'บิลต้นทาง',
+'merged_by' => 'ผู้รวมบิล',
+'merged_at' => 'เวลาที่รวม',
+'no_merge_reason' => '-',
 ];

@@ -1267,6 +1267,68 @@ class POSController extends BaseController
         return $this->buildMergeNoticeFromRow($merge);
     }
 
+
+    protected function getMergeTraceByTargetOrder(int $targetOrderId): array
+    {
+        if ($targetOrderId <= 0 || ! $this->db->tableExists('order_merges')) {
+            return [];
+        }
+
+        $builder = $this->db->table('order_merges om');
+        $builder->select([
+            'om.id',
+            'om.source_order_id',
+            'om.target_order_id',
+            'om.source_table_id',
+            'om.target_table_id',
+            'om.reason',
+            'om.created_at',
+            'so.order_number AS source_order_number',
+            'to2.order_number AS target_order_number',
+            'st.table_name AS source_table_name',
+            'tt.table_name AS target_table_name',
+            'u.full_name AS merged_by_name',
+        ]);
+        $builder->join('orders so', 'so.id = om.source_order_id', 'left');
+        $builder->join('orders to2', 'to2.id = om.target_order_id', 'left');
+        $builder->join('restaurant_tables st', 'st.id = om.source_table_id', 'left');
+        $builder->join('restaurant_tables tt', 'tt.id = om.target_table_id', 'left');
+        $builder->join('users u', 'u.id = om.merged_by', 'left');
+        $builder->where('om.tenant_id', $this->currentTenantId());
+        $builder->where('om.target_order_id', $targetOrderId);
+
+        $branchId = $this->getCurrentBranchId();
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_merges')) {
+            $builder->where('om.branch_id', $branchId);
+        }
+
+        $rows = $builder
+            ->orderBy('om.id', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        return array_map(static function (array $row): array {
+            return [
+                'merge_id'            => (int) ($row['id'] ?? 0),
+                'source_order_id'     => (int) ($row['source_order_id'] ?? 0),
+                'target_order_id'     => (int) ($row['target_order_id'] ?? 0),
+                'source_table_id'     => isset($row['source_table_id']) ? (int) $row['source_table_id'] : null,
+                'target_table_id'     => isset($row['target_table_id']) ? (int) $row['target_table_id'] : null,
+                'source_order_number' => (string) ($row['source_order_number'] ?? ''),
+                'target_order_number' => (string) ($row['target_order_number'] ?? ''),
+                'source_table_name'   => (string) ($row['source_table_name'] ?? ''),
+                'target_table_name'   => (string) ($row['target_table_name'] ?? ''),
+                'merged_by_name'      => (string) ($row['merged_by_name'] ?? ''),
+                'reason'              => $row['reason'] ?? null,
+                'merged_at'           => $row['created_at'] ?? null,
+            ];
+        }, $rows);
+    }
+
     public function currentOrder($tableId)
     {
         if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
@@ -1303,6 +1365,7 @@ class POSController extends BaseController
             'order'         => $order,
             'items'         => $items,
             'merged_notice' => null,
+            'merge_trace'   => $this->getMergeTraceByTargetOrder((int) ($order['id'] ?? 0)),
         ]);
     }
 

@@ -6,6 +6,7 @@ return [
     'settings_control_open' => 'เปิดศูนย์ควบคุมการตั้งค่า',
     'settings_control_manage' => 'จัดการฟีเจอร์ เมนู รูปสินค้า ภาษี การชำระเงิน และการพิมพ์',
     'settings_control_scope' => 'ขอบเขตการตั้งค่า',
+    'settings_control_scope_desc' => 'เลือก scope ที่ต้องการจัดการค่าก่อนบันทึกการเปลี่ยนแปลง',
     'settings_control_scope_platform' => 'ค่าเริ่มต้นทั้งแพลตฟอร์ม',
     'settings_control_scope_tenant' => 'ค่าระดับร้าน / tenant',
     'settings_control_scope_branch' => 'ค่าระดับสาขา',

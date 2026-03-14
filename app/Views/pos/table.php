@@ -162,6 +162,8 @@
                     </div>
                 <?php endif; ?>
 
+                <div id="mergeTraceBox" class="mb-3"></div>
+
                 <div class="row g-3" id="productGrid">
                     <?php foreach ($products as $product): ?>
                         <?php $productName = lfield($product, 'product_name', '-'); ?>
@@ -552,6 +554,12 @@ $(function () {
         mergeBill: <?= json_encode(lang('app.merge_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         mergeBillFailed: <?= json_encode(lang('app.merge_bill_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         mergeBillSuccess: <?= json_encode(lang('app.merge_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        mergedFromTables: <?= json_encode(lang('app.merged_from_tables'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        sourceBill: <?= json_encode(lang('app.source_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        mergedBy: <?= json_encode(lang('app.merged_by'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        mergedAt: <?= json_encode(lang('app.merged_at'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        mergeReason: <?= json_encode(lang('app.merge_reason'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        noMergeReason: <?= json_encode(lang('app.no_merge_reason'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         selectTargetBill: <?= json_encode(lang('app.select_target_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         cancelRequestPending: <?= json_encode(service('request')->getLocale() === 'th' ? 'รออนุมัติยกเลิก' : 'Waiting for cancel approval', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         cancelRequestRejected: <?= json_encode(service('request')->getLocale() === 'th' ? 'ครัวปฏิเสธการยกเลิก' : 'Kitchen rejected cancellation', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -976,6 +984,46 @@ $(function () {
         $('#modalItemNote').val(merged.join(', '));
     }
 	
+    function renderMergeTrace(order = null) {
+        const traces = Array.isArray(order && order.merge_trace) ? order.merge_trace : [];
+
+        if (!traces.length) {
+            $('#mergeTraceBox').html('');
+            return;
+        }
+
+        const itemsHtml = traces.map(function (trace) {
+            const sourceTableName = escapeHtml(trace.source_table_name || '-');
+            const sourceOrderNumber = escapeHtml(trace.source_order_number || '-');
+            const mergedByName = escapeHtml(trace.merged_by_name || '-');
+            const mergedAt = escapeHtml(trace.merged_at || '-');
+            const reason = $.trim(trace.reason || '') !== ''
+                ? escapeHtml(trace.reason || '')
+                : escapeHtml(TXT.noMergeReason);
+
+            return `
+                <div class="border rounded-4 p-3 bg-light-subtle mb-2">
+                    <div class="d-flex flex-wrap gap-2 mb-2 align-items-center">
+                        <span class="badge rounded-pill text-bg-warning">${escapeHtml(TXT.mergeBill)}</span>
+                        <span class="badge rounded-pill text-bg-dark">${sourceTableName}</span>
+                        <span class="badge rounded-pill text-bg-secondary">#${sourceOrderNumber}</span>
+                    </div>
+                    <div class="small text-muted">${escapeHtml(TXT.sourceBill)}: ${sourceOrderNumber}</div>
+                    <div class="small text-muted">${escapeHtml(TXT.mergedBy)}: ${mergedByName}</div>
+                    <div class="small text-muted">${escapeHtml(TXT.mergedAt)}: ${mergedAt}</div>
+                    <div class="small text-muted">${escapeHtml(TXT.mergeReason)}: ${reason}</div>
+                </div>
+            `;
+        }).join('');
+
+        $('#mergeTraceBox').html(`
+            <div class="alert alert-warning border-0 rounded-4 mb-0">
+                <div class="fw-bold mb-2">${escapeHtml(TXT.mergedFromTables)}</div>
+                ${itemsHtml}
+            </div>
+        `);
+    }
+
     function renderOrderMetaIndicators(order = null) {
         const indicators = [];
         const mergedNotice = order && order.merged_notice ? order.merged_notice : null;
@@ -1000,6 +1048,7 @@ $(function () {
 		$badge.text(TXT.billStatus + ': ' + statusText(CURRENT_ORDER_STATUS));
 
         renderOrderMetaIndicators(order);
+        renderMergeTrace(order);
 
 		if (!TABLE_IS_ACTIVE) {
 			$('#btnOpenOrder').prop('disabled', true).text(TXT.tableDisabled);

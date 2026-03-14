@@ -1155,4 +1155,9 @@ return [
 	'user' => 'User',
 	'order_number' => 'Order Number',
 
+'merged_from_tables' => 'Merged from tables',
+'source_bill' => 'Source bill',
+'merged_by' => 'Merged by',
+'merged_at' => 'Merged at',
+'no_merge_reason' => '-',
 ];

@@ -6,6 +6,7 @@ return [
     'settings_control_open' => 'Open Settings Control Center',
     'settings_control_manage' => 'Manage features, menu visibility, media display, tax, payments, and printing.',
     'settings_control_scope' => 'Settings Scope',
+    'settings_control_scope_desc' => 'Choose the scope you want to manage before saving changes.',
     'settings_control_scope_platform' => 'Platform defaults',
     'settings_control_scope_tenant' => 'Tenant scope',
     'settings_control_scope_branch' => 'Branch scope',
