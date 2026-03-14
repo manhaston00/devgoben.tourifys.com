@@ -248,7 +248,6 @@ class POSController extends BaseController
         return [
             'request_bill' => 'cashier.request_bill',
             'close_bill'   => 'cashier.close_bill',
-            'reopen_bill'  => 'cashier.close_bill',
             'pay'          => 'cashier.pay',
         ];
     }
@@ -848,24 +847,11 @@ class POSController extends BaseController
         $quickNotes   = $this->getTenantQuickNotesForPos();
 
         return view('pos/table', [
-            'table'          => $table,
-            'categories'     => $categories,
-            'products'       => $products,
-            'currentOrder'   => $currentOrder,
-            'quickNotes'     => $quickNotes,
-            'posPermissions' => [
-                'access'           => $this->userHasPermissionKey('pos.view') || $this->userHasPermissionKey('pos.access'),
-                'open_table'       => $this->userHasPermissionKey('pos.open_table') || $this->userHasPermissionKey('pos.sell'),
-                'sell'             => $this->userHasPermissionKey('pos.add_item') || $this->userHasPermissionKey('pos.sell'),
-                'send_kitchen'     => $this->userHasPermissionKey('pos.send_kitchen') || $this->userHasPermissionKey('pos.add_item') || $this->userHasPermissionKey('pos.sell'),
-                'request_bill'     => $this->userHasPermissionKey('cashier.request_bill') || $this->userHasPermissionKey('cashier.checkout'),
-                'close_bill'       => $this->userHasPermissionKey('cashier.close_bill') || $this->userHasPermissionKey('cashier.checkout'),
-                'pay'              => $this->userHasPermissionKey('cashier.pay') || $this->userHasPermissionKey('cashier.checkout'),
-                'move_table'       => $this->userHasPermissionKey('tables.edit') || $this->userHasPermissionKey('tables.manage'),
-                'merge_bill'       => $this->userHasPermissionKey('cashier.close_bill') || $this->userHasPermissionKey('cashier.checkout'),
-                'reopen_bill'      => $this->userHasPermissionKey('cashier.reopen_bill') || $this->userHasPermissionKey('cashier.close_bill') || $this->userHasPermissionKey('cashier.checkout'),
-                'manager_override' => $this->userHasPermissionKey('cashier.manager_override'),
-            ],
+            'table'        => $table,
+            'categories'   => $categories,
+            'products'     => $products,
+            'currentOrder' => $currentOrder,
+            'quickNotes'   => $quickNotes,
         ]);
     }
 
@@ -1303,6 +1289,27 @@ class POSController extends BaseController
             return null;
         }
 
+        $sourceOrderId = (int) ($merge['source_order_id'] ?? 0);
+        $targetOrderId = (int) ($merge['target_order_id'] ?? 0);
+        $checkpointId  = max($sourceOrderId, $targetOrderId);
+
+        if ($checkpointId > 0) {
+            $orderBuilder = $this->db->table('orders');
+            $orderBuilder->select('id');
+            $orderBuilder->where('tenant_id', $this->currentTenantId());
+            $orderBuilder->where('table_id', $tableId);
+            $orderBuilder->where('id >', $checkpointId);
+
+            if ($branchId > 0 && $this->db->fieldExists('branch_id', 'orders')) {
+                $orderBuilder->where('branch_id', $branchId);
+            }
+
+            $newerOrder = $orderBuilder->orderBy('id', 'DESC')->get()->getFirstRow('array');
+            if ($newerOrder) {
+                return null;
+            }
+        }
+
         return $this->buildMergeNoticeFromRow($merge);
     }
 
@@ -1368,168 +1375,6 @@ class POSController extends BaseController
         }, $rows);
     }
 
-    protected function buildMoveNoticeFromRow(array $move): ?array
-    {
-        $orderId = (int) ($move['order_id'] ?? 0);
-        $fromTableId = (int) ($move['from_table_id'] ?? 0);
-        $toTableId = (int) ($move['to_table_id'] ?? 0);
-        $branchId = $this->getCurrentBranchId();
-
-        if ($orderId <= 0 || $fromTableId <= 0 || $toTableId <= 0) {
-            return null;
-        }
-
-        $tableIds = array_values(array_unique(array_filter([$fromTableId, $toTableId])));
-        $tableMap = method_exists($this->tableModel, 'getTableMapByIds')
-            ? $this->tableModel->getTableMapByIds($tableIds, $branchId)
-            : [];
-
-        $fromTableName = $tableMap[$fromTableId]['table_name'] ?? null;
-        $toTableName = $tableMap[$toTableId]['table_name'] ?? null;
-
-        $orderNumber = null;
-        if ($orderId > 0) {
-            $order = $this->orderModel
-                ->where('tenant_id', $this->currentTenantId())
-                ->where('branch_id', $branchId)
-                ->where('id', $orderId)
-                ->first();
-
-            if ($order) {
-                $orderNumber = $order['order_number'] ?? null;
-            }
-        }
-
-        return [
-            'move_id'        => (int) ($move['id'] ?? 0),
-            'order_id'       => $orderId,
-            'from_table_id'  => $fromTableId,
-            'to_table_id'    => $toTableId,
-            'from_table_name'=> $fromTableName,
-            'to_table_name'  => $toTableName,
-            'order_number'   => $orderNumber,
-            'reason'         => $move['reason'] ?? null,
-            'moved_at'       => $move['created_at'] ?? null,
-            'can_open_new_order' => true,
-        ];
-    }
-
-    protected function getLatestMovedNoticeByTable(int $tableId): ?array
-    {
-        if ($tableId <= 0 || ! $this->db->tableExists('order_table_moves')) {
-            return null;
-        }
-
-        $builder = $this->orderTableMoveModel
-            ->where('tenant_id', $this->currentTenantId())
-            ->where('from_table_id', $tableId);
-
-        $branchId = $this->getCurrentBranchId();
-        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_table_moves')) {
-            $builder->where('branch_id', $branchId);
-        }
-
-        $move = $builder->orderBy('id', 'DESC')->first();
-
-        if (! $move) {
-            return null;
-        }
-
-        $moveCreatedAt = $move['created_at'] ?? null;
-        $moveOrderId    = (int) ($move['order_id'] ?? 0);
-
-        if ($this->db->tableExists('orders')) {
-            $ordersBuilder = $this->db->table('orders');
-            $ordersBuilder->select('id');
-            $ordersBuilder->where('tenant_id', $this->currentTenantId());
-            $ordersBuilder->where('table_id', $tableId);
-
-            if ($branchId > 0 && $this->db->fieldExists('branch_id', 'orders')) {
-                $ordersBuilder->where('branch_id', $branchId);
-            }
-
-            if ($moveOrderId > 0) {
-                $ordersBuilder->where('id !=', $moveOrderId);
-            }
-
-            if (! empty($moveCreatedAt) && $this->db->fieldExists('created_at', 'orders')) {
-                $ordersBuilder->groupStart()
-                    ->where('created_at >=', $moveCreatedAt)
-                    ->orWhere('opened_at >=', $moveCreatedAt)
-                    ->groupEnd();
-            } elseif ($moveOrderId > 0) {
-                $ordersBuilder->where('id >', $moveOrderId);
-            }
-
-            $newerOrder = $ordersBuilder
-                ->orderBy('id', 'DESC')
-                ->get()
-                ->getRowArray();
-
-            if ($newerOrder) {
-                return null;
-            }
-        }
-
-        return $this->buildMoveNoticeFromRow($move);
-    }
-
-    protected function getMoveTraceByOrder(int $orderId): array
-    {
-        if ($orderId <= 0 || ! $this->db->tableExists('order_table_moves')) {
-            return [];
-        }
-
-        $builder = $this->db->table('order_table_moves otm');
-        $builder->select([
-            'otm.id',
-            'otm.order_id',
-            'otm.from_table_id',
-            'otm.to_table_id',
-            'otm.reason',
-            'otm.created_at',
-            'o.order_number',
-            'ft.table_name AS from_table_name',
-            'tt.table_name AS to_table_name',
-            'u.full_name AS moved_by_name',
-        ]);
-        $builder->join('orders o', 'o.id = otm.order_id', 'left');
-        $builder->join('restaurant_tables ft', 'ft.id = otm.from_table_id', 'left');
-        $builder->join('restaurant_tables tt', 'tt.id = otm.to_table_id', 'left');
-        $builder->join('users u', 'u.id = otm.moved_by', 'left');
-        $builder->where('otm.tenant_id', $this->currentTenantId());
-        $builder->where('otm.order_id', $orderId);
-
-        $branchId = $this->getCurrentBranchId();
-        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_table_moves')) {
-            $builder->where('otm.branch_id', $branchId);
-        }
-
-        $rows = $builder
-            ->orderBy('otm.id', 'ASC')
-            ->get()
-            ->getResultArray();
-
-        if (empty($rows)) {
-            return [];
-        }
-
-        return array_map(static function (array $row): array {
-            return [
-                'move_id'        => (int) ($row['id'] ?? 0),
-                'order_id'       => (int) ($row['order_id'] ?? 0),
-                'from_table_id'  => isset($row['from_table_id']) ? (int) $row['from_table_id'] : null,
-                'to_table_id'    => isset($row['to_table_id']) ? (int) $row['to_table_id'] : null,
-                'order_number'   => (string) ($row['order_number'] ?? ''),
-                'from_table_name'=> (string) ($row['from_table_name'] ?? ''),
-                'to_table_name'  => (string) ($row['to_table_name'] ?? ''),
-                'moved_by_name'  => (string) ($row['moved_by_name'] ?? ''),
-                'reason'         => $row['reason'] ?? null,
-                'moved_at'       => $row['created_at'] ?? null,
-            ];
-        }, $rows);
-    }
-
     public function currentOrder($tableId)
     {
         if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
@@ -1552,7 +1397,6 @@ class POSController extends BaseController
             return $this->response->setJSON([
                 'status'        => 'empty',
                 'merged_notice' => $this->getLatestMergedNoticeByTable($tableId),
-                'moved_notice'  => $this->getLatestMovedNoticeByTable($tableId),
             ]);
         }
 
@@ -1567,9 +1411,7 @@ class POSController extends BaseController
             'order'         => $order,
             'items'         => $items,
             'merged_notice' => null,
-            'moved_notice'  => null,
             'merge_trace'   => $this->getMergeTraceByTargetOrder((int) ($order['id'] ?? 0)),
-            'move_trace'    => $this->getMoveTraceByOrder((int) ($order['id'] ?? 0)),
         ]);
     }
 
@@ -2598,111 +2440,6 @@ class POSController extends BaseController
             'status'  => 'success',
             'message' => lang('app.close_bill_success_billing'),
         ]);
-    }
-
-
-    public function reopenBill()
-    {
-        if ($response = $this->jsonPosWriteDenied()) {
-            return $response;
-        }
-
-        if ($response = $this->jsonFeatureDenied('feature.reopen_bill.enabled')) {
-            return $response;
-        }
-
-        $orderId = (int) $this->request->getPost('order_id');
-
-        if ($response = $this->ensurePermissionOrManagerOverride('cashier.close_bill', 'reopen_bill', $orderId)) {
-            return $response;
-        }
-
-        $order = $this->getScopedOrder($orderId);
-        if (! $order) {
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => lang('app.order_not_found'),
-            ]);
-        }
-
-        $currentStatus = (string) ($order['status'] ?? '');
-
-        if ($currentStatus === 'open') {
-            return $this->response->setJSON([
-                'status'  => 'warning',
-                'message' => lang('app.order_already_open'),
-            ]);
-        }
-
-        if ($currentStatus === 'paid') {
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => lang('app.order_paid_reopen_requires_void'),
-            ]);
-        }
-
-        if ($currentStatus !== 'billing') {
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => lang('app.order_cannot_reopen_bill'),
-            ]);
-        }
-
-        $db = \Config\Database::connect();
-        $db->transBegin();
-
-        try {
-            $this->recalculateOrderTotal($orderId);
-
-            $now = date('Y-m-d H:i:s');
-
-            $this->orderModel->update($orderId, [
-                'status'     => 'open',
-                'closed_by'  => null,
-                'closed_at'  => null,
-                'updated_at' => $now,
-            ]);
-
-            if ($db->transStatus() === false) {
-                $db->transRollback();
-
-                return $this->response->setJSON([
-                    'status'  => 'error',
-                    'message' => lang('app.reopen_bill_failed'),
-                ]);
-            }
-
-            $db->transCommit();
-
-            $this->writeAuditLog([
-                'branch_id'    => (int) ($order['branch_id'] ?? 0) ?: null,
-                'target_type'  => 'order',
-                'target_id'    => $orderId,
-                'action_key'   => 'cashier.reopen_bill',
-                'action_label' => lang('app.audit_log_reopen_bill'),
-                'ref_code'     => (string) ($order['order_number'] ?? ''),
-                'order_id'     => $orderId,
-                'table_id'     => (int) ($order['table_id'] ?? 0) ?: null,
-                'meta_json'    => [
-                    'from_status' => 'billing',
-                    'to_status'   => 'open',
-                    'override_by' => session('override_approved_by_name') ?? null,
-                ],
-            ]);
-
-            return $this->response->setJSON([
-                'status'  => 'success',
-                'message' => lang('app.reopen_bill_success'),
-            ]);
-        } catch (\Throwable $e) {
-            $db->transRollback();
-            log_message('error', 'reopenBill error: ' . $e->getMessage());
-
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => lang('app.reopen_bill_failed'),
-            ]);
-        }
     }
 
 

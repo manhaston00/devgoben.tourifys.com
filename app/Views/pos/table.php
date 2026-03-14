@@ -197,8 +197,6 @@
 
                 <div id="billMergeAuditBox" class="mb-3"></div>
 
-                <div id="billMoveAuditBox" class="mb-3"></div>
-
                 <div id="billRequestAlertBox" class="mt-2"></div>
 
                 <div id="orderBox">
@@ -215,71 +213,41 @@
                 </div>
 
                 <div class="d-grid gap-2">
-                    <?php
-                        $posPermissions = is_array($posPermissions ?? null) ? $posPermissions : [];
-                        $canSell = (bool) ($posPermissions['sell'] ?? false);
-                        $canSendKitchen = (bool) ($posPermissions['send_kitchen'] ?? $canSell);
-                        $canRequestBill = (bool) ($posPermissions['request_bill'] ?? false);
-                        $canPay = (bool) ($posPermissions['pay'] ?? false);
-                        $canMoveTable = (bool) ($posPermissions['move_table'] ?? false);
-                        $canMergeBill = (bool) ($posPermissions['merge_bill'] ?? false);
-                        $canReopenBill = (bool) ($posPermissions['reopen_bill'] ?? false);
-                    ?>
-
-                    <?php if ($canSendKitchen): ?>
                     <button
                         type="button"
                         class="btn btn-warning"
                         id="btnSendKitchen"
-                        <?= ($tableDisabled || ! $canSendKitchen) ? 'disabled' : '' ?>
+                        <?= $tableDisabled ? 'disabled' : '' ?>
                     >
                         <?= esc(lang('app.send_to_kitchen')) ?>
                     </button>
-                    <?php endif; ?>
 
-                    <?php if ($canRequestBill || $canPay): ?>
                     <button
                         type="button"
                         class="btn btn-success"
                         id="btnPay"
-                        <?= ($tableDisabled || (! $canRequestBill && ! $canPay)) ? 'disabled' : '' ?>
+                        <?= $tableDisabled ? 'disabled' : '' ?>
                     >
                         <?= esc(lang('app.close_bill_pay')) ?>
                     </button>
-                    <?php endif; ?>
 
-                    <?php if ($canReopenBill): ?>
-                    <button
-                        type="button"
-                        class="btn btn-outline-warning"
-                        id="btnReopenBill"
-                        <?= ($tableDisabled || ! $canReopenBill) ? 'disabled' : '' ?>
-                    >
-                        <?= esc(lang('app.reopen_bill')) ?>
-                    </button>
-                    <?php endif; ?>
-
-                    <?php if ($canMoveTable): ?>
                     <button
                         type="button"
                         class="btn btn-outline-primary"
                         id="btnMoveTable"
-                        <?= ($tableDisabled || ! $canMoveTable) ? 'disabled' : '' ?>
+                        <?= $tableDisabled ? 'disabled' : '' ?>
                     >
                         <?= esc(lang('app.move_table')) ?>
                     </button>
-                    <?php endif; ?>
 
-                    <?php if ($canMergeBill): ?>
                     <button
                         type="button"
                         class="btn btn-outline-dark"
                         id="btnMergeBill"
-                        <?= ($tableDisabled || ! $canMergeBill) ? 'disabled' : '' ?>
+                        <?= $tableDisabled ? 'disabled' : '' ?>
                     >
                         <?= esc(lang('app.merge_bill')) ?>
                     </button>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -520,22 +488,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="moveAuditModal" tabindex="-1" aria-labelledby="moveAuditModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 rounded-4">
-            <div class="modal-header">
-                <h5 class="modal-title" id="moveAuditModalLabel"><?= esc(lang('app.move_audit_title')) ?></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= esc(lang('app.close')) ?>"></button>
-            </div>
-            <div class="modal-body">
-                <div id="moveAuditModalBody">
-                    <div class="text-muted"><?= esc(lang('app.no_data')) ?></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
 $(function () {
     const TABLE_ID = <?= json_encode((int) ($table['id'] ?? 0)) ?>;
@@ -552,20 +504,6 @@ $(function () {
 
     const mergeBillModalEl = document.getElementById('mergeBillModal');
     const mergeBillModal = mergeBillModalEl ? new bootstrap.Modal(mergeBillModalEl) : null;
-
-    const POS_PERMISSIONS = <?= json_encode([
-        'access' => (bool) ($posPermissions['access'] ?? false),
-        'open_table' => (bool) ($posPermissions['open_table'] ?? false),
-        'sell' => (bool) ($posPermissions['sell'] ?? false),
-        'send_kitchen' => (bool) ($posPermissions['send_kitchen'] ?? false),
-        'request_bill' => (bool) ($posPermissions['request_bill'] ?? false),
-        'close_bill' => (bool) ($posPermissions['close_bill'] ?? false),
-        'pay' => (bool) ($posPermissions['pay'] ?? false),
-        'move_table' => (bool) ($posPermissions['move_table'] ?? false),
-        'merge_bill' => (bool) ($posPermissions['merge_bill'] ?? false),
-        'reopen_bill' => (bool) ($posPermissions['reopen_bill'] ?? false),
-        'manager_override' => (bool) ($posPermissions['manager_override'] ?? false),
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
     const TXT = {
         tableDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -626,8 +564,6 @@ $(function () {
         managerOverrideApproved: <?= json_encode(lang('app.manager_override_approved'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         managerOverrideFailed: <?= json_encode(lang('app.manager_override_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         managerOverrideActionPay: <?= json_encode(lang('app.manager_override_action_pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        managerOverrideActionCloseBill: <?= json_encode(lang('app.manager_override_action_close_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        managerOverrideActionReopenBill: <?= json_encode(lang('app.manager_override_action_reopen_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         closeBillSuccess: <?= json_encode(lang('app.close_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         changeLabel: <?= json_encode(lang('app.change'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         allProductsDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -660,17 +596,6 @@ $(function () {
         requestCancelSentToKitchen: <?= json_encode(service('request')->getLocale() === 'th' ? 'ส่งคำขอยกเลิกไปที่ครัวแล้ว' : 'Cancel request sent to kitchen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         canceledItemsSection: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการที่ยกเลิกแล้ว' : 'Cancelled items', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         canceledItemsNoCharge: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการนี้ไม่คิดเงินแล้ว' : 'This item is no longer billable', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        moveAuditSummary: <?= json_encode(lang('app.move_audit_summary'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        movedFromTables: <?= json_encode(lang('app.moved_from_tables'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        moveAuditCount: <?= json_encode(lang('app.move_audit_count'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        viewMoveAudit: <?= json_encode(lang('app.view_move_audit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        movedFrom: <?= json_encode(lang('app.moved_from'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        movedTo: <?= json_encode(lang('app.moved_to'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        movedBy: <?= json_encode(lang('app.moved_by'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        movedAt: <?= json_encode(lang('app.moved_at'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        moveReason: <?= json_encode(lang('app.move_reason'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        noMoveReason: <?= json_encode(lang('app.no_move_reason'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        movedBillNotice: <?= json_encode(lang('app.moved_bill_notice'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         noData: <?= json_encode(lang('app.no_data'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
     };
 
@@ -681,8 +606,6 @@ $(function () {
     const paymentModal = paymentModalEl ? new bootstrap.Modal(paymentModalEl) : null;
     const mergeAuditModalEl = document.getElementById('mergeAuditModal');
     const mergeAuditModal = mergeAuditModalEl ? new bootstrap.Modal(mergeAuditModalEl) : null;
-    const moveAuditModalEl = document.getElementById('moveAuditModal');
-    const moveAuditModal = moveAuditModalEl ? new bootstrap.Modal(moveAuditModalEl) : null;
     const managerOverrideModalEl = document.getElementById('managerOverrideModal');
     const managerOverrideModal = managerOverrideModalEl ? new bootstrap.Modal(managerOverrideModalEl) : null;
     let managerOverrideResolver = null;
@@ -760,12 +683,6 @@ $(function () {
     function managerOverrideActionLabel(actionKey) {
         if (actionKey === 'pay') {
             return TXT.managerOverrideActionPay || TXT.managerOverrideRequired;
-        }
-        if (actionKey === 'close_bill') {
-            return TXT.managerOverrideActionCloseBill || TXT.managerOverrideRequired;
-        }
-        if (actionKey === 'reopen_bill') {
-            return TXT.managerOverrideActionReopenBill || TXT.managerOverrideActionCloseBill || TXT.managerOverrideRequired;
         }
         return TXT.managerOverrideRequired;
     }
@@ -1113,13 +1030,10 @@ $(function () {
 
         const compactLabel = compactTableNames.length ? compactTableNames.join(', ') : '-';
         const summaryHtml = `
-            <div class="border rounded-4 px-3 py-2 bg-warning-subtle">
+            <div class="border rounded-4 px-3 py-2 bg-light-subtle">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div>
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="badge rounded-pill text-bg-warning">${escapeHtml(TXT.mergeBill)}</span>
-                            <span class="small text-muted">${escapeHtml(TXT.mergeAuditSummary)}</span>
-                        </div>
+                        <div class="small text-muted mb-1">${escapeHtml(TXT.mergeAuditSummary)}</div>
                         <div class="fw-semibold">${escapeHtml(TXT.mergedFromTables)}: ${escapeHtml(compactLabel)}</div>
                         <div class="small text-muted">${escapeHtml(TXT.mergedSourcesCount)}: ${escapeHtml(String(traces.length))}</div>
                     </div>
@@ -1146,7 +1060,6 @@ $(function () {
                         <span class="badge rounded-pill text-bg-dark">${sourceTableName}</span>
                         <span class="badge rounded-pill text-bg-secondary">#${sourceOrderNumber}</span>
                     </div>
-                    <div class="small text-muted">${escapeHtml(TXT.mergedFromTables)}: ${sourceTableName}</div>
                     <div class="small text-muted">${escapeHtml(TXT.sourceBill)}: ${sourceOrderNumber}</div>
                     <div class="small text-muted">${escapeHtml(TXT.mergedBy)}: ${mergedByName}</div>
                     <div class="small text-muted">${escapeHtml(TXT.mergedAt)}: ${mergedAt}</div>
@@ -1157,95 +1070,6 @@ $(function () {
 
         $('#mergeAuditModalBody').html(itemsHtml);
         $('#mergeTraceBox').html('');
-    }
-
-
-    function renderMoveTrace(order = null) {
-        const traces = Array.isArray(order && order.move_trace) ? order.move_trace : [];
-        const movedNotice = order && order.moved_notice ? order.moved_notice : null;
-
-        if (!traces.length) {
-            $('#billMoveAuditBox').html('');
-            $('#moveAuditModalBody').html('<div class="text-muted">' + escapeHtml(TXT.noData) + '</div>');
-
-            if (movedNotice && movedNotice.to_table_name) {
-                const destinationTableName = escapeHtml(movedNotice.to_table_name || '-');
-                const destinationOrderNumber = escapeHtml(movedNotice.order_number || '-');
-                const destinationReason = $.trim(movedNotice.reason || '') !== ''
-                    ? escapeHtml(movedNotice.reason || '')
-                    : escapeHtml(TXT.noMoveReason);
-                const movedAt = escapeHtml(movedNotice.moved_at || '-');
-
-                $('#billMoveAuditBox').html(`
-                    <div class="border rounded-4 px-3 py-2 bg-primary-subtle">
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.moveTable)}</span>
-                            <span class="small text-muted">${escapeHtml(TXT.movedBillNotice)}</span>
-                        </div>
-                        <div class="fw-semibold">${escapeHtml(TXT.movedTo)}: ${destinationTableName}</div>
-                        <div class="small text-muted">#${destinationOrderNumber} · ${escapeHtml(TXT.movedAt)}: ${movedAt}</div>
-                        <div class="small text-muted">${escapeHtml(TXT.moveReason)}: ${destinationReason}</div>
-                    </div>
-                `);
-            }
-            return;
-        }
-
-        const compactFromTableNames = traces
-            .map(function (trace) {
-                return $.trim(trace.from_table_name || '');
-            })
-            .filter(function (value, index, array) {
-                return value !== '' && array.indexOf(value) === index;
-            });
-
-        const compactLabel = compactFromTableNames.length ? compactFromTableNames.join(', ') : '-';
-        const summaryHtml = `
-            <div class="border rounded-4 px-3 py-2 bg-primary-subtle">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <div>
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.moveTable)}</span>
-                            <span class="small text-muted">${escapeHtml(TXT.moveAuditSummary)}</span>
-                        </div>
-                        <div class="fw-semibold">${escapeHtml(TXT.movedFromTables)}: ${escapeHtml(compactLabel)}</div>
-                        <div class="small text-muted">${escapeHtml(TXT.moveAuditCount)}: ${escapeHtml(String(traces.length))}</div>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" id="btnViewMoveAudit">${escapeHtml(TXT.viewMoveAudit)}</button>
-                </div>
-            </div>
-        `;
-
-        $('#billMoveAuditBox').html(summaryHtml);
-
-        const itemsHtml = traces.map(function (trace, index) {
-            const fromTableName = escapeHtml(trace.from_table_name || '-');
-            const toTableName = escapeHtml(trace.to_table_name || '-');
-            const orderNumber = escapeHtml(trace.order_number || '-');
-            const movedByName = escapeHtml(trace.moved_by_name || '-');
-            const movedAt = escapeHtml(trace.moved_at || '-');
-            const reason = $.trim(trace.reason || '') !== ''
-                ? escapeHtml(trace.reason || '')
-                : escapeHtml(TXT.noMoveReason);
-
-            return `
-                <div class="border rounded-4 p-3 ${index > 0 ? 'mt-2' : ''}">
-                    <div class="d-flex flex-wrap gap-2 mb-2 align-items-center">
-                        <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.moveTable)}</span>
-                        <span class="badge rounded-pill text-bg-dark">${fromTableName}</span>
-                        <span class="badge rounded-pill text-bg-info">→ ${toTableName}</span>
-                        <span class="badge rounded-pill text-bg-secondary">#${orderNumber}</span>
-                    </div>
-                    <div class="small text-muted">${escapeHtml(TXT.movedFrom)}: ${fromTableName}</div>
-                    <div class="small text-muted">${escapeHtml(TXT.movedTo)}: ${toTableName}</div>
-                    <div class="small text-muted">${escapeHtml(TXT.movedBy)}: ${movedByName}</div>
-                    <div class="small text-muted">${escapeHtml(TXT.movedAt)}: ${movedAt}</div>
-                    <div class="small text-muted">${escapeHtml(TXT.moveReason)}: ${reason}</div>
-                </div>
-            `;
-        }).join('');
-
-        $('#moveAuditModalBody').html(itemsHtml);
     }
 
     function renderOrderMetaIndicators(order = null) {
@@ -1270,55 +1094,7 @@ $(function () {
             `);
         }
 
-        const moveTraces = Array.isArray(order && order.move_trace) ? order.move_trace : [];
-        const movedNotice = order && order.moved_notice ? order.moved_notice : null;
-
-        if (moveTraces.length > 0) {
-            indicators.push(`
-                <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.moveTable)}</span>
-                <span class="badge rounded-pill text-bg-secondary">${escapeHtml(TXT.moveAuditCount)}: ${escapeHtml(String(moveTraces.length))}</span>
-            `);
-        }
-
-        if (movedNotice && movedNotice.to_table_name) {
-            const movedToTableName = escapeHtml(movedNotice.to_table_name || '-');
-            const movedOrderNumber = escapeHtml(movedNotice.order_number || '-');
-
-            indicators.push(`
-                <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.moveTable)} → ${movedToTableName}</span>
-                <span class="badge rounded-pill text-bg-dark">#${movedOrderNumber}</span>
-            `);
-        }
-
         $('#orderMetaIndicators').html(indicators.join(''));
-    }
-
-    function canRequestBillAction() {
-        return !!(POS_PERMISSIONS.request_bill || POS_PERMISSIONS.close_bill);
-    }
-
-    function canPayAction() {
-        return !!POS_PERMISSIONS.pay;
-    }
-
-    function canReopenBillAction() {
-        return !!POS_PERMISSIONS.reopen_bill;
-    }
-
-    function canMoveTableAction() {
-        return !!POS_PERMISSIONS.move_table;
-    }
-
-    function canMergeBillAction() {
-        return !!POS_PERMISSIONS.merge_bill;
-    }
-
-    function canSellAction() {
-        return !!POS_PERMISSIONS.sell;
-    }
-
-    function canSendKitchenAction() {
-        return !!(POS_PERMISSIONS.send_kitchen || POS_PERMISSIONS.sell);
     }
 
     function updateOrderHeader(order = null) {
@@ -1329,13 +1105,11 @@ $(function () {
 
         renderOrderMetaIndicators(order);
         renderMergeTrace(order);
-        renderMoveTrace(order);
 
 		if (!TABLE_IS_ACTIVE) {
 			$('#btnOpenOrder').prop('disabled', true).text(TXT.tableDisabled);
 			$('#btnSendKitchen').prop('disabled', true);
 			$('#btnPay').prop('disabled', true);
-			$('#btnReopenBill').prop('disabled', true);
 			$('#btnMoveTable').prop('disabled', true);
 			$('#btnMergeBill').prop('disabled', true);
 			$('.product-btn').prop('disabled', true);
@@ -1346,12 +1120,11 @@ $(function () {
 				$('#btnOpenOrder').prop('disabled', false).text(TXT.openBill);
 			}
 
-			$('#btnSendKitchen').prop('disabled', !(canSendKitchenAction() && CURRENT_ORDER_STATUS === 'open'));
-			$('#btnPay').prop('disabled', !((CURRENT_ORDER_STATUS === 'open' && canRequestBillAction()) || (CURRENT_ORDER_STATUS === 'billing' && canPayAction())));
-			$('#btnReopenBill').prop('disabled', !(canReopenBillAction() && CURRENT_ORDER_STATUS === 'billing'));
-			$('#btnMoveTable').prop('disabled', !(canMoveTableAction() && (CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')));
-			$('#btnMergeBill').prop('disabled', !(canMergeBillAction() && (CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')));
-			$('.product-btn').prop('disabled', !canSellAction());
+			$('#btnSendKitchen').prop('disabled', CURRENT_ORDER_STATUS !== 'open');
+			$('#btnPay').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
+			$('#btnMoveTable').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
+			$('#btnMergeBill').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
+			$('.product-btn').prop('disabled', false);
 		}
 
 		if (CURRENT_ORDER_STATUS === 'open') {
@@ -1361,8 +1134,6 @@ $(function () {
 		} else {
 			$('#btnPay').text(<?= json_encode(lang('app.close_bill_pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
 		}
-
-		$('#btnReopenBill').text(<?= json_encode(lang('app.reopen_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
 
 		if (order && order.order_number) {
 			$('#orderNoLabel').text(order.order_number);
@@ -1594,10 +1365,7 @@ $(function () {
 					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
 					$('#billTotal').text('฿0.00');
 					updateOrderHeader({
-						merged_notice: res.merged_notice || null,
-						moved_notice: res.moved_notice || null,
-						merge_trace: Array.isArray(res.merge_trace) ? res.merge_trace : [],
-						move_trace: Array.isArray(res.move_trace) ? res.move_trace : []
+						merged_notice: res.merged_notice || null
 					});
 					return;
 				}
@@ -1616,9 +1384,7 @@ $(function () {
 
 				const orderData = Object.assign({}, res.order, {
 					merged_notice: res.merged_notice || null,
-					moved_notice: res.moved_notice || null,
-					merge_trace: Array.isArray(res.merge_trace) ? res.merge_trace : [],
-					move_trace: Array.isArray(res.move_trace) ? res.move_trace : []
+					merge_trace: Array.isArray(res.merge_trace) ? res.merge_trace : []
 				});
 
 				renderItems(orderData, res.items || []);
@@ -1969,11 +1735,6 @@ $(function () {
     $(document).off('click', '#btnSendKitchen');
 
     $(document).on('click', '#btnSendKitchen', function () {
-		if (!canSendKitchenAction()) {
-			notify(TXT.noPermission);
-			return;
-		}
-
         if (SEND_KITCHEN_BUSY) {
             return;
         }
@@ -2026,61 +1787,7 @@ $(function () {
         });
     });
 
-    $(document).on('click', '#btnReopenBill', function () {
-		if (!canReopenBillAction()) {
-			notify(TXT.noPermission);
-			return;
-		}
-
-		if (!TABLE_IS_ACTIVE) {
-			notify(TXT.tableDisabled);
-			return;
-		}
-
-		if (!CURRENT_ORDER_ID) {
-			notify(TXT.noBillYet);
-			return;
-		}
-
-		if (CURRENT_ORDER_STATUS !== 'billing') {
-			notify(TXT.orderCannotReopenBill);
-			return;
-		}
-
-		if (!confirm(TXT.reopenBillConfirm)) {
-			return;
-		}
-
-		$.post("<?= site_url('pos/reopen-bill') ?>", {
-			order_id: CURRENT_ORDER_ID
-		}).done(async function (res) {
-			if (!res || res.status !== 'success') {
-				if (res && res.code === 'MANAGER_OVERRIDE_REQUIRED') {
-					const approved = await requestManagerOverride('reopen_bill', CURRENT_ORDER_ID);
-					if (approved) {
-						$('#btnReopenBill').trigger('click');
-					}
-					return;
-				}
-				notify((res && res.message) ? res.message : TXT.reopenBillFailed);
-				return;
-			}
-
-			notify(res.message || TXT.reopenBillSuccess);
-			CURRENT_ORDER_STATUS = 'open';
-			loadOrder();
-		}).fail(function (xhr) {
-			console.error('reopenBill error:', xhr.responseText);
-			notify(TXT.reopenBillFailed);
-		});
-	});
-
     $(document).on('click', '#btnPay', function () {
-		if ((CURRENT_ORDER_STATUS === 'billing' && !canPayAction()) || (CURRENT_ORDER_STATUS !== 'billing' && !canRequestBillAction())) {
-			notify(TXT.noPermission);
-			return;
-		}
-
 		if (!TABLE_IS_ACTIVE) {
 			notify(TXT.tableDisabled);
 			return;
@@ -2308,11 +2015,6 @@ $(function () {
     });
 
     $(document).on('click', '#btnMoveTable', function () {
-		if (!canMoveTableAction()) {
-			notify(TXT.noPermission);
-			return;
-		}
-
         if (!CURRENT_ORDER_ID) {
             notify(TXT.noBillYet);
             return;
@@ -2363,7 +2065,7 @@ $(function () {
         });
     });
 
-    $(document).on('click', '#btnMoveTable, #btnMergeBill, #btnConfirmMoveTable, #btnConfirmMergeBill, #btnViewMergeAudit, #btnViewMoveAudit', function (e) {
+    $(document).on('click', '#btnMoveTable, #btnMergeBill, #btnConfirmMoveTable, #btnConfirmMergeBill, #btnViewMergeAudit', function (e) {
         e.preventDefault();
         e.stopPropagation();
     });
@@ -2374,18 +2076,7 @@ $(function () {
         }
     });
 
-    $(document).on('click', '#btnViewMoveAudit', function () {
-        if (moveAuditModal) {
-            moveAuditModal.show();
-        }
-    });
-
     $(document).on('click', '#btnMergeBill', function () {
-		if (!canMergeBillAction()) {
-			notify(TXT.noPermission);
-			return;
-		}
-
         if (!CURRENT_ORDER_ID) {
             notify(TXT.noBillYet);
             return;
