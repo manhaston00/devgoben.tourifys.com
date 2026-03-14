@@ -628,6 +628,7 @@
     $canCashierMenu = function_exists('can') && (can('cashier.view') || can('cashier.request_bill') || can('cashier.close_bill') || can('cashier.pay'));
     $canAuditLogsMenu = function_exists('can') && can('audit_logs.view');
     $canBranchMenu = function_exists('can') && (can('branches.view') || can('branches.settings'));
+    $canSettingsMenu = function_exists('can') && (can('settings.view') || can('branches.settings') || can('branches.edit') || can('users.view') || can('roles.view') || can('branches.view'));
 ?>
 <div class="app-shell">
 
@@ -777,8 +778,25 @@
                 </a>
             <?php endif; ?>
 
+            <?php if ($canSettingsMenu): ?>
+                <a href="<?= site_url('settings') ?>" class="sidebar-link <?= menu_active(['settings'], $currentPath) ?>">
+                    <?= lang('app.settings') ?>
+                </a>
+            <?php endif; ?>
+
+			<?php if ($canAuditLogsMenu): ?>
+                <a href="<?= site_url('audit-logs') ?>" class="sidebar-link <?= menu_active(['audit-logs'], $currentPath) ?>">
+                    <?= lang('menu.audit_logs') ?>
+                </a>
+            <?php endif; ?>
+
+            <?php if ($canSettingsMenu): ?>
+                <a href="<?= site_url('settings') ?>" class="sidebar-link <?= menu_active(['settings'], $currentPath) ?>">
+                    <?= lang('app.settings') ?>
+                </a>
+            <?php endif; ?>
+
 			<div class="sidebar-group-title"><?= lang('menu.system') ?></div>
-			<a href="<?= site_url('logout') ?>" class="sidebar-link text-warning"><?= lang('app.logout') ?></a>
         </div>
     </aside>
 
@@ -959,8 +977,19 @@
                 </a>
             <?php endif; ?>
 
+			<?php if ($canAuditLogsMenu): ?>
+                <a href="<?= site_url('audit-logs') ?>" class="sidebar-link <?= menu_active(['audit-logs'], $currentPath) ?>">
+                    <?= lang('menu.audit_logs') ?>
+                </a>
+            <?php endif; ?>
+
+            <?php if ($canSettingsMenu): ?>
+                <a href="<?= site_url('settings') ?>" class="sidebar-link <?= menu_active(['settings'], $currentPath) ?>">
+                    <?= lang('app.settings') ?>
+                </a>
+            <?php endif; ?>
+
 			<div class="sidebar-group-title"><?= lang('menu.system') ?></div>
-			<a href="<?= site_url('logout') ?>" class="sidebar-link text-warning"><?= lang('app.logout') ?></a>
         </div>
     </div>
 
