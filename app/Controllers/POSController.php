@@ -249,6 +249,7 @@ class POSController extends BaseController
             'request_bill' => 'cashier.request_bill',
             'close_bill'   => 'cashier.close_bill',
             'reopen_bill'  => 'cashier.reopen_bill',
+            'undo_payment' => 'cashier.undo_payment',
             'pay'          => 'cashier.pay',
         ];
     }
@@ -893,8 +894,8 @@ class POSController extends BaseController
             $builder->where('orders.branch_id', $branchId);
         }
 
-        $builder->whereIn('orders.status', ['open', 'billing']);
-        $builder->orderBy("CASE WHEN orders.status = 'billing' THEN 0 ELSE 1 END", '', false);
+        $builder->whereIn('orders.status', ['open', 'billing', 'paid']);
+        $builder->orderBy("CASE WHEN orders.status = 'billing' THEN 0 WHEN orders.status = 'open' THEN 1 ELSE 2 END", '', false);
         $builder->orderBy('orders.updated_at', 'DESC');
         $builder->orderBy('orders.id', 'DESC');
 
@@ -937,14 +938,14 @@ class POSController extends BaseController
 
     protected function getCashierOrderPayload(int $orderId): ?array
     {
-        $order = $this->getScopedOrder($orderId, ['open', 'billing']);
+        $order = $this->getScopedOrder($orderId, ['open', 'billing', 'paid']);
 
         if (! $order) {
             return null;
         }
 
         $this->recalculateOrderTotal($orderId);
-        $order = $this->getScopedOrder($orderId, ['open', 'billing']);
+        $order = $this->getScopedOrder($orderId, ['open', 'billing', 'paid']);
 
         if (! $order) {
             return null;
@@ -985,12 +986,19 @@ class POSController extends BaseController
             'display_total'   => $this->getEffectiveOrderTotal($orderId),
         ];
 
+        $payments = $this->paymentModel->getByOrder($orderId);
+        $activePayments = array_values(array_filter($payments, static function (array $payment): bool {
+            return (string) ($payment['payment_status'] ?? 'paid') === 'paid';
+        }));
+
         return [
             'order' => $order,
             'items' => $items,
             'table' => $table,
             'counts' => $counts,
             'summary' => $summary,
+            'payments' => $payments,
+            'active_payments' => $activePayments,
         ];
     }
 
@@ -1017,21 +1025,32 @@ class POSController extends BaseController
         $orders = $this->getCashierOrdersForBranch();
 
         $summary = [
-            'orders' => count($orders),
-            'billing' => 0,
-            'open' => 0,
-            'sales_total' => 0.0,
-        ];
+			'open'        => 0,
+			'billing'     => 0,
+			'paid'        => 0,
+			'sales_total' => 0.0,
+		];
 
         foreach ($orders as $order) {
-            if (($order['status'] ?? '') === 'billing') {
-                $summary['billing']++;
-            } else {
-                $summary['open']++;
-            }
 
-            $summary['sales_total'] += (float) ($order['display_total'] ?? 0);
-        }
+			$status = $order['status'] ?? 'open';
+
+			if ($status === 'billing') {
+
+				$summary['billing'] = ($summary['billing'] ?? 0) + 1;
+
+			} elseif ($status === 'paid') {
+
+				$summary['paid'] = ($summary['paid'] ?? 0) + 1;
+
+			} else {
+
+				$summary['open'] = ($summary['open'] ?? 0) + 1;
+
+			}
+
+			$summary['sales_total'] += (float) ($order['display_total'] ?? 0);
+		}
 
         return view('pos/cashier', [
             'cashierOrders' => $orders,
@@ -1042,6 +1061,7 @@ class POSController extends BaseController
                 'close_bill'       => $this->userHasPermissionKey('cashier.close_bill'),
                 'reopen_bill'      => $this->userHasPermissionKey('cashier.reopen_bill'),
                 'pay'              => $this->userHasPermissionKey('cashier.pay'),
+                'undo_payment'     => $this->userHasPermissionKey('cashier.undo_payment'),
                 'manager_override' => $this->userHasPermissionKey('cashier.manager_override'),
             ],
         ]);
@@ -2027,6 +2047,7 @@ class POSController extends BaseController
                 'received_by'    => $userId,
                 'change_amount'  => $change,
                 'paid_at'        => $now,
+                'payment_status' => 'paid',
             ]);
 
             $this->orderModel->update($orderId, [
@@ -2640,6 +2661,137 @@ class POSController extends BaseController
             'status'  => 'success',
             'message' => lang('app.reopen_bill_success'),
         ]);
+    }
+
+
+    public function undoPayment()
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
+
+        if ($response = $this->jsonFeatureDenied('feature.refund_void.enabled')) {
+            return $response;
+        }
+
+        $orderId = (int) $this->request->getPost('order_id');
+        $reason = trim((string) $this->request->getPost('reason'));
+
+        if ($reason === '') {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.undo_payment_reason_required'),
+            ]);
+        }
+
+        if ($response = $this->ensurePermissionOrManagerOverride('cashier.undo_payment', 'undo_payment', $orderId)) {
+            return $response;
+        }
+
+        $order = $this->getScopedOrder($orderId);
+        if (! $order) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
+
+        if (($order['status'] ?? '') !== 'paid') {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_cannot_undo_payment'),
+            ]);
+        }
+
+        $payments = $this->paymentModel->getByOrder($orderId);
+        $activePayments = array_values(array_filter($payments, static function (array $payment): bool {
+            return (string) ($payment['payment_status'] ?? 'paid') === 'paid';
+        }));
+
+        if (empty($activePayments)) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_cannot_undo_payment'),
+            ]);
+        }
+
+        $db = \Config\Database::connect();
+        $db->transBegin();
+
+        try {
+            $now = date('Y-m-d H:i:s');
+            $userId = session()->get('user_id') ?: null;
+
+            if ($db->fieldExists('payment_status', 'payments')) {
+                foreach ($activePayments as $payment) {
+                    $this->paymentModel->update((int) ($payment['id'] ?? 0), [
+                        'payment_status' => 'voided',
+                        'voided_by'      => $userId,
+                        'voided_at'      => $now,
+                        'void_reason'    => $reason,
+                    ]);
+                }
+            } else {
+                foreach ($activePayments as $payment) {
+                    $this->paymentModel->delete((int) ($payment['id'] ?? 0));
+                }
+            }
+
+            $this->orderModel->update($orderId, [
+                'status'     => 'billing',
+                'paid_by'    => null,
+                'paid_at'    => null,
+                'updated_at' => $now,
+            ]);
+
+            $tableId = (int) ($order['table_id'] ?? 0);
+            if ($tableId > 0) {
+                $this->updateScopedTableStatus($tableId, 'occupied');
+            }
+
+            if ($db->transStatus() === false) {
+                $db->transRollback();
+
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.undo_payment_failed'),
+                ]);
+            }
+
+            $db->transCommit();
+
+            $this->writeAuditLog([
+                'branch_id'    => (int) ($order['branch_id'] ?? 0) ?: null,
+                'target_type'  => 'order',
+                'target_id'    => $orderId,
+                'action_key'   => 'cashier.undo_payment',
+                'action_label' => lang('app.audit_log_undo_payment'),
+                'ref_code'     => (string) ($order['order_number'] ?? ''),
+                'order_id'     => $orderId,
+                'table_id'     => $tableId ?: null,
+                'payment_id'   => (int) ($activePayments[0]['id'] ?? 0) ?: null,
+                'meta_json'    => [
+                    'from_status'      => 'paid',
+                    'to_status'        => 'billing',
+                    'reason'           => $reason,
+                    'voided_payments'  => array_map(static fn (array $payment): int => (int) ($payment['id'] ?? 0), $activePayments),
+                    'override_by'      => session('override_approved_by_name') ?? null,
+                ],
+            ]);
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => lang('app.undo_payment_success'),
+            ]);
+        } catch (\Throwable $e) {
+            $db->transRollback();
+            log_message('error', 'undoPayment error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.undo_payment_failed'),
+            ]);
+        }
     }
 
 

@@ -1169,4 +1169,15 @@ return [
 'merge_audit_summary' => 'สรุปการรวมบิล',
 'view_merge_audit' => 'ดูรายละเอียด',
 'merged_sources_count' => 'จำนวนบิลต้นทาง',
+'cashier_status_paid' => 'ชำระแล้ว',
+'undo_payment' => 'Undo Payment',
+'undo_payment_confirm' => 'ยืนยันยกเลิกการชำระเงินและกลับเป็นรอชำระ?',
+'undo_payment_success' => 'ยกเลิกการชำระเงินสำเร็จ กลับเป็นสถานะรอชำระแล้ว',
+'undo_payment_failed' => 'Undo Payment ไม่สำเร็จ',
+'order_cannot_undo_payment' => 'บิลนี้ไม่สามารถ Undo Payment ได้',
+'undo_payment_reason' => 'เหตุผลการยกเลิกการชำระเงิน',
+'undo_payment_reason_required' => 'กรุณาระบุเหตุผลการยกเลิกการชำระเงิน',
+'audit_log_undo_payment' => 'Undo Payment',
+'manager_override_action_undo_payment' => 'อนุมัติ Undo Payment',
+
 ];

@@ -3,7 +3,7 @@
 
 <?php
     $cashierOrders   = $cashierOrders ?? [];
-    $cashierSummary  = $cashierSummary ?? ['orders' => 0, 'billing' => 0, 'open' => 0, 'sales_total' => 0];
+    $cashierSummary  = $cashierSummary ?? ['orders' => 0, 'billing' => 0, 'open' => 0, 'paid' => 0, 'sales_total' => 0];
     $cashierOrdersJs = json_encode($cashierOrders, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 ?>
 
@@ -219,6 +219,11 @@
     .cashier-badge.cancelled {
         background: rgba(239, 68, 68, .12);
         color: #b91c1c;
+    }
+
+    .cashier-badge.paid {
+        background: rgba(16, 185, 129, .14);
+        color: #047857;
     }
 
     .cashier-meta-grid {
@@ -567,6 +572,9 @@
                 <button type="button" class="cashier-chip" data-filter-status="open">
                     <?= esc(lang('app.cashier_status_open')) ?>
                 </button>
+                <button type="button" class="cashier-chip" data-filter-status="paid">
+                    <?= esc(lang('app.cashier_status_paid')) ?>
+                </button>
             </div>
 
             <div class="cashier-order-list" id="cashierOrderList"></div>
@@ -620,6 +628,13 @@
         reopenBillConfirm: <?= json_encode(lang('app.reopen_bill_confirm'), JSON_UNESCAPED_UNICODE) ?>,
         reopenBillFailed: <?= json_encode(lang('app.reopen_bill_failed'), JSON_UNESCAPED_UNICODE) ?>,
         orderCannotReopenBill: <?= json_encode(lang('app.order_cannot_reopen_bill'), JSON_UNESCAPED_UNICODE) ?>,
+        undoPayment: <?= json_encode(lang('app.undo_payment'), JSON_UNESCAPED_UNICODE) ?>,
+        undoPaymentSuccess: <?= json_encode(lang('app.undo_payment_success'), JSON_UNESCAPED_UNICODE) ?>,
+        undoPaymentConfirm: <?= json_encode(lang('app.undo_payment_confirm'), JSON_UNESCAPED_UNICODE) ?>,
+        undoPaymentFailed: <?= json_encode(lang('app.undo_payment_failed'), JSON_UNESCAPED_UNICODE) ?>,
+        orderCannotUndoPayment: <?= json_encode(lang('app.order_cannot_undo_payment'), JSON_UNESCAPED_UNICODE) ?>,
+        undoPaymentReason: <?= json_encode(lang('app.undo_payment_reason'), JSON_UNESCAPED_UNICODE) ?>,
+        undoPaymentReasonRequired: <?= json_encode(lang('app.undo_payment_reason_required'), JSON_UNESCAPED_UNICODE) ?>,
         cash: <?= json_encode(lang('app.cash'), JSON_UNESCAPED_UNICODE) ?>,
         transfer: <?= json_encode(lang('app.transfer'), JSON_UNESCAPED_UNICODE) ?>,
         card: <?= json_encode(lang('app.card'), JSON_UNESCAPED_UNICODE) ?>,
@@ -628,6 +643,7 @@
         paymentSuccess: <?= json_encode(lang('app.payment_success'), JSON_UNESCAPED_UNICODE) ?>,
         statusOpen: <?= json_encode(lang('app.cashier_status_open'), JSON_UNESCAPED_UNICODE) ?>,
         statusBilling: <?= json_encode(lang('app.cashier_status_billing'), JSON_UNESCAPED_UNICODE) ?>,
+        statusPaid: <?= json_encode(lang('app.cashier_status_paid'), JSON_UNESCAPED_UNICODE) ?>,
         itemPending: <?= json_encode(lang('app.pending'), JSON_UNESCAPED_UNICODE) ?>,
         itemSent: <?= json_encode(lang('app.sent_to_kitchen'), JSON_UNESCAPED_UNICODE) ?>,
         itemPreparing: <?= json_encode(lang('app.preparing'), JSON_UNESCAPED_UNICODE) ?>,
@@ -642,6 +658,7 @@
         managerOverrideActionPay: <?= json_encode(lang('app.manager_override_action_pay'), JSON_UNESCAPED_UNICODE) ?>,
         managerOverrideActionCloseBill: <?= json_encode(lang('app.manager_override_action_close_bill'), JSON_UNESCAPED_UNICODE) ?>,
         managerOverrideActionReopenBill: <?= json_encode(lang('app.manager_override_action_reopen_bill'), JSON_UNESCAPED_UNICODE) ?>,
+        managerOverrideActionUndoPayment: <?= json_encode(lang('app.manager_override_action_undo_payment'), JSON_UNESCAPED_UNICODE) ?>,
         by: <?= json_encode(lang('app.by'), JSON_UNESCAPED_UNICODE) ?>,
     };
 
@@ -651,8 +668,11 @@
         'close_bill' => (bool) ($cashierPermissions['close_bill'] ?? false),
         'reopen_bill' => (bool) ($cashierPermissions['reopen_bill'] ?? false),
         'pay' => (bool) ($cashierPermissions['pay'] ?? false),
+        'undo_payment' => (bool) ($cashierPermissions['undo_payment'] ?? false),
         'manager_override' => (bool) ($cashierPermissions['manager_override'] ?? false),
     ], JSON_UNESCAPED_UNICODE) ?>;
+
+    const canUndoPayment = Boolean(cashierPermissions.undo_payment || cashierPermissions.manager_override);
 
     const managerOverrideModalEl = document.getElementById('managerOverrideModal');
     const managerOverrideModal = managerOverrideModalEl ? new bootstrap.Modal(managerOverrideModalEl) : null;
@@ -708,7 +728,13 @@
     }
 
     function getOrderStatusLabel(status) {
-        return status === 'billing' ? lang.statusBilling : lang.statusOpen;
+        if (status === 'billing') {
+            return lang.statusBilling;
+        }
+        if (status === 'paid') {
+            return lang.statusPaid;
+        }
+        return lang.statusOpen;
     }
 
     function getItemStatusLabel(status) {
@@ -1032,6 +1058,11 @@
                                     ${escapeHtml(lang.cashierMarkBilling)}
                                 </button>
                             ` : ''}
+                            ${canUndoPayment ? `
+                                <button type="button" class="btn btn-outline-danger" id="cashierUndoPaymentBtn">
+                                    ${escapeHtml(lang.undoPayment)}
+                                </button>
+                            ` : ''}
                             ${(cashierPermissions.reopen_bill && String(order.status || '') === 'billing') ? `
                                 <button type="button" class="btn btn-outline-secondary" id="cashierReopenBillBtn">
                                     ${escapeHtml(lang.reopenBill)}
@@ -1113,6 +1144,44 @@
                     }
                 } finally {
                     markBillingBtn.disabled = false;
+                }
+            });
+        }
+
+
+        const undoPaymentBtn = document.getElementById('cashierUndoPaymentBtn');
+        if (undoPaymentBtn) {
+            undoPaymentBtn.addEventListener('click', async () => {
+                const reason = String(window.prompt(lang.undoPaymentReason, '') || '').trim();
+                if (!reason) {
+                    alert(lang.undoPaymentReasonRequired);
+                    return;
+                }
+
+                if (!confirm(lang.undoPaymentConfirm)) {
+                    return;
+                }
+
+                undoPaymentBtn.disabled = true;
+                try {
+                    const response = await postJson('<?= site_url('pos/undo-payment') ?>', {
+                        order_id: Number(order.id || 0),
+                        reason: reason,
+                    });
+
+                    alert(response.message || lang.undoPaymentSuccess);
+                    await refreshOrders(Number(order.id || 0));
+                } catch (error) {
+                    if (error && error.payload && error.payload.code === 'MANAGER_OVERRIDE_REQUIRED') {
+                        const approved = await requestManagerOverride('undo_payment', Number(order.id || 0));
+                        if (approved) {
+                            undoPaymentBtn.click();
+                        }
+                    } else {
+                        alert(error.message || lang.undoPaymentFailed);
+                    }
+                } finally {
+                    undoPaymentBtn.disabled = false;
                 }
             });
         }

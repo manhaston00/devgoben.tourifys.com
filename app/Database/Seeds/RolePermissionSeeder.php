@@ -90,6 +90,7 @@ class RolePermissionSeeder extends Seeder
                 'reservations.complete',
 
                 'cashier.reopen_bill',
+                'cashier.undo_payment',
             ],
 
             'manager' => [
@@ -149,6 +150,7 @@ class RolePermissionSeeder extends Seeder
                 'reservations.complete',
 
                 'cashier.reopen_bill',
+                'cashier.undo_payment',
             ],
 
             'staff' => [

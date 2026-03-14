@@ -19,6 +19,10 @@ class PaymentModel extends TenantScopedModel
         'change_amount',
         'remark',
         'paid_at',
+        'payment_status',
+        'voided_by',
+        'voided_at',
+        'void_reason',
     ];
 
     protected $beforeInsert = ['beforeInsertTenant'];
@@ -41,6 +45,10 @@ class PaymentModel extends TenantScopedModel
             ->where($this->table . '.tenant_id', $this->currentTenantId())
             ->where($this->table . '.order_id', $orderId);
 
+        if ($this->db->fieldExists('payment_status', $this->table)) {
+            $builder->where($this->table . '.payment_status', 'paid');
+        }
+
         $branchId = $this->currentBranchId();
         if ($branchId > 0 && $this->db->fieldExists('branch_id', 'orders')) {
             $builder->where('orders.branch_id', $branchId);
@@ -55,7 +63,18 @@ class PaymentModel extends TenantScopedModel
             return [];
         }
 
-        return $this->getScopedOrderPaymentBuilder($orderId)
+        $builder = $this->db->table($this->table)
+            ->select($this->table . '.*')
+            ->join('orders', 'orders.id = ' . $this->table . '.order_id AND orders.tenant_id = ' . $this->table . '.tenant_id', 'inner')
+            ->where($this->table . '.tenant_id', $this->currentTenantId())
+            ->where($this->table . '.order_id', $orderId);
+
+        $branchId = $this->currentBranchId();
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'orders')) {
+            $builder->where('orders.branch_id', $branchId);
+        }
+
+        return $builder
             ->orderBy($this->table . '.id', 'DESC')
             ->get()
             ->getResultArray();

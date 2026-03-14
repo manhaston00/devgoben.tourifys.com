@@ -1187,4 +1187,15 @@ return [
 'merge_audit_summary' => 'Merge summary',
 'view_merge_audit' => 'View details',
 'merged_sources_count' => 'Source bills',
+'cashier_status_paid' => 'Paid',
+'undo_payment' => 'Undo Payment',
+'undo_payment_confirm' => 'Undo payment and return this bill to pending payment?',
+'undo_payment_success' => 'Payment undone successfully and bill returned to billing status',
+'undo_payment_failed' => 'Failed to undo payment',
+'order_cannot_undo_payment' => 'This bill cannot undo payment',
+'undo_payment_reason' => 'Undo payment reason',
+'undo_payment_reason_required' => 'Please enter a reason for undo payment',
+'audit_log_undo_payment' => 'Undid payment',
+'manager_override_action_undo_payment' => 'Approve undo payment',
+
 ];

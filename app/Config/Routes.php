@@ -262,6 +262,10 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
         'filter' => 'permission:cashier.pay,cashier.manager_override,feature_gate:pos.sell'
     ]);
 
+    $routes->post('undo-payment', 'POSController::undoPayment', [
+        'filter' => 'permission:cashier.undo_payment,cashier.manager_override,feature_gate:pos.sell'
+    ]);
+
     $routes->post('manager-override', 'POSController::managerOverride', [
         'filter' => 'permission:cashier.manager_override,feature_gate:pos.access'
     ]);
