@@ -210,6 +210,11 @@ if (! function_exists('runtime_setting_plan_feature_key')) {
             'feature.split_bill.enabled'           => 'pos.sell',
             'feature.merge_bill.enabled'           => 'pos.sell',
             'feature.move_table.enabled'           => 'pos.sell',
+            'feature.reopen_bill.enabled'          => 'pos.sell',
+            'feature.refund_void.enabled'          => 'pos.sell',
+            'feature.payment_lock.enabled'         => 'pos.sell',
+            'feature.receipt_print.enabled'        => 'pos.access',
+            'feature.kitchen_ticket_print.enabled' => 'pos.access',
             'feature.branch_switching.enabled'     => 'multi.branch',
         ];
 

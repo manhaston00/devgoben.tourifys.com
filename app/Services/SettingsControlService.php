@@ -178,6 +178,71 @@ class SettingsControlService
         return $registry;
     }
 
+
+    protected function resolveAllowedSubmittedKeys(array $settings, string $scope, ?int $tenantId, ?int $branchId, array $planFeatureMap, bool $isSuperAdmin): array
+    {
+        $allowed = [];
+
+        foreach ($settings as $setting) {
+            if (! $this->isSettingVisibleForScope($setting, $scope)) {
+                continue;
+            }
+
+            if (! $this->canPersistSettingForScope($setting, $scope, $tenantId, $branchId)) {
+                continue;
+            }
+
+            if (! $this->isPlanAllowed($setting, $planFeatureMap, $isSuperAdmin)) {
+                continue;
+            }
+
+            $key = trim((string) ($setting['key'] ?? ''));
+            if ($key === '') {
+                continue;
+            }
+
+            $allowed[$key] = true;
+            $allowed[$this->inputName($key)] = true;
+        }
+
+        return $allowed;
+    }
+
+    protected function extractSubmittedKeys(array $input, array $allowedKeys): array
+    {
+        $submitted = [];
+
+        if (! isset($input['submitted_keys'])) {
+            return $submitted;
+        }
+
+        $rawSubmittedKeys = $input['submitted_keys'];
+
+        if (! is_array($rawSubmittedKeys)) {
+            $rawSubmittedKeys = [$rawSubmittedKeys];
+        }
+
+        foreach ($rawSubmittedKeys as $submittedKey) {
+            $submittedKey = trim((string) $submittedKey);
+
+            if ($submittedKey === '') {
+                continue;
+            }
+
+            $inputName = $this->inputName($submittedKey);
+
+            if (isset($allowedKeys[$submittedKey])) {
+                $submitted[$submittedKey] = true;
+            }
+
+            if (isset($allowedKeys[$inputName])) {
+                $submitted[$inputName] = true;
+            }
+        }
+
+        return $submitted;
+    }
+
     public function saveSection(string $sectionKey, string $scope, ?int $tenantId, ?int $branchId, array $input): array
     {
         $registry = $this->registry();
@@ -195,28 +260,12 @@ class SettingsControlService
         $old     = [];
         $new     = [];
 
-        $submittedKeys = [];
+        $sectionSettings       = $registry[$sectionKey]['settings'];
+        $isSuperAdminNow    = function_exists('is_super_admin') && is_super_admin();
+        $allowedSubmittedKeys = $this->resolveAllowedSubmittedKeys($sectionSettings, $scope, $tenantId, $branchId, $planFeatureMap, $isSuperAdminNow);
+        $submittedKeys      = $this->extractSubmittedKeys($input, $allowedSubmittedKeys);
 
-        if (isset($input['submitted_keys'])) {
-            $rawSubmittedKeys = $input['submitted_keys'];
-
-            if (! is_array($rawSubmittedKeys)) {
-                $rawSubmittedKeys = [$rawSubmittedKeys];
-            }
-
-            foreach ($rawSubmittedKeys as $submittedKey) {
-                $submittedKey = trim((string) $submittedKey);
-
-                if ($submittedKey === '') {
-                    continue;
-                }
-
-                $submittedKeys[$submittedKey] = true;
-                $submittedKeys[$this->inputName($submittedKey)] = true;
-            }
-        }
-
-        foreach ($registry[$sectionKey]['settings'] as $setting) {
+        foreach ($sectionSettings as $setting) {
             if (! $this->isSettingVisibleForScope($setting, $scope)) {
                 continue;
             }
@@ -225,7 +274,7 @@ class SettingsControlService
                 continue;
             }
 
-            if (! $this->isPlanAllowed($setting, $planFeatureMap, function_exists('is_super_admin') && is_super_admin())) {
+            if (! $this->isPlanAllowed($setting, $planFeatureMap, $isSuperAdminNow)) {
                 continue;
             }
 
