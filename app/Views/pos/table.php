@@ -1485,7 +1485,10 @@ $(function () {
 					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
 					$('#billTotal').text('฿0.00');
 					updateOrderHeader({
-						merged_notice: res.merged_notice || null
+						merged_notice: res.merged_notice || null,
+						moved_notice: res.moved_notice || null,
+						merge_trace: Array.isArray(res.merge_trace) ? res.merge_trace : [],
+						move_trace: Array.isArray(res.move_trace) ? res.move_trace : []
 					});
 					return;
 				}
@@ -1503,7 +1506,10 @@ $(function () {
 				CURRENT_ORDER_STATUS = res.order.status || 'open';
 
 				const orderData = Object.assign({}, res.order, {
-					merged_notice: res.merged_notice || null
+					merged_notice: res.merged_notice || null,
+					moved_notice: res.moved_notice || null,
+					merge_trace: Array.isArray(res.merge_trace) ? res.merge_trace : [],
+					move_trace: Array.isArray(res.move_trace) ? res.move_trace : []
 				});
 
 				renderItems(orderData, res.items || []);
