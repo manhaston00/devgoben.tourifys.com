@@ -197,6 +197,8 @@
 
                 <div id="billMergeAuditBox" class="mb-3"></div>
 
+                <div id="billMoveAuditBox" class="mb-3"></div>
+
                 <div id="billRequestAlertBox" class="mt-2"></div>
 
                 <div id="orderBox">
@@ -488,6 +490,22 @@
     </div>
 </div>
 
+<div class="modal fade" id="moveAuditModal" tabindex="-1" aria-labelledby="moveAuditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title" id="moveAuditModalLabel"><?= esc(lang('app.move_audit_title')) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= esc(lang('app.close')) ?>"></button>
+            </div>
+            <div class="modal-body">
+                <div id="moveAuditModalBody">
+                    <div class="text-muted"><?= esc(lang('app.no_data')) ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 $(function () {
     const TABLE_ID = <?= json_encode((int) ($table['id'] ?? 0)) ?>;
@@ -613,6 +631,8 @@ $(function () {
     const paymentModal = paymentModalEl ? new bootstrap.Modal(paymentModalEl) : null;
     const mergeAuditModalEl = document.getElementById('mergeAuditModal');
     const mergeAuditModal = mergeAuditModalEl ? new bootstrap.Modal(mergeAuditModalEl) : null;
+    const moveAuditModalEl = document.getElementById('moveAuditModal');
+    const moveAuditModal = moveAuditModalEl ? new bootstrap.Modal(moveAuditModalEl) : null;
     const managerOverrideModalEl = document.getElementById('managerOverrideModal');
     const managerOverrideModal = managerOverrideModalEl ? new bootstrap.Modal(managerOverrideModalEl) : null;
     let managerOverrideResolver = null;
@@ -1079,6 +1099,77 @@ $(function () {
         $('#mergeTraceBox').html('');
     }
 
+
+    function renderMoveTrace(order = null) {
+        const movedNotice = order && order.moved_notice ? order.moved_notice : null;
+        const traces = Array.isArray(order && order.move_trace) ? order.move_trace : [];
+        const detailRows = traces.length ? traces : (movedNotice ? [movedNotice] : []);
+
+        if (!detailRows.length) {
+            $('#billMoveAuditBox').html('');
+            $('#moveAuditModalBody').html('<div class="text-muted">' + escapeHtml(TXT.noData) + '</div>');
+            return;
+        }
+
+        const latestMove = detailRows[detailRows.length - 1];
+        const uniqueFromTables = detailRows
+            .map(function (trace) {
+                return $.trim(trace.from_table_name || '');
+            })
+            .filter(function (value, index, array) {
+                return value !== '' && array.indexOf(value) === index;
+            });
+
+        const compactLabel = uniqueFromTables.length ? uniqueFromTables.join(', ') : '-';
+        const latestFromTable = escapeHtml(latestMove && latestMove.from_table_name ? latestMove.from_table_name : '-');
+        const latestToTable = escapeHtml(latestMove && latestMove.to_table_name ? latestMove.to_table_name : '-');
+
+        const summaryHtml = `
+            <div class="border rounded-4 px-3 py-2 bg-light-subtle">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                        <div class="small text-muted mb-1">${escapeHtml(TXT.moveAuditSummary)}</div>
+                        <div class="fw-semibold">${escapeHtml(TXT.movedFrom)}: ${latestFromTable}</div>
+                        <div class="small text-muted">${escapeHtml(TXT.movedTo)}: ${latestToTable}</div>
+                        <div class="small text-muted">${escapeHtml(TXT.movedFromTables)}: ${escapeHtml(compactLabel)}</div>
+                        <div class="small text-muted">${escapeHtml(TXT.moveAuditCount)}: ${escapeHtml(String(detailRows.length))}</div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" id="btnViewMoveAudit">${escapeHtml(TXT.viewMoveAudit)}</button>
+                </div>
+            </div>
+        `;
+
+        $('#billMoveAuditBox').html(summaryHtml);
+
+        const itemsHtml = detailRows.map(function (trace, index) {
+            const fromTableName = escapeHtml(trace.from_table_name || '-');
+            const toTableName = escapeHtml(trace.to_table_name || '-');
+            const sourceOrderNumber = escapeHtml(trace.order_number || '-');
+            const movedByName = escapeHtml(trace.moved_by_name || '-');
+            const movedAt = escapeHtml(trace.moved_at || '-');
+            const reason = $.trim(trace.reason || '') !== ''
+                ? escapeHtml(trace.reason || '')
+                : escapeHtml(TXT.noMoveReason);
+
+            return `
+                <div class="border rounded-4 p-3 ${index > 0 ? 'mt-2' : ''}">
+                    <div class="d-flex flex-wrap gap-2 mb-2 align-items-center">
+                        <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.moveBill)}</span>
+                        <span class="badge rounded-pill text-bg-secondary">${escapeHtml(TXT.movedFrom)}: ${fromTableName}</span>
+                        <span class="badge rounded-pill text-bg-light text-dark">${escapeHtml(TXT.movedTo)}: ${toTableName}</span>
+                        <span class="badge rounded-pill text-bg-dark">#${sourceOrderNumber}</span>
+                    </div>
+                    <div class="small text-muted">${escapeHtml(TXT.sourceBill)}: ${sourceOrderNumber}</div>
+                    <div class="small text-muted">${escapeHtml(TXT.movedBy)}: ${movedByName}</div>
+                    <div class="small text-muted">${escapeHtml(TXT.movedAt)}: ${movedAt}</div>
+                    <div class="small text-muted">${escapeHtml(TXT.moveReason)}: ${reason}</div>
+                </div>
+            `;
+        }).join('');
+
+        $('#moveAuditModalBody').html(itemsHtml);
+    }
+
     function renderOrderMetaIndicators(order = null) {
         const indicators = [];
         const mergedNotice = order && order.merged_notice ? order.merged_notice : null;
@@ -1137,6 +1228,7 @@ $(function () {
 
         renderOrderMetaIndicators(order);
         renderMergeTrace(order);
+        renderMoveTrace(order);
 
 		if (!TABLE_IS_ACTIVE) {
 			$('#btnOpenOrder').prop('disabled', true).text(TXT.tableDisabled);
@@ -1397,7 +1489,9 @@ $(function () {
 					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
 					$('#billTotal').text('฿0.00');
 					updateOrderHeader({
-						merged_notice: res.merged_notice || null
+						merged_notice: res.merged_notice || null,
+                        moved_notice: res.moved_notice || null,
+                        move_trace: Array.isArray(res.move_trace) ? res.move_trace : []
 					});
 					return;
 				}
@@ -1416,7 +1510,9 @@ $(function () {
 
 				const orderData = Object.assign({}, res.order, {
 					merged_notice: res.merged_notice || null,
-					merge_trace: Array.isArray(res.merge_trace) ? res.merge_trace : []
+					merge_trace: Array.isArray(res.merge_trace) ? res.merge_trace : [],
+                    moved_notice: res.moved_notice || null,
+                    move_trace: Array.isArray(res.move_trace) ? res.move_trace : []
 				});
 
 				renderItems(orderData, res.items || []);
@@ -2097,7 +2193,7 @@ $(function () {
         });
     });
 
-    $(document).on('click', '#btnMoveTable, #btnMergeBill, #btnConfirmMoveTable, #btnConfirmMergeBill, #btnViewMergeAudit', function (e) {
+    $(document).on('click', '#btnMoveTable, #btnMergeBill, #btnConfirmMoveTable, #btnConfirmMergeBill, #btnViewMergeAudit, #btnViewMoveAudit', function (e) {
         e.preventDefault();
         e.stopPropagation();
     });
@@ -2105,6 +2201,12 @@ $(function () {
     $(document).on('click', '#btnViewMergeAudit', function () {
         if (mergeAuditModal) {
             mergeAuditModal.show();
+        }
+    });
+
+    $(document).on('click', '#btnViewMoveAudit', function () {
+        if (moveAuditModal) {
+            moveAuditModal.show();
         }
     });
 
