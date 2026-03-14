@@ -622,6 +622,8 @@ $(function () {
     const paymentModal = paymentModalEl ? new bootstrap.Modal(paymentModalEl) : null;
     const mergeAuditModalEl = document.getElementById('mergeAuditModal');
     const mergeAuditModal = mergeAuditModalEl ? new bootstrap.Modal(mergeAuditModalEl) : null;
+    const moveAuditModalEl = document.getElementById('moveAuditModal');
+    const moveAuditModal = moveAuditModalEl ? new bootstrap.Modal(moveAuditModalEl) : null;
     const managerOverrideModalEl = document.getElementById('managerOverrideModal');
     const managerOverrideModal = managerOverrideModalEl ? new bootstrap.Modal(managerOverrideModalEl) : null;
     let managerOverrideResolver = null;
@@ -2190,7 +2192,7 @@ $(function () {
         });
     });
 
-    $(document).on('click', '#btnMoveTable, #btnMergeBill, #btnConfirmMoveTable, #btnConfirmMergeBill, #btnViewMergeAudit', function (e) {
+    $(document).on('click', '#btnMoveTable, #btnMergeBill, #btnConfirmMoveTable, #btnConfirmMergeBill, #btnViewMergeAudit, #btnViewMoveAudit', function (e) {
         e.preventDefault();
         e.stopPropagation();
     });
