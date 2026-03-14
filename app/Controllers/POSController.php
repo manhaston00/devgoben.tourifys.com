@@ -1579,11 +1579,11 @@ class POSController extends BaseController
         $itemDetail = trim((string) $this->request->getPost('item_detail'));
         $options    = $this->decodePostedOptions($this->request->getPost('options'));
 
-        $order = $this->getScopedOrder($orderId, ['open', 'billing']);
-        if (! $order || ! in_array(($order['status'] ?? ''), ['open', 'billing'], true)) {
+        $order = $this->getScopedOrder($orderId, ['open']);
+        if (! $order || ($order['status'] ?? '') !== 'open') {
             return $this->response->setJSON([
                 'status'  => 'error',
-                'message' => lang('app.open_order_not_found'),
+                'message' => lang('app.bill_status_cannot_add_items'),
             ]);
         }
 

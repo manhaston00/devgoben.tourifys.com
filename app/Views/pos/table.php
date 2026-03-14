@@ -842,6 +842,8 @@ $(function () {
         openBillFirst: <?= json_encode(lang('app.please_open_bill_first'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         billCannotAddItems: <?= json_encode(lang('app.bill_status_cannot_add_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         itemCannotEdit: <?= json_encode(lang('app.item_cannot_edit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        orderCannotEditItems: <?= json_encode(lang('app.order_cannot_edit_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        orderCannotSendKitchen: <?= json_encode(lang('app.order_cannot_send_kitchen'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         billNotFound: <?= json_encode(lang('app.bill_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         editItemNotFound: <?= json_encode(lang('app.edit_item_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         selectedItemNotFound: <?= json_encode(lang('app.selected_item_not_found'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -1753,8 +1755,11 @@ $(function () {
             || $('#mergeBillModal').hasClass('show');
     }
 
-    function loadOrder() {
+    function loadOrder(callback) {
 		if (isAnyModalOpen()) {
+            if (typeof callback === 'function') {
+                callback(null);
+            }
 			return;
 		}
 
@@ -1766,6 +1771,9 @@ $(function () {
 					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
 					$('#billTotal').text('฿0.00');
 					updateOrderHeader(null);
+                    if (typeof callback === 'function') {
+                        callback(null);
+                    }
 					return;
 				}
 
@@ -1779,6 +1787,9 @@ $(function () {
                         moved_notice: res.moved_notice || null,
                         move_trace: Array.isArray(res.move_trace) ? res.move_trace : []
 					});
+                    if (typeof callback === 'function') {
+                        callback(res);
+                    }
 					return;
 				}
 
@@ -1788,6 +1799,9 @@ $(function () {
 					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
 					$('#billTotal').text('฿0.00');
 					updateOrderHeader(null);
+                    if (typeof callback === 'function') {
+                        callback(res);
+                    }
 					return;
 				}
 
@@ -1803,13 +1817,46 @@ $(function () {
 
 				renderItems(orderData, res.items || []);
 				updateOrderHeader(orderData);
+                if (typeof callback === 'function') {
+                    callback(res);
+                }
 			})
 			.fail(function (xhr) {
 				console.error('loadOrder error:', xhr.responseText);
 				$('#orderBox').html('<div class="text-danger">' + TXT.loadBillFailed + '</div>');
 				$('#billTotal').text('฿0.00');
+                if (typeof callback === 'function') {
+                    callback(null);
+                }
 			});
 	}
+
+    function ensureOrderOpenState(onReady, failMessage) {
+        const proceed = function () {
+            if (typeof onReady === 'function') {
+                onReady();
+            }
+        };
+
+        if (!CURRENT_ORDER_ID) {
+            notify(TXT.noBillYet);
+            return;
+        }
+
+        if (CURRENT_ORDER_STATUS === 'open') {
+            proceed();
+            return;
+        }
+
+        loadOrder(function () {
+            if (CURRENT_ORDER_STATUS === 'open') {
+                proceed();
+                return;
+            }
+
+            notify(failMessage || TXT.orderCannotEditItems);
+        });
+    }
 
     function startAutoRefresh() {
         if (AUTO_REFRESH_TIMER) {
@@ -1912,18 +1959,16 @@ $(function () {
             return;
         }
 
-        if (!(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')) {
-            notify(TXT.billCannotAddItems);
-            return;
-        }
-
-        const productId = $(this).data('id');
-        const productName = $(this).data('name') || $(this).find('.fw-bold').text().trim();
-        const productPriceText = $(this).find('.text-muted').text().replace('฿', '').replace(/,/g, '').trim();
+        const $btn = $(this);
+        const productId = $btn.data('id');
+        const productName = $btn.data('name') || $btn.find('.fw-bold').text().trim();
+        const productPriceText = $btn.find('.text-muted').text().replace('฿', '').replace(/,/g, '').trim();
         const productPrice = parseFloat(productPriceText || 0);
 
-        openProductModal(productId, productName, productPrice);
-        loadProductQuickOptions(productId);
+        ensureOrderOpenState(function () {
+            openProductModal(productId, productName, productPrice);
+            loadProductQuickOptions(productId);
+        }, TXT.billCannotAddItems);
     });
 
     $(document).on('click', '.btn-edit-item', function () {
@@ -1942,7 +1987,9 @@ $(function () {
             return;
         }
 
-        openEditItemModal(item);
+        ensureOrderOpenState(function () {
+            openEditItemModal(item);
+        }, TXT.orderCannotEditItems);
     });
 
     $(document).on('click', '.modal-quick-detail', function () {
@@ -2050,38 +2097,47 @@ $(function () {
     });
 
     $(document).on('click', '.btn-qty', function () {
-        $.post("<?= site_url('pos/update-item-qty') ?>", {
-            item_id: $(this).data('id'),
-            type: $(this).data('type')
-        })
-        .done(function (res) {
-            if (res && res.status === 'error') {
-                notify(res.message || TXT.updateItemFailed);
-                return;
-            }
-            loadOrder();
-        })
-        .fail(function (xhr) {
-            console.error('updateItemQty error:', xhr.responseText);
-            notify(TXT.updateItemFailed);
-        });
+        const itemId = $(this).data('id');
+        const type = $(this).data('type');
+
+        ensureOrderOpenState(function () {
+            $.post("<?= site_url('pos/update-item-qty') ?>", {
+                item_id: itemId,
+                type: type
+            })
+            .done(function (res) {
+                if (res && res.status === 'error') {
+                    notify(res.message || TXT.updateItemFailed);
+                    return;
+                }
+                loadOrder();
+            })
+            .fail(function (xhr) {
+                console.error('updateItemQty error:', xhr.responseText);
+                notify(TXT.updateItemFailed);
+            });
+        }, TXT.orderCannotEditItems);
     });
 
     $(document).on('click', '.btn-cancel-direct', function () {
-        $.post("<?= site_url('pos/remove-item') ?>", {
-            item_id: $(this).data('id')
-        })
-        .done(function (res) {
-            if (res && res.status === 'error') {
-                notify(res.message || TXT.removeItemFailed);
-                return;
-            }
-            loadOrder();
-        })
-        .fail(function (xhr) {
-            console.error('cancelDirect error:', xhr.responseText);
-            notify(TXT.removeItemFailed);
-        });
+        const itemId = $(this).data('id');
+
+        ensureOrderOpenState(function () {
+            $.post("<?= site_url('pos/remove-item') ?>", {
+                item_id: itemId
+            })
+            .done(function (res) {
+                if (res && res.status === 'error') {
+                    notify(res.message || TXT.removeItemFailed);
+                    return;
+                }
+                loadOrder();
+            })
+            .fail(function (xhr) {
+                console.error('cancelDirect error:', xhr.responseText);
+                notify(TXT.removeItemFailed);
+            });
+        }, TXT.orderCannotEditItems);
     });
 
     $(document).on('click', '.btn-request-cancel', function () {
@@ -2163,42 +2219,44 @@ $(function () {
             return;
         }
 
-        SEND_KITCHEN_BUSY = true;
+        ensureOrderOpenState(function () {
+            SEND_KITCHEN_BUSY = true;
 
-        const $btn = $('#btnSendKitchen');
-        const originalText = $btn.text();
+            const $btn = $('#btnSendKitchen');
+            const originalText = $btn.text();
 
-        $btn.prop('disabled', true);
-        $btn.text('...');
+            $btn.prop('disabled', true);
+            $btn.text('...');
 
-        const requestUuid = generateRequestUuid();
+            const requestUuid = generateRequestUuid();
 
-        $.ajax({
-            url: "<?= site_url('pos/send-kitchen') ?>",
-            type: "POST",
-            dataType: "json",
-            data: {
-                order_id: CURRENT_ORDER_ID,
-                request_uuid: requestUuid
-            },
-            complete: function () {
-                SEND_KITCHEN_BUSY = false;
-                $btn.prop('disabled', false);
-                $btn.text(originalText);
-            },
-            success: function (res) {
-                if (res && res.status === 'success') {
-                    notify(res.message || <?= json_encode(lang('app.sent_to_kitchen_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
-                    loadOrder();
-                } else {
-                    notify((res && res.message) ? res.message : TXT.sendKitchenFailed);
+            $.ajax({
+                url: "<?= site_url('pos/send-kitchen') ?>",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    order_id: CURRENT_ORDER_ID,
+                    request_uuid: requestUuid
+                },
+                complete: function () {
+                    SEND_KITCHEN_BUSY = false;
+                    $btn.prop('disabled', false);
+                    $btn.text(originalText);
+                },
+                success: function (res) {
+                    if (res && res.status === 'success') {
+                        notify(res.message || <?= json_encode(lang('app.sent_to_kitchen_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
+                        loadOrder();
+                    } else {
+                        notify((res && res.message) ? res.message : TXT.sendKitchenFailed);
+                    }
+                },
+                error: function (xhr) {
+                    console.error('sendKitchen error:', xhr.responseText);
+                    notify(TXT.sendKitchenFailed);
                 }
-            },
-            error: function (xhr) {
-                console.error('sendKitchen error:', xhr.responseText);
-                notify(TXT.sendKitchenFailed);
-            }
-        });
+            });
+        }, TXT.orderCannotSendKitchen);
     });
 
     $(document).on('click', '#btnPay', function () {
