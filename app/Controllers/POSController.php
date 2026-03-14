@@ -1268,6 +1268,132 @@ class POSController extends BaseController
         ];
     }
 
+    protected function buildMoveNoticeFromRow(array $move): ?array
+    {
+        if (empty($move)) {
+            return null;
+        }
+
+        $branchId       = $this->getCurrentBranchId();
+        $fromTableId    = (int) ($move['from_table_id'] ?? 0);
+        $toTableId      = (int) ($move['to_table_id'] ?? 0);
+        $orderId        = (int) ($move['order_id'] ?? 0);
+        $fromTableName  = $move['from_table_name'] ?? null;
+        $toTableName    = $move['to_table_name'] ?? null;
+        $orderNumber    = null;
+        $movedByName    = $move['moved_by_name'] ?? null;
+
+        if (($fromTableName === null || $fromTableName === '') && $fromTableId > 0 && method_exists($this->tableModel, 'getTableMapByIds')) {
+            $fromMap = $this->tableModel->getTableMapByIds([$fromTableId], $branchId);
+            $fromTableName = $fromMap[$fromTableId]['table_name'] ?? null;
+        }
+
+        if (($toTableName === null || $toTableName === '') && $toTableId > 0 && method_exists($this->tableModel, 'getTableMapByIds')) {
+            $toMap = $this->tableModel->getTableMapByIds([$toTableId], $branchId);
+            $toTableName = $toMap[$toTableId]['table_name'] ?? null;
+        }
+
+        if ($orderId > 0) {
+            $orderBuilder = $this->orderModel
+                ->where('tenant_id', $this->currentTenantId())
+                ->where('id', $orderId);
+
+            if ($branchId > 0 && $this->db->fieldExists('branch_id', 'orders')) {
+                $orderBuilder->where('branch_id', $branchId);
+            }
+
+            $orderRow = $orderBuilder->first();
+            if ($orderRow) {
+                $orderNumber = $orderRow['order_number'] ?? null;
+            }
+        }
+
+        return [
+            'move_id'          => (int) ($move['id'] ?? 0),
+            'order_id'         => $orderId,
+            'from_table_id'    => $fromTableId,
+            'to_table_id'      => $toTableId,
+            'from_table_name'  => $fromTableName,
+            'to_table_name'    => $toTableName,
+            'order_number'     => $orderNumber,
+            'reason'           => $move['reason'] ?? null,
+            'moved_by_name'    => $movedByName,
+            'moved_at'         => $move['created_at'] ?? null,
+        ];
+    }
+
+    protected function getLatestMoveNoticeBySourceTable(int $tableId): ?array
+    {
+        if ($tableId <= 0 || ! $this->db->tableExists('order_table_moves')) {
+            return null;
+        }
+
+        $builder = $this->db->table('order_table_moves otm');
+        $builder->select('otm.*, u.full_name AS moved_by_name, u.username AS moved_by_username, rtf.table_name AS from_table_name, rtt.table_name AS to_table_name');
+        $builder->join('users u', 'u.id = otm.moved_by', 'left');
+        $builder->join('restaurant_tables rtf', 'rtf.id = otm.from_table_id', 'left');
+        $builder->join('restaurant_tables rtt', 'rtt.id = otm.to_table_id', 'left');
+        $builder->where('otm.tenant_id', $this->currentTenantId());
+        $builder->where('otm.from_table_id', $tableId);
+
+        $branchId = $this->getCurrentBranchId();
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_table_moves')) {
+            $builder->where('otm.branch_id', $branchId);
+        }
+
+        $move = $builder->orderBy('otm.id', 'DESC')->get()->getFirstRow('array');
+        if (! $move) {
+            return null;
+        }
+
+        $checkpointOrderId = (int) ($move['order_id'] ?? 0);
+        if ($checkpointOrderId > 0) {
+            $orderBuilder = $this->db->table('orders');
+            $orderBuilder->select('id');
+            $orderBuilder->where('tenant_id', $this->currentTenantId());
+            $orderBuilder->where('table_id', $tableId);
+            $orderBuilder->where('id >', $checkpointOrderId);
+
+            if ($branchId > 0 && $this->db->fieldExists('branch_id', 'orders')) {
+                $orderBuilder->where('branch_id', $branchId);
+            }
+
+            $newerOrder = $orderBuilder->orderBy('id', 'DESC')->get()->getFirstRow('array');
+            if ($newerOrder) {
+                return null;
+            }
+        }
+
+        return $this->buildMoveNoticeFromRow($move);
+    }
+
+    protected function getMoveTraceByOrder(int $orderId): array
+    {
+        if ($orderId <= 0 || ! $this->db->tableExists('order_table_moves')) {
+            return [];
+        }
+
+        $builder = $this->db->table('order_table_moves otm');
+        $builder->select('otm.*, u.full_name AS moved_by_name, u.username AS moved_by_username, rtf.table_name AS from_table_name, rtt.table_name AS to_table_name');
+        $builder->join('users u', 'u.id = otm.moved_by', 'left');
+        $builder->join('restaurant_tables rtf', 'rtf.id = otm.from_table_id', 'left');
+        $builder->join('restaurant_tables rtt', 'rtt.id = otm.to_table_id', 'left');
+        $builder->where('otm.tenant_id', $this->currentTenantId());
+        $builder->where('otm.order_id', $orderId);
+
+        $branchId = $this->getCurrentBranchId();
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_table_moves')) {
+            $builder->where('otm.branch_id', $branchId);
+        }
+
+        $rows = $builder->orderBy('otm.id', 'ASC')->get()->getResultArray();
+        if (empty($rows)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(fn (array $row) => $this->buildMoveNoticeFromRow($row), $rows)));
+    }
+
     protected function getLatestMergedNoticeByTable(int $tableId): ?array
     {
         if ($tableId <= 0 || ! $this->db->tableExists('order_merges')) {
@@ -1397,6 +1523,8 @@ class POSController extends BaseController
             return $this->response->setJSON([
                 'status'        => 'empty',
                 'merged_notice' => $this->getLatestMergedNoticeByTable($tableId),
+                'moved_notice'  => $this->getLatestMoveNoticeBySourceTable($tableId),
+                'move_trace'    => [],
             ]);
         }
 
@@ -1412,6 +1540,8 @@ class POSController extends BaseController
             'items'         => $items,
             'merged_notice' => null,
             'merge_trace'   => $this->getMergeTraceByTargetOrder((int) ($order['id'] ?? 0)),
+            'moved_notice'  => null,
+            'move_trace'    => $this->getMoveTraceByOrder((int) ($order['id'] ?? 0)),
         ]);
     }
 

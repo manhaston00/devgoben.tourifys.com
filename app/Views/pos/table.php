@@ -569,6 +569,13 @@ $(function () {
         allProductsDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         moveTableFailed: <?= json_encode(lang('app.move_table_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         moveTableSuccess: <?= json_encode(lang('app.move_table_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        movedBillNotice: <?= json_encode(lang('app.moved_bill_notice'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        movedFrom: <?= json_encode(lang('app.moved_from'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        movedTo: <?= json_encode(lang('app.moved_to'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        movedBy: <?= json_encode(lang('app.moved_by'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        movedAt: <?= json_encode(lang('app.moved_at'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        moveReason: <?= json_encode(lang('app.move_reason'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        noMoveReason: <?= json_encode(lang('app.no_move_reason'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         destinationBusy: <?= json_encode(lang('app.destination_table_has_open_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         mergeBill: <?= json_encode(lang('app.merge_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         mergeBillFailed: <?= json_encode(lang('app.merge_bill_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -1076,6 +1083,9 @@ $(function () {
         const indicators = [];
         const mergedNotice = order && order.merged_notice ? order.merged_notice : null;
         const traces = Array.isArray(order && order.merge_trace) ? order.merge_trace : [];
+        const movedNotice = order && order.moved_notice ? order.moved_notice : null;
+        const moveTrace = Array.isArray(order && order.move_trace) ? order.move_trace : [];
+        const latestMove = moveTrace.length ? moveTrace[moveTrace.length - 1] : null;
 
         if (traces.length > 0) {
             indicators.push(`
@@ -1091,6 +1101,28 @@ $(function () {
             indicators.push(`
                 <span class="badge rounded-pill text-bg-warning">${escapeHtml(TXT.mergeBill)} → ${targetTableName}</span>
                 <span class="badge rounded-pill text-bg-dark">#${targetOrderNumber}</span>
+            `);
+        }
+
+        if (movedNotice && movedNotice.to_table_name) {
+            const targetTableName = escapeHtml(movedNotice.to_table_name || '-');
+            const orderNumber = escapeHtml(movedNotice.order_number || '-');
+
+            indicators.push(`
+                <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.movedBillNotice)}</span>
+                <span class="badge rounded-pill text-bg-secondary">${escapeHtml(TXT.movedTo)}: ${targetTableName}</span>
+                <span class="badge rounded-pill text-bg-dark">#${orderNumber}</span>
+            `);
+        }
+
+        if (latestMove && latestMove.from_table_name) {
+            const fromTableName = escapeHtml(latestMove.from_table_name || '-');
+            const toTableName = escapeHtml(latestMove.to_table_name || '-');
+
+            indicators.push(`
+                <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.movedBillNotice)}</span>
+                <span class="badge rounded-pill text-bg-secondary">${escapeHtml(TXT.movedFrom)}: ${fromTableName}</span>
+                <span class="badge rounded-pill text-bg-light text-dark">${escapeHtml(TXT.movedTo)}: ${toTableName}</span>
             `);
         }
 
