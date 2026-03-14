@@ -14,6 +14,34 @@
     background: rgba(0,0,0,.2);
     border-radius: 10px;
 }
+
+    .pos-toast-container {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: .75rem;
+        max-width: min(92vw, 360px);
+    }
+    .pos-toast-item {
+        background: rgba(33, 37, 41, 0.96);
+        color: #fff;
+        border-radius: 14px;
+        padding: .9rem 1rem;
+        box-shadow: 0 12px 30px rgba(0,0,0,.22);
+        opacity: 0;
+        transform: translateY(-6px);
+        transition: opacity .18s ease, transform .18s ease;
+        pointer-events: auto;
+        font-size: .95rem;
+        line-height: 1.45;
+    }
+    .pos-toast-item.show { opacity: 1; transform: translateY(0); }
+    .pos-toast-item.toast-success { background: rgba(25, 135, 84, 0.96); }
+    .pos-toast-item.toast-error { background: rgba(220, 53, 69, 0.97); }
+    .pos-toast-item.toast-warning { background: rgba(255, 193, 7, 0.98); color: #212529; }
 </style>
 <?php
     $tableIsActive = (int) ($table['is_active'] ?? 0) === 1;
@@ -158,11 +186,12 @@
     <div class="col-lg-4">
         <div class="card card-soft h-100">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
                     <h5 class="mb-0"><?= esc(lang('app.current_bill')) ?></h5>
                     <span class="small text-muted" id="orderNoLabel">-</span>
-					<div id="mergedNoticeBox" class="mt-2"></div>
                 </div>
+
+                <div id="orderMetaIndicators" class="d-flex flex-wrap gap-2 mb-3"></div>
 
                 <div id="billRequestAlertBox" class="mt-2"></div>
 
@@ -407,6 +436,8 @@
 </div>
 
 
+<div class="pos-toast-container" id="posToastContainer" aria-live="polite" aria-atomic="true"></div>
+
 <div class="modal fade" id="managerOverrideModal" tabindex="-1" aria-labelledby="managerOverrideModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4">
@@ -551,6 +582,39 @@ $(function () {
 
     function escapeHtml(text) {
         return $('<div>').text(text ?? '').html();
+    }
+
+    function notify(message, type) {
+        const text = $.trim(String(message || ''));
+        if (!text) {
+            return;
+        }
+
+        const safeType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+        const container = document.getElementById('posToastContainer');
+
+        if (!container) {
+            window.notify(text);
+            return;
+        }
+
+        const toast = document.createElement('div');
+        toast.className = 'pos-toast-item toast-' + safeType;
+        toast.textContent = text;
+        container.appendChild(toast);
+
+        window.requestAnimationFrame(function () {
+            toast.classList.add('show');
+        });
+
+        window.setTimeout(function () {
+            toast.classList.remove('show');
+            window.setTimeout(function () {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 220);
+        }, 2600);
     }
 
     function getBillTotalNumber() {
@@ -740,7 +804,7 @@ $(function () {
 
     function openProductModal(productId, productName, productPrice) {
         if (!TABLE_IS_ACTIVE) {
-            alert(TXT.tableDisabled);
+            notify(TXT.tableDisabled);
             return;
         }
 
@@ -912,37 +976,30 @@ $(function () {
         $('#modalItemNote').val(merged.join(', '));
     }
 	
-	function renderMergedNotice(notice = null) {
-		if (!notice || !notice.target_table_name) {
-			$('#mergedNoticeBox').html('');
-			return;
-		}
+    function renderOrderMetaIndicators(order = null) {
+        const indicators = [];
+        const mergedNotice = order && order.merged_notice ? order.merged_notice : null;
 
-		const targetTableName = escapeHtml(notice.target_table_name || '-');
-		const targetOrderNumber = escapeHtml(notice.target_order_number || '-');
-		const reason = escapeHtml(notice.reason || '');
+        if (mergedNotice && mergedNotice.target_table_name) {
+            const targetTableName = escapeHtml(mergedNotice.target_table_name || '-');
+            const targetOrderNumber = escapeHtml(mergedNotice.target_order_number || '-');
 
-		let html = `
-			<div class="alert alert-warning border-0 rounded-4 py-2 px-3 mb-0">
-				<div class="fw-bold mb-1">บิลนี้ถูกรวมไปแล้ว</div>
-				<div class="small">ไปที่โต๊ะ: <strong>${targetTableName}</strong></div>
-				<div class="small">บิลปลายทาง: <strong>${targetOrderNumber}</strong></div>
-				${reason ? `<div class="small text-muted mt-1">เหตุผล: ${reason}</div>` : ''}
-			</div>
-		`;
+            indicators.push(`
+                <span class="badge rounded-pill text-bg-warning">${escapeHtml(TXT.mergeBill)} → ${targetTableName}</span>
+                <span class="badge rounded-pill text-bg-dark">#${targetOrderNumber}</span>
+            `);
+        }
 
-		$('#mergedNoticeBox').html(html);
-	}
+        $('#orderMetaIndicators').html(indicators.join(''));
+    }
 
     function updateOrderHeader(order = null) {
 		const $badge = $('#orderStatusBadge');
-		const mergedNotice = order && order.merged_notice ? order.merged_notice : null;
-
 		$badge.removeClass('text-bg-primary text-bg-warning text-bg-success text-bg-danger text-bg-secondary text-bg-dark');
 		$badge.addClass(statusBadgeClass(CURRENT_ORDER_STATUS));
 		$badge.text(TXT.billStatus + ': ' + statusText(CURRENT_ORDER_STATUS));
 
-		renderMergedNotice(mergedNotice);
+        renderOrderMetaIndicators(order);
 
 		if (!TABLE_IS_ACTIVE) {
 			$('#btnOpenOrder').prop('disabled', true).text(TXT.tableDisabled);
@@ -1307,7 +1364,7 @@ $(function () {
 
     $(document).on('click', '#btnOpenOrder', function () {
         if (!TABLE_IS_ACTIVE) {
-            alert(TXT.tableDisabled);
+            notify(TXT.tableDisabled);
             return;
         }
 
@@ -1320,23 +1377,23 @@ $(function () {
                 CURRENT_ORDER_STATUS = 'open';
                 loadOrder();
             } else {
-                alert(res.message || TXT.loadBillFailed);
+                notify(res.message || TXT.loadBillFailed);
             }
         })
         .fail(function (xhr) {
             console.error('openOrder error:', xhr.responseText);
-            alert(TXT.loadBillFailed);
+            notify(TXT.loadBillFailed);
         });
     });
 
     $(document).on('click', '.product-btn', function () {
         if (!CURRENT_ORDER_ID) {
-            alert(TXT.openBillFirst);
+            notify(TXT.openBillFirst);
             return;
         }
 
         if (!(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')) {
-            alert(TXT.billCannotAddItems);
+            notify(TXT.billCannotAddItems);
             return;
         }
 
@@ -1361,7 +1418,7 @@ $(function () {
         };
 
         if (!canEditItem(item.status)) {
-            alert(TXT.itemCannotEdit);
+            notify(TXT.itemCannotEdit);
             return;
         }
 
@@ -1396,12 +1453,12 @@ $(function () {
 
     $(document).on('click', '#btnConfirmAddProduct', function () {
         if (!TABLE_IS_ACTIVE) {
-            alert(TXT.tableDisabled);
+            notify(TXT.tableDisabled);
             return;
         }
 
         if (!CURRENT_ORDER_ID) {
-            alert(TXT.billNotFound);
+            notify(TXT.billNotFound);
             return;
         }
 
@@ -1414,7 +1471,7 @@ $(function () {
             const itemId = $('#editingItemId').val();
 
             if (!itemId) {
-                alert(TXT.editItemNotFound);
+                notify(TXT.editItemNotFound);
                 return;
             }
 
@@ -1432,19 +1489,19 @@ $(function () {
                     clearModalOption();
                     loadOrder();
                 } else {
-                    alert(res.message || TXT.editItemFailed);
+                    notify(res.message || TXT.editItemFailed);
                 }
             })
             .fail(function (xhr) {
                 console.error('updateItem error:', xhr.responseText);
-                alert(TXT.editItemFailed);
+                notify(TXT.editItemFailed);
             });
 
             return;
         }
 
         if (!SELECTED_PRODUCT_ID) {
-            alert(TXT.selectedItemNotFound);
+            notify(TXT.selectedItemNotFound);
             return;
         }
 
@@ -1463,12 +1520,12 @@ $(function () {
                 clearModalOption();
                 loadOrder();
             } else {
-                alert(res.message || TXT.addItemFailed);
+                notify(res.message || TXT.addItemFailed);
             }
         })
         .fail(function (xhr) {
             console.error('addItem error:', xhr.responseText);
-            alert(TXT.addItemFailed);
+            notify(TXT.addItemFailed);
         });
     });
 
@@ -1479,14 +1536,14 @@ $(function () {
         })
         .done(function (res) {
             if (res && res.status === 'error') {
-                alert(res.message || TXT.updateItemFailed);
+                notify(res.message || TXT.updateItemFailed);
                 return;
             }
             loadOrder();
         })
         .fail(function (xhr) {
             console.error('updateItemQty error:', xhr.responseText);
-            alert(TXT.updateItemFailed);
+            notify(TXT.updateItemFailed);
         });
     });
 
@@ -1496,14 +1553,14 @@ $(function () {
         })
         .done(function (res) {
             if (res && res.status === 'error') {
-                alert(res.message || TXT.removeItemFailed);
+                notify(res.message || TXT.removeItemFailed);
                 return;
             }
             loadOrder();
         })
         .fail(function (xhr) {
             console.error('cancelDirect error:', xhr.responseText);
-            alert(TXT.removeItemFailed);
+            notify(TXT.removeItemFailed);
         });
     });
 
@@ -1514,19 +1571,19 @@ $(function () {
         })
         .done(function (res) {
             if (res && res.status === 'error') {
-                alert(res.message || TXT.updateItemFailed);
+                notify(res.message || TXT.updateItemFailed);
                 return;
             }
             if (res && (res.mode === 'cancel' || res.mode === 'cancelled' || res.mode === 'cancelled_direct')) {
                 loadOrder();
                 return;
             }
-            alert(TXT.requestCancelSentToKitchen);
+            notify(TXT.requestCancelSentToKitchen);
             loadOrder();
         })
         .fail(function (xhr) {
             console.error('requestCancel error:', xhr.responseText);
-            alert(TXT.updateItemFailed);
+            notify(TXT.updateItemFailed);
         });
     });
 
@@ -1537,14 +1594,14 @@ $(function () {
         })
         .done(function (res) {
             if (res && res.status === 'error') {
-                alert(res.message || TXT.updateItemFailed);
+                notify(res.message || TXT.updateItemFailed);
                 return;
             }
             loadOrder();
         })
         .fail(function (xhr) {
             console.error('retryCancelRequest error:', xhr.responseText);
-            alert(TXT.updateItemFailed);
+            notify(TXT.updateItemFailed);
         });
     });
 
@@ -1577,12 +1634,12 @@ $(function () {
         }
 
         if (!TABLE_IS_ACTIVE) {
-            alert(TXT.tableDisabled);
+            notify(TXT.tableDisabled);
             return;
         }
 
         if (!CURRENT_ORDER_ID) {
-            alert(TXT.noBillYet);
+            notify(TXT.noBillYet);
             return;
         }
 
@@ -1611,38 +1668,38 @@ $(function () {
             },
             success: function (res) {
                 if (res && res.status === 'success') {
-                    alert(res.message || <?= json_encode(lang('app.sent_to_kitchen_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
+                    notify(res.message || <?= json_encode(lang('app.sent_to_kitchen_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>);
                     loadOrder();
                 } else {
-                    alert((res && res.message) ? res.message : TXT.sendKitchenFailed);
+                    notify((res && res.message) ? res.message : TXT.sendKitchenFailed);
                 }
             },
             error: function (xhr) {
                 console.error('sendKitchen error:', xhr.responseText);
-                alert(TXT.sendKitchenFailed);
+                notify(TXT.sendKitchenFailed);
             }
         });
     });
 
     $(document).on('click', '#btnPay', function () {
 		if (!TABLE_IS_ACTIVE) {
-			alert(TXT.tableDisabled);
+			notify(TXT.tableDisabled);
 			return;
 		}
 
 		if (!CURRENT_ORDER_ID) {
-			alert(TXT.noBillYet);
+			notify(TXT.noBillYet);
 			return;
 		}
 
 		if (CURRENT_ORDER_STATUS !== 'open' && CURRENT_ORDER_STATUS !== 'billing') {
-			alert(TXT.billCannotPay);
+			notify(TXT.billCannotPay);
 			return;
 		}
 
 		const hasPending = $('#orderBox [data-item-status="pending"]').length > 0;
 		if (hasPending) {
-			alert('<?= esc(lang('app.pending_items_must_send_first')) ?>');
+			notify('<?= esc(lang('app.pending_items_must_send_first')) ?>');
 			return;
 		}
 
@@ -1666,11 +1723,11 @@ $(function () {
 						}
 						return;
 					}
-					alert((res && res.message) ? res.message : TXT.paymentFailed);
+					notify((res && res.message) ? res.message : TXT.paymentFailed);
 					return;
 				}
 
-				alert(res.message || TXT.closeBillSuccess);
+				notify(res.message || TXT.closeBillSuccess);
 				CURRENT_ORDER_ID = null;
 				CURRENT_ORDER_STATUS = null;
 				loadOrder();
@@ -1734,12 +1791,12 @@ $(function () {
 
     $(document).on('click', '#btnConfirmPay', function () {
         if (!TABLE_IS_ACTIVE) {
-            alert(TXT.tableDisabled);
+            notify(TXT.tableDisabled);
             return;
         }
 
         if (!CURRENT_ORDER_ID) {
-            alert(TXT.noBillYet);
+            notify(TXT.noBillYet);
             return;
         }
 
@@ -1752,12 +1809,12 @@ $(function () {
         }
 
         if (isNaN(amount) || amount < 0) {
-            alert(TXT.paymentAmountInvalid);
+            notify(TXT.paymentAmountInvalid);
             return;
         }
 
         if (paymentMethod === 'cash' && amount < total) {
-            alert(TXT.amountLessThanBill);
+            notify(TXT.amountLessThanBill);
             return;
         }
 
@@ -1775,7 +1832,7 @@ $(function () {
                     }
                     return;
                 }
-                alert(res.message || TXT.paymentFailed);
+                notify(res.message || TXT.paymentFailed);
                 return;
             }
 
@@ -1783,14 +1840,14 @@ $(function () {
                 paymentModal.hide();
             }
 
-            alert((res.message || TXT.paymentSuccess) + '\n' + TXT.changeLabel + ': ' + money(res.change || 0));
+            notify((res.message || TXT.paymentSuccess) + '\n' + TXT.changeLabel + ': ' + money(res.change || 0));
             CURRENT_ORDER_ID = null;
             CURRENT_ORDER_STATUS = null;
             loadOrder();
         })
         .fail(function (xhr) {
             console.error('pay error:', xhr.responseText);
-            alert(TXT.paymentFailed);
+            notify(TXT.paymentFailed);
         });
     });
 
@@ -1812,7 +1869,7 @@ $(function () {
         const $btn = $(this);
 
         if (!actionKey || !orderId || !managerPinCode) {
-            alert(TXT.managerOverrideFailed);
+            notify(TXT.managerOverrideFailed);
             return;
         }
 
@@ -1825,7 +1882,7 @@ $(function () {
         })
         .done(function (res) {
             if (!res || res.status !== 'success') {
-                alert((res && res.message) ? res.message : TXT.managerOverrideFailed);
+                notify((res && res.message) ? res.message : TXT.managerOverrideFailed);
                 return;
             }
 
@@ -1840,11 +1897,11 @@ $(function () {
 			}
 
 			const approvedByText = res.approved_by ? (' ' + (TXT.by || 'by') + ' ' + res.approved_by) : '';
-			alert((res.message || TXT.managerOverrideApproved || 'Manager override approved') + approvedByText);
+			notify((res.message || TXT.managerOverrideApproved || 'Manager override approved') + approvedByText);
         })
         .fail(function (xhr) {
             console.error('manager override error:', xhr.responseText);
-            alert(TXT.managerOverrideFailed);
+            notify(TXT.managerOverrideFailed);
         })
         .always(function () {
             $btn.prop('disabled', false);
@@ -1853,7 +1910,7 @@ $(function () {
 
     $(document).on('click', '#btnMoveTable', function () {
         if (!CURRENT_ORDER_ID) {
-            alert(TXT.noBillYet);
+            notify(TXT.noBillYet);
             return;
         }
 
@@ -1866,7 +1923,7 @@ $(function () {
 
     $(document).on('click', '#btnConfirmMoveTable', function () {
         if (!CURRENT_ORDER_ID) {
-            alert(TXT.noBillYet);
+            notify(TXT.noBillYet);
             return;
         }
 
@@ -1874,7 +1931,7 @@ $(function () {
         const reason = $.trim($('#moveTableReason').val());
 
         if (!toTableId) {
-            alert('<?= esc(lang('app.please_select')) ?>');
+            notify('<?= esc(lang('app.please_select')) ?>');
             return;
         }
 
@@ -1885,7 +1942,7 @@ $(function () {
         })
         .done(function (res) {
             if (!res || res.status !== 'success') {
-                alert((res && res.message) ? res.message : TXT.moveTableFailed);
+                notify((res && res.message) ? res.message : TXT.moveTableFailed);
                 return;
             }
 
@@ -1893,18 +1950,23 @@ $(function () {
                 moveTableModal.hide();
             }
 
-            alert(res.message || TXT.moveTableSuccess);
+            notify(res.message || TXT.moveTableSuccess);
             window.location.reload();
         })
         .fail(function (xhr) {
             console.error('moveTable error:', xhr.responseText);
-            alert(TXT.moveTableFailed);
+            notify(TXT.moveTableFailed);
         });
+    });
+
+    $(document).on('click', '#btnMoveTable, #btnMergeBill, #btnConfirmMoveTable, #btnConfirmMergeBill', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
     });
 
     $(document).on('click', '#btnMergeBill', function () {
         if (!CURRENT_ORDER_ID) {
-            alert(TXT.noBillYet);
+            notify(TXT.noBillYet);
             return;
         }
 
@@ -1917,7 +1979,7 @@ $(function () {
 
     $(document).on('click', '#btnConfirmMergeBill', function () {
         if (!CURRENT_ORDER_ID) {
-            alert(TXT.noBillYet);
+            notify(TXT.noBillYet);
             return;
         }
 
@@ -1925,7 +1987,7 @@ $(function () {
         const reason = $.trim($('#mergeBillReason').val());
 
         if (!targetOrderId) {
-            alert(TXT.selectTargetBill);
+            notify(TXT.selectTargetBill);
             return;
         }
 
@@ -1936,7 +1998,7 @@ $(function () {
         })
         .done(function (res) {
             if (!res || res.status !== 'success') {
-                alert((res && res.message) ? res.message : TXT.mergeBillFailed);
+                notify((res && res.message) ? res.message : TXT.mergeBillFailed);
                 return;
             }
 
@@ -1944,12 +2006,12 @@ $(function () {
                 mergeBillModal.hide();
             }
 
-            alert(res.message || TXT.mergeBillSuccess);
+            notify(res.message || TXT.mergeBillSuccess);
             window.location.reload();
         })
         .fail(function (xhr) {
             console.error('mergeBill error:', xhr.responseText);
-            alert(TXT.mergeBillFailed);
+            notify(TXT.mergeBillFailed);
         });
     });
 

@@ -138,6 +138,14 @@ if (! function_exists('kds_lang')) {
                 </div>
             </div>
 
+            <div class="col-12 col-sm-6 col-xl-4 col-xxl-2">
+                <div class="kds-summary-card kds-summary-card-cancelled">
+                    <div class="kds-summary-label"><?= esc(kds_lang('app.kds_cancelled', 'ยกเลิกแล้ว', 'Cancelled', $kdsLocale)) ?></div>
+                    <div class="kds-summary-number" id="summary-cancelled">0</div>
+                    <div class="kds-summary-help"><?= esc(kds_lang('app.kds_cancelled_help', 'รายการที่อนุมัติยกเลิกแล้วในประวัติย้อนหลัง', 'Cancelled items already approved in history', $kdsLocale)) ?></div>
+                </div>
+            </div>
+
         </div>
 
         </div>
@@ -371,6 +379,7 @@ if (! function_exists('kds_lang')) {
     .kds-summary-card-ready::before { background: #06b6d4; }
     .kds-summary-card-cancel-request::before { background: #dc3545; }
     .kds-summary-card-served::before { background: #198754; }
+    .kds-summary-card-cancelled::before { background: #dc3545; }
 
     .kds-summary-label { font-size: 12px; font-weight: 800; color: #374151; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .3px; }
     .kds-summary-number { font-size: 36px; line-height: 1; font-weight: 900; color: #111827; margin-bottom: 6px; }
@@ -380,6 +389,7 @@ if (! function_exists('kds_lang')) {
     .kds-summary-card-new .kds-summary-number { color: #4b5563; }
     .kds-summary-card-cancel-request .kds-summary-number { color: #b91c1c; }
     .kds-summary-card-served .kds-summary-number { color: #15803d; }
+    .kds-summary-card-cancelled .kds-summary-number { color: #b91c1c; }
     .kds-summary-help { font-size: 12px; color: #6b7280; line-height: 1.35; }
 
     .kds-col-header {

@@ -22,12 +22,51 @@ class OrderTableMoveModel extends TenantScopedModel
 
     protected $beforeInsert = ['beforeInsertTenant'];
     protected $beforeUpdate = ['beforeUpdateTenant'];
-	
-	public function getLatestByOrder(int $orderId): ?array
-	{
-		return $this->scoped()
-			->where('order_id', $orderId)
-			->orderBy('id', 'DESC')
-			->first();
-	}
+
+    protected function currentBranchId(): int
+    {
+        if (function_exists('current_branch_id')) {
+            return (int) (current_branch_id() ?: 0);
+        }
+
+        return (int) (session('branch_id') ?? 0);
+    }
+
+    public function getLatestByOrder(int $orderId): ?array
+    {
+        if ($orderId <= 0) {
+            return null;
+        }
+
+        $query = $this->scoped()
+            ->where('order_id', $orderId);
+
+        $branchId = $this->currentBranchId();
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', $this->table)) {
+            $query->where($this->table . '.branch_id', $branchId);
+        }
+
+        return $query
+            ->orderBy('id', 'DESC')
+            ->first();
+    }
+
+    public function getLatestByTargetTable(int $tableId): ?array
+    {
+        if ($tableId <= 0) {
+            return null;
+        }
+
+        $query = $this->scoped()
+            ->where('to_table_id', $tableId);
+
+        $branchId = $this->currentBranchId();
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', $this->table)) {
+            $query->where($this->table . '.branch_id', $branchId);
+        }
+
+        return $query
+            ->orderBy('id', 'DESC')
+            ->first();
+    }
 }

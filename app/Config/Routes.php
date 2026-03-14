@@ -222,6 +222,14 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
         'filter' => 'permission:pos.add_item,feature_gate:pos.sell'
     ]);
 
+    $routes->post('update-item-note', 'POSController::updateItemNote', [
+        'filter' => 'permission:pos.add_item,feature_gate:pos.sell'
+    ]);
+
+    $routes->post('update-item-detail', 'POSController::updateItemDetail', [
+        'filter' => 'permission:pos.add_item,feature_gate:pos.sell'
+    ]);
+
     $routes->post('send-kitchen', 'POSController::sendKitchen', [
         'filter' => 'permission:pos.send_kitchen,feature_gate:pos.access'
     ]);

@@ -1255,11 +1255,7 @@ class POSController extends BaseController
 
         $branchId = $this->getCurrentBranchId();
         if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_merges')) {
-            $builder->groupStart()
-                ->where('branch_id', $branchId)
-                ->orWhere('branch_id', null)
-                ->orWhere('branch_id', 0)
-                ->groupEnd();
+            $builder->where('branch_id', $branchId);
         }
 
         $merge = $builder->orderBy('id', 'DESC')->first();
@@ -2519,19 +2515,11 @@ class POSController extends BaseController
             ->where('order_id', $orderId);
 
         if ($this->db->fieldExists('tenant_id', 'order_items')) {
-            $builder->groupStart()
-                ->where('tenant_id', $tenantId)
-                ->orWhere('tenant_id', null)
-                ->orWhere('tenant_id', 0)
-                ->groupEnd();
+            $builder->where('tenant_id', $tenantId);
         }
 
         if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_items')) {
-            $builder->groupStart()
-                ->where('branch_id', $branchId)
-                ->orWhere('branch_id', null)
-                ->orWhere('branch_id', 0)
-                ->groupEnd();
+            $builder->where('branch_id', $branchId);
         }
 
         $items = $builder->findAll();
@@ -2540,10 +2528,11 @@ class POSController extends BaseController
         $now      = date('Y-m-d H:i:s');
 
         foreach ($items as $item) {
-            $qty          = (int) ($item['qty'] ?? 0);
-            $unitPrice    = (float) ($item['price'] ?? 0);
-            $status       = $this->normalizeOrderItemStatus($item['status'] ?? '');
-            $lineTotal    = $this->isNonBillableOrderItemStatus($status) ? 0.0 : ($unitPrice * $qty);
+            $normalizedItem = $this->normalizeOrderItemRowForResponse($item);
+            $qty            = (int) ($normalizedItem['qty'] ?? 0);
+            $unitPrice      = (float) ($normalizedItem['price'] ?? 0);
+            $status         = $this->normalizeOrderItemStatus($normalizedItem['status'] ?? '');
+            $lineTotal      = $this->isNonBillableOrderItemStatus($status) ? 0.0 : ($unitPrice * $qty);
 
             $this->orderItemModel->update((int) $item['id'], [
                 'line_total' => $lineTotal,
@@ -3006,7 +2995,7 @@ class POSController extends BaseController
                 $this->kitchenLogModel->addLog(
                     0,
                     'new',
-                    'ย้ายโต๊ะจาก #' . $fromTableId . ' ไป #' . $toTableId,
+                    lang('app.move_table') . ' #' . $fromTableId . ' -> #' . $toTableId,
                     [
                         'branch_id'     => $this->getCurrentBranchId(),
                         'order_id'      => $orderId,
@@ -3034,6 +3023,22 @@ class POSController extends BaseController
             }
 
             $db->transCommit();
+
+            $this->writeAuditLog([
+                'branch_id'    => (int) ($order['branch_id'] ?? 0) ?: null,
+                'target_type'  => 'order',
+                'target_id'    => $orderId,
+                'action_key'   => 'pos.move_table',
+                'action_label' => lang('app.move_table'),
+                'ref_code'     => (string) ($order['order_number'] ?? ''),
+                'order_id'     => $orderId,
+                'table_id'     => $toTableId > 0 ? $toTableId : null,
+                'meta_json'    => [
+                    'from_table_id' => $fromTableId,
+                    'to_table_id'   => $toTableId,
+                    'reason'        => $reason !== '' ? $reason : null,
+                ],
+            ]);
 
             return $this->response->setJSON([
                 'status'  => 'success',
@@ -3132,6 +3137,18 @@ class POSController extends BaseController
             return $response;
         }
 
+        if ($response = $this->jsonFeatureDenied('feature.merge_bill.enabled')) {
+            return $response;
+        }
+
+        if (! $this->userHasPermissionKey('pos.open_table')) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.no_permission'),
+                'code'    => 'NO_PERMISSION',
+            ]);
+        }
+
         $sourceOrderId = (int) ($this->request->getPost('source_order_id') ?? 0);
         $sourceTableId = (int) ($this->request->getPost('source_table_id') ?? 0);
         $targetOrderId = (int) ($this->request->getPost('target_order_id') ?? 0);
@@ -3192,19 +3209,11 @@ class POSController extends BaseController
                 ->where('order_id', $sourceOrderId);
 
             if ($this->db->fieldExists('tenant_id', 'order_items')) {
-                $builder->groupStart()
-                    ->where('tenant_id', $tenantId)
-                    ->orWhere('tenant_id', null)
-                    ->orWhere('tenant_id', 0)
-                    ->groupEnd();
+                $builder->where('tenant_id', $tenantId);
             }
 
             if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_items')) {
-                $builder->groupStart()
-                    ->where('branch_id', $branchId)
-                    ->orWhere('branch_id', null)
-                    ->orWhere('branch_id', 0)
-                    ->groupEnd();
+                $builder->where('branch_id', $branchId);
             }
 
             $items = $builder->findAll();
@@ -3296,6 +3305,24 @@ class POSController extends BaseController
             }
 
             $db->transCommit();
+
+            $this->writeAuditLog([
+                'branch_id'    => $branchId > 0 ? $branchId : null,
+                'target_type'  => 'order',
+                'target_id'    => $sourceOrderId,
+                'action_key'   => 'pos.merge_bill',
+                'action_label' => lang('app.merge_bill'),
+                'ref_code'     => (string) ($sourceOrder['order_number'] ?? ''),
+                'order_id'     => $sourceOrderId,
+                'table_id'     => $fromTableId > 0 ? $fromTableId : null,
+                'meta_json'    => [
+                    'source_order_id' => $sourceOrderId,
+                    'target_order_id' => $targetOrderId,
+                    'source_table_id' => $fromTableId > 0 ? $fromTableId : null,
+                    'target_table_id' => $toTableId > 0 ? $toTableId : null,
+                    'reason'          => $reason !== '' ? $reason : null,
+                ],
+            ]);
 
             return $this->response->setJSON([
                 'status'          => 'success',

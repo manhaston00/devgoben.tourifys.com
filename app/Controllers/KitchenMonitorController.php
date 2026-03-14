@@ -515,6 +515,18 @@ class KitchenMonitorController extends BaseController
             }
         }
 
+        $summary = [
+            'new'                     => count($grouped['new'] ?? []),
+            'preparing'               => count($grouped['preparing'] ?? []),
+            'ready'                   => count($grouped['ready'] ?? []),
+            'cancel_request'          => count($grouped['cancel_request'] ?? []),
+            'served'                  => count($grouped['served'] ?? []),
+            'cancelled'               => count($history['cancelled'] ?? []),
+            'active_total'            => count($grouped['new'] ?? []) + count($grouped['preparing'] ?? []) + count($grouped['ready'] ?? []) + count($grouped['cancel_request'] ?? []),
+            'served_history_count'    => count($history['served'] ?? []),
+            'cancelled_history_count' => count($history['cancelled'] ?? []),
+        ];
+
         return $this->response->setJSON([
             'status' => 'success',
             'data'   => $grouped,
@@ -526,10 +538,7 @@ class KitchenMonitorController extends BaseController
                     'served_board_minutes' => $this->servedBoardMinutes(),
                 ],
                 'history' => $history,
-                'summary' => [
-                    'served_history_count'    => count($history['served']),
-                    'cancelled_history_count' => count($history['cancelled']),
-                ],
+                'summary' => $summary,
             ],
         ]);
     }
