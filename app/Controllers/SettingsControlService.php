@@ -114,21 +114,23 @@ class SettingsControlService
                     $this->selectSetting('billing.rounding_mode', 'settings_control_label_billing_rounding_mode', 'tenant', 'half_up', [
                         'half_up'     => lang('settings_control.settings_control_options_half_up'),
                         'floor'       => lang('settings_control.settings_control_options_floor'),
-                        'nearest_005' => lang('settings_control.settings_control_options_nearest_005'),
-                        'nearest_010' => lang('settings_control.settings_control_options_nearest_010'),
-                        'nearest_100' => lang('settings_control.settings_control_options_nearest_100'),
+                        'ceil'        => lang('settings_control.settings_control_options_ceil'),
+                        'nearest_025' => lang('settings_control.settings_control_options_nearest_025'),
+                        'nearest_050' => lang('settings_control.settings_control_options_nearest_050'),
                     ]),
-                    $this->boolSetting('billing.show_tax_breakdown', 'settings_control_label_billing_show_tax_breakdown', 'branch', null, true),
-                    $this->boolSetting('billing.prices_include_tax', 'settings_control_label_billing_prices_include_tax', 'tenant', null, true),
+                    $this->boolSetting('billing.show_tax_breakdown', 'settings_control_label_billing_show_tax_breakdown', 'tenant'),
+                    $this->boolSetting('billing.prices_include_tax', 'settings_control_label_billing_prices_include_tax', 'tenant'),
                 ],
             ],
             'payments' => [
                 'title' => lang('settings_control.settings_control_section_payments'),
                 'settings' => [
-                    $this->boolSetting('payment.cash.enabled', 'settings_control_label_payment_cash', 'branch', null, true),
-                    $this->boolSetting('payment.transfer.enabled', 'settings_control_label_payment_transfer', 'branch', null, true),
-                    $this->boolSetting('payment.card.enabled', 'settings_control_label_payment_card', 'branch', null, true),
-                    $this->boolSetting('payment.qr.enabled', 'settings_control_label_payment_qr', 'branch', null, true),
+                    $this->boolSetting('payment.cash.enabled', 'settings_control_label_payment_cash_enabled', 'branch'),
+                    $this->boolSetting('payment.transfer.enabled', 'settings_control_label_payment_transfer_enabled', 'branch'),
+                    $this->boolSetting('payment.card.enabled', 'settings_control_label_payment_card_enabled', 'branch'),
+                    $this->boolSetting('payment.qr.enabled', 'settings_control_label_payment_qr_enabled', 'branch'),
+                    $this->boolSetting('payment.require_manager_override_for_manual_discount', 'settings_control_label_payment_require_manager_override_for_manual_discount', 'tenant'),
+                    $this->boolSetting('payment.require_manager_override_for_void', 'settings_control_label_payment_require_manager_override_for_void', 'tenant'),
                     $this->boolSetting('payment.payment_lock_enabled', 'settings_control_label_payment_payment_lock_enabled', 'branch'),
                 ],
             ],
@@ -148,22 +150,27 @@ class SettingsControlService
 
     public function getPageData(string $scope, ?int $tenantId, ?int $branchId, bool $isSuperAdmin = false): array
     {
-        $registry      = $this->registry();
-        $appMap        = $this->appSettingModel->getMap();
-        $tenantMap     = $tenantId > 0 ? $this->tenantSettingModel->getMap((int) $tenantId) : [];
-        $branchMap     = $branchId > 0 ? $this->branchSettingModel->getMap((int) $branchId) : [];
+        $registry       = $this->registry();
+        $appMap         = $this->appSettingModel->getMap();
+        $tenantMap      = $tenantId > 0 ? $this->tenantSettingModel->getMap((int) $tenantId) : [];
+        $branchMap      = $branchId > 0 ? $this->branchSettingModel->getMap((int) $branchId) : [];
         $planFeatureMap = $this->getPlanFeatureMap($tenantId, $isSuperAdmin);
 
         foreach ($registry as $sectionKey => &$section) {
             foreach ($section['settings'] as &$setting) {
-                $resolved = $this->resolveSetting($setting, $appMap, $tenantMap, $branchMap);
+                $resolved                  = $this->resolveSetting($setting, $appMap, $tenantMap, $branchMap);
                 $setting['effective_value'] = $resolved['value'];
                 $setting['value_source']    = $resolved['source'];
                 $setting['plan_allowed']    = $this->isPlanAllowed($setting, $planFeatureMap, $isSuperAdmin);
                 $setting['is_visible']      = $this->isSettingVisibleForScope($setting, $scope);
+                $setting['input_name']      = $this->inputName((string) ($setting['key'] ?? ''));
             }
             unset($setting);
-            $section['settings'] = array_values(array_filter($section['settings'], static fn (array $row): bool => ! empty($row['is_visible'])));
+
+            $section['settings'] = array_values(array_filter(
+                $section['settings'],
+                static fn (array $row): bool => ! empty($row['is_visible'])
+            ));
         }
         unset($section);
 
@@ -178,9 +185,11 @@ class SettingsControlService
             return ['changed' => [], 'old' => [], 'new' => []];
         }
 
-        $appMap    = $this->appSettingModel->getMap();
-        $tenantMap = $tenantId > 0 ? $this->tenantSettingModel->getMap((int) $tenantId) : [];
-        $branchMap = $branchId > 0 ? $this->branchSettingModel->getMap((int) $branchId) : [];
+        $isSuperAdmin   = function_exists('is_super_admin') && is_super_admin();
+        $appMap         = $this->appSettingModel->getMap();
+        $tenantMap      = $tenantId > 0 ? $this->tenantSettingModel->getMap((int) $tenantId) : [];
+        $branchMap      = $branchId > 0 ? $this->branchSettingModel->getMap((int) $branchId) : [];
+        $planFeatureMap = $this->getPlanFeatureMap($tenantId, $isSuperAdmin);
 
         $changed = [];
         $old     = [];
@@ -192,6 +201,10 @@ class SettingsControlService
             }
 
             if (! $this->canPersistSettingForScope($setting, $scope)) {
+                continue;
+            }
+
+            if (! $this->isPlanAllowed($setting, $planFeatureMap, $isSuperAdmin)) {
                 continue;
             }
 
@@ -214,12 +227,15 @@ class SettingsControlService
 
             if ($scope === 'platform') {
                 $this->appSettingModel->setValue($key, $posted, (string) $sectionKey);
+                $appMap[$key] = $posted;
                 $saved = true;
-            } elseif ($scope === 'tenant' && $tenantId > 0) {
+            } elseif ($scope === 'tenant' && $tenantId > 0 && ($setting['scope'] ?? 'tenant') === 'tenant') {
                 $this->tenantSettingModel->setValue((int) $tenantId, $key, $posted);
+                $tenantMap[$key] = $posted;
                 $saved = true;
-            } elseif ($scope === 'branch' && $branchId > 0) {
+            } elseif ($scope === 'branch' && $branchId > 0 && ($setting['scope'] ?? 'tenant') === 'branch') {
                 $this->branchSettingModel->setValue((int) $branchId, $key, $posted);
+                $branchMap[$key] = $posted;
                 $saved = true;
             }
 
@@ -423,11 +439,6 @@ class SettingsControlService
         return null;
     }
 
-    protected function inputName(string $settingKey): string
-    {
-        return str_replace(['.', '[', ']'], '_', $settingKey);
-    }
-
     protected function valuesEqual($left, $right): bool
     {
         if (is_bool($left) || is_bool($right)) {
@@ -435,6 +446,11 @@ class SettingsControlService
         }
 
         return (string) $left === (string) $right;
+    }
+
+    protected function inputName(string $key): string
+    {
+        return str_replace(['.', '[', ']'], '_', $key);
     }
 
     protected function boolSetting(string $key, string $labelKey, string $scope = 'tenant', ?string $planFeatureKey = null, bool $default = true): array

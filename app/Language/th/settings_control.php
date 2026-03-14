@@ -109,4 +109,8 @@ return [
     'settings_control_label_printing_auto_print_receipt_after_payment' => 'พิมพ์ใบเสร็จอัตโนมัติหลังชำระเงิน',
     'settings_control_label_printing_thermal_printer' => 'เปิดใช้เครื่องพิมพ์ความร้อน',
     'settings_control_label_printing_print_queue' => 'เปิดใช้คิวพิมพ์',
+    'settings_control_scope_helper_desc' => 'เลือก scope ให้ตรงกับระดับการตั้งค่าที่ต้องการแก้ไข ก่อนบันทึกการเปลี่ยนแปลง',
+    'settings_control_branch_feature_hint_title' => 'ฟีเจอร์นี้อยู่ใน scope ระดับสาขา',
+    'settings_control_branch_feature_hint_desc' => 'การตั้งค่าเกี่ยวกับงานขายหน้าร้านบางส่วนจะแสดงเมื่อเปิดดู scope ระดับสาขาเท่านั้น',
+    'settings_control_branch_feature_hint_action' => 'ไปที่ค่าระดับสาขา',
 ];

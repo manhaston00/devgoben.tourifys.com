@@ -109,4 +109,8 @@ return [
     'settings_control_label_printing_auto_print_receipt_after_payment' => 'Auto print receipt after payment',
     'settings_control_label_printing_thermal_printer' => 'Enable thermal printer',
     'settings_control_label_printing_print_queue' => 'Enable print queue',
+    'settings_control_scope_helper_desc' => 'Choose the correct scope before editing and saving settings.',
+    'settings_control_branch_feature_hint_title' => 'These features are managed at branch scope',
+    'settings_control_branch_feature_hint_desc' => 'Some POS operation settings are only shown when the page is opened in branch scope.',
+    'settings_control_branch_feature_hint_action' => 'Open branch scope',
 ];
