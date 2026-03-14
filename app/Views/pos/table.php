@@ -197,6 +197,8 @@
 
                 <div id="billMergeAuditBox" class="mb-3"></div>
 
+                <div id="billMoveAuditBox" class="mb-3"></div>
+
                 <div id="billRequestAlertBox" class="mt-2"></div>
 
                 <div id="orderBox">
@@ -612,6 +614,17 @@ $(function () {
         requestCancelSentToKitchen: <?= json_encode(service('request')->getLocale() === 'th' ? 'ส่งคำขอยกเลิกไปที่ครัวแล้ว' : 'Cancel request sent to kitchen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         canceledItemsSection: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการที่ยกเลิกแล้ว' : 'Cancelled items', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         canceledItemsNoCharge: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการนี้ไม่คิดเงินแล้ว' : 'This item is no longer billable', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        moveAuditSummary: <?= json_encode(lang('app.move_audit_summary'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        movedFromTables: <?= json_encode(lang('app.moved_from_tables'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        moveAuditCount: <?= json_encode(lang('app.move_audit_count'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        viewMoveAudit: <?= json_encode(lang('app.view_move_audit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        movedFrom: <?= json_encode(lang('app.moved_from'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        movedTo: <?= json_encode(lang('app.moved_to'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        movedBy: <?= json_encode(lang('app.moved_by'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        movedAt: <?= json_encode(lang('app.moved_at'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        moveReason: <?= json_encode(lang('app.move_reason'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        noMoveReason: <?= json_encode(lang('app.no_move_reason'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        movedBillNotice: <?= json_encode(lang('app.moved_bill_notice'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         noData: <?= json_encode(lang('app.no_data'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
     };
 
@@ -1048,10 +1061,13 @@ $(function () {
 
         const compactLabel = compactTableNames.length ? compactTableNames.join(', ') : '-';
         const summaryHtml = `
-            <div class="border rounded-4 px-3 py-2 bg-light-subtle">
+            <div class="border rounded-4 px-3 py-2 bg-warning-subtle">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div>
-                        <div class="small text-muted mb-1">${escapeHtml(TXT.mergeAuditSummary)}</div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge rounded-pill text-bg-warning">${escapeHtml(TXT.mergeBill)}</span>
+                            <span class="small text-muted">${escapeHtml(TXT.mergeAuditSummary)}</span>
+                        </div>
                         <div class="fw-semibold">${escapeHtml(TXT.mergedFromTables)}: ${escapeHtml(compactLabel)}</div>
                         <div class="small text-muted">${escapeHtml(TXT.mergedSourcesCount)}: ${escapeHtml(String(traces.length))}</div>
                     </div>
@@ -1078,6 +1094,7 @@ $(function () {
                         <span class="badge rounded-pill text-bg-dark">${sourceTableName}</span>
                         <span class="badge rounded-pill text-bg-secondary">#${sourceOrderNumber}</span>
                     </div>
+                    <div class="small text-muted">${escapeHtml(TXT.mergedFromTables)}: ${sourceTableName}</div>
                     <div class="small text-muted">${escapeHtml(TXT.sourceBill)}: ${sourceOrderNumber}</div>
                     <div class="small text-muted">${escapeHtml(TXT.mergedBy)}: ${mergedByName}</div>
                     <div class="small text-muted">${escapeHtml(TXT.mergedAt)}: ${mergedAt}</div>
@@ -1108,8 +1125,11 @@ $(function () {
                 const movedAt = escapeHtml(movedNotice.moved_at || '-');
 
                 $('#billMoveAuditBox').html(`
-                    <div class="border rounded-4 px-3 py-2 bg-light-subtle">
-                        <div class="small text-muted mb-1">${escapeHtml(TXT.movedBillNotice)}</div>
+                    <div class="border rounded-4 px-3 py-2 bg-primary-subtle">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.moveTable)}</span>
+                            <span class="small text-muted">${escapeHtml(TXT.movedBillNotice)}</span>
+                        </div>
                         <div class="fw-semibold">${escapeHtml(TXT.movedTo)}: ${destinationTableName}</div>
                         <div class="small text-muted">#${destinationOrderNumber} · ${escapeHtml(TXT.movedAt)}: ${movedAt}</div>
                         <div class="small text-muted">${escapeHtml(TXT.moveReason)}: ${destinationReason}</div>
@@ -1129,10 +1149,13 @@ $(function () {
 
         const compactLabel = compactFromTableNames.length ? compactFromTableNames.join(', ') : '-';
         const summaryHtml = `
-            <div class="border rounded-4 px-3 py-2 bg-light-subtle">
+            <div class="border rounded-4 px-3 py-2 bg-primary-subtle">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div>
-                        <div class="small text-muted mb-1">${escapeHtml(TXT.moveAuditSummary)}</div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge rounded-pill text-bg-primary">${escapeHtml(TXT.moveTable)}</span>
+                            <span class="small text-muted">${escapeHtml(TXT.moveAuditSummary)}</span>
+                        </div>
                         <div class="fw-semibold">${escapeHtml(TXT.movedFromTables)}: ${escapeHtml(compactLabel)}</div>
                         <div class="small text-muted">${escapeHtml(TXT.moveAuditCount)}: ${escapeHtml(String(traces.length))}</div>
                     </div>

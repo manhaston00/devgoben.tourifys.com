@@ -1421,6 +1421,42 @@ class POSController extends BaseController
             return null;
         }
 
+        $moveCreatedAt = $move['created_at'] ?? null;
+        $moveOrderId    = (int) ($move['order_id'] ?? 0);
+
+        if ($this->db->tableExists('orders')) {
+            $ordersBuilder = $this->db->table('orders');
+            $ordersBuilder->select('id');
+            $ordersBuilder->where('tenant_id', $this->currentTenantId());
+            $ordersBuilder->where('table_id', $tableId);
+
+            if ($branchId > 0 && $this->db->fieldExists('branch_id', 'orders')) {
+                $ordersBuilder->where('branch_id', $branchId);
+            }
+
+            if ($moveOrderId > 0) {
+                $ordersBuilder->where('id !=', $moveOrderId);
+            }
+
+            if (! empty($moveCreatedAt) && $this->db->fieldExists('created_at', 'orders')) {
+                $ordersBuilder->groupStart()
+                    ->where('created_at >=', $moveCreatedAt)
+                    ->orWhere('opened_at >=', $moveCreatedAt)
+                    ->groupEnd();
+            } elseif ($moveOrderId > 0) {
+                $ordersBuilder->where('id >', $moveOrderId);
+            }
+
+            $newerOrder = $ordersBuilder
+                ->orderBy('id', 'DESC')
+                ->get()
+                ->getRowArray();
+
+            if ($newerOrder) {
+                return null;
+            }
+        }
+
         return $this->buildMoveNoticeFromRow($move);
     }
 

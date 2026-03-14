@@ -1152,7 +1152,7 @@ return [
 'moved_by' => 'ย้ายโดย',
 'moved_at' => 'เวลาที่ย้าย',
 'move_reason' => 'เหตุผล',
-'no_move_reason' => 'NO_เหตุผล',
+'no_move_reason' => 'ไม่มีเหตุผลเพิ่มเติม',
 'moved_bill_notice' => 'บิลนี้ถูกย้ายโต๊ะแล้ว',
 'merge_audit_title' => 'ประวัติการรวมบิล',
 'merge_audit_summary' => 'สรุปการรวมบิล',

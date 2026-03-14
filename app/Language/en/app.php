@@ -1172,7 +1172,7 @@ return [
 'moved_by' => 'Moved by',
 'moved_at' => 'Moved at',
 'move_reason' => 'Reason',
-'no_move_reason' => 'NO_Reason',
+'no_move_reason' => 'No additional reason',
 'moved_bill_notice' => 'This bill was moved to another table',
 'merge_audit_title' => 'Merge audit',
 'merge_audit_summary' => 'Merge summary',
