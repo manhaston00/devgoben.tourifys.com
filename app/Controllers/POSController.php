@@ -22,6 +22,7 @@ use App\Models\OrderMergeModel;
 use App\Models\UserModel;
 use App\Models\RolePermissionModel;
 use App\Models\AuditLogModel;
+use App\Services\SplitBillService;
 
 class POSController extends BaseController
 {
@@ -44,6 +45,7 @@ class POSController extends BaseController
     protected $userModel;
     protected $rolePermissionModel;
     protected $auditLogModel;
+    protected $splitBillService;
     protected $db;
 
     public function __construct()
@@ -68,6 +70,7 @@ class POSController extends BaseController
         $this->userModel               = new UserModel();
         $this->rolePermissionModel     = new RolePermissionModel();
         $this->auditLogModel            = new AuditLogModel();
+        $this->splitBillService          = new SplitBillService();
     }
 
 
@@ -106,6 +109,114 @@ class POSController extends BaseController
     protected function currentActorName(): string
     {
         return trim((string) (session('full_name') ?? session('username') ?? ''));
+    }
+
+    protected function currentActorRoleName(): string
+    {
+        return trim((string) (session('role_name') ?? session('role_code') ?? session('role') ?? ''));
+    }
+
+    protected function resolveServePermissionKey(): string
+    {
+        return $this->userHasPermissionKey('kitchen.serve_item')
+            ? 'kitchen.serve_item'
+            : 'kitchen.update_status';
+    }
+
+    protected function getKitchenTicketAuditContext(int $ticketId): array
+    {
+        if ($ticketId <= 0) {
+            return [
+                'ticket_no'   => '',
+                'batch_no'    => null,
+                'station_id'  => null,
+                'station_name'=> '',
+            ];
+        }
+
+        $tenantId = $this->currentTenantId();
+        $branchId = $this->getCurrentBranchId();
+
+        $builder = $this->db->table('kitchen_tickets kt')
+            ->select([
+                'kt.ticket_no',
+                'kt.dispatch_batch_no',
+                'p.kitchen_station_id',
+                'ks.station_name',
+                'ks.station_name_th',
+                'ks.station_name_en',
+            ])
+            ->join('order_items oi', 'oi.kitchen_ticket_id = kt.id AND oi.tenant_id = kt.tenant_id', 'left')
+            ->join('products p', 'p.id = oi.product_id AND p.tenant_id = oi.tenant_id', 'left')
+            ->join('kitchen_stations ks', 'ks.id = p.kitchen_station_id AND ks.tenant_id = p.tenant_id', 'left')
+            ->where('kt.id', $ticketId);
+
+        if ($tenantId > 0 && $this->db->fieldExists('tenant_id', 'kitchen_tickets')) {
+            $builder->where('kt.tenant_id', $tenantId);
+        }
+
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'kitchen_tickets')) {
+            $builder->where('kt.branch_id', $branchId);
+        }
+
+        $row = $builder->orderBy('oi.id', 'ASC')->get()->getRowArray() ?: [];
+
+        $locale = (string) (service('request')->getLocale() ?? 'th');
+        $stationName = '';
+        if ($locale === 'th') {
+            $stationName = trim((string) ($row['station_name_th'] ?? $row['station_name'] ?? $row['station_name_en'] ?? ''));
+        } else {
+            $stationName = trim((string) ($row['station_name_en'] ?? $row['station_name'] ?? $row['station_name_th'] ?? ''));
+        }
+
+        return [
+            'ticket_no'    => trim((string) ($row['ticket_no'] ?? '')),
+            'batch_no'     => isset($row['dispatch_batch_no']) && $row['dispatch_batch_no'] !== '' ? (int) $row['dispatch_batch_no'] : null,
+            'station_id'   => isset($row['kitchen_station_id']) && $row['kitchen_station_id'] !== '' ? (int) $row['kitchen_station_id'] : null,
+            'station_name' => $stationName,
+        ];
+    }
+
+    protected function buildServedAuditMeta(array $item, ?array $order, string $fromStatus, string $servedAt, string $actionSource, string $sourceScreen): array
+    {
+        $tableId = isset($order['table_id']) ? (int) ($order['table_id'] ?? 0) : 0;
+        $table = $tableId > 0 ? $this->getScopedTable($tableId) : null;
+        $ticketId = (int) ($item['kitchen_ticket_id'] ?? 0);
+        $ticketContext = $this->getKitchenTicketAuditContext($ticketId);
+
+        $meta = [
+            'item_id'         => (int) ($item['id'] ?? 0),
+            'product_name'    => trim((string) ($item['product_name'] ?? '')),
+            'qty'             => (int) ($item['qty'] ?? 0),
+            'from_status'     => $fromStatus,
+            'to_status'       => 'served',
+            'served_at'       => $servedAt,
+            'action_source'   => $actionSource,
+            'source_screen'   => $sourceScreen,
+            'tenant_id'       => $this->currentTenantId(),
+            'branch_id'       => $this->getCurrentBranchId(),
+            'order_id'        => (int) ($item['order_id'] ?? ($order['id'] ?? 0)),
+            'order_number'    => trim((string) ($order['order_number'] ?? '')),
+            'table_id'        => $tableId > 0 ? $tableId : null,
+            'table_name'      => trim((string) ($table['table_name'] ?? '')),
+            'ticket_id'       => $ticketId > 0 ? $ticketId : null,
+            'ticket_no'       => $ticketContext['ticket_no'] ?? '',
+            'batch_no'        => $ticketContext['batch_no'] ?? null,
+            'station_id'      => $ticketContext['station_id'] ?? null,
+            'station_name'    => trim((string) ($ticketContext['station_name'] ?? '')),
+            'actor_user_id'   => $this->currentUserId(),
+            'actor_name'      => $this->currentActorName(),
+            'actor_role_name' => $this->currentActorRoleName(),
+            'permission_key'  => $this->resolveServePermissionKey(),
+        ];
+
+        foreach ($meta as $key => $value) {
+            if ($value === null || $value === '') {
+                unset($meta[$key]);
+            }
+        }
+
+        return $meta;
     }
 
     protected function getActiveOrderStatuses(): array
@@ -243,6 +354,20 @@ class POSController extends BaseController
         return in_array($permissionKey, $this->currentUserPermissions(), true);
     }
 
+
+    protected function canServeItems(): bool
+    {
+        return $this->userHasPermissionKey('kitchen.update_status')
+            || $this->userHasPermissionKey('kitchen.serve_item');
+    }
+
+    protected function isServeItemFeatureEnabled(): bool
+    {
+        helper('app');
+
+        return setting_bool('feature.serve_item.enabled', true);
+    }
+
     protected function managerOverridePermissionMap(): array
     {
         return [
@@ -252,6 +377,7 @@ class POSController extends BaseController
             'undo_payment' => 'cashier.undo_payment',
             'void_item'    => 'cashier.void_item',
             'pay'          => 'cashier.pay',
+            'split_bill'   => 'cashier.split_bill',
         ];
     }
 
@@ -758,6 +884,54 @@ class POSController extends BaseController
         return in_array($status, ['pending', 'cancelled'], true);
     }
 
+    protected function isBillableNormalizedOrderItem(array $item): bool
+    {
+        $normalized = $this->normalizeOrderItemRowForResponse($item);
+        $status     = $this->normalizeOrderItemStatus($normalized['status'] ?? '');
+
+        if ($this->isNonBillableOrderItemStatus($status)) {
+            return false;
+        }
+
+        $requestStatus = strtolower(trim((string) ($normalized['cancel_request_status'] ?? '')));
+        if (in_array($requestStatus, ['approved', 'accepted'], true)) {
+            return false;
+        }
+
+        if (trim((string) ($normalized['cancelled_at'] ?? '')) !== '') {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function buildOrderFinancialSnapshot(array $order, array $items): array
+    {
+        $subtotal = 0.0;
+
+        foreach ($items as $item) {
+            $normalized = $this->normalizeOrderItemRowForResponse($item);
+            $qty        = max(0, (int) ($normalized['qty'] ?? 0));
+            $unitPrice  = (float) ($normalized['price'] ?? 0);
+            $lineTotal  = $this->isBillableNormalizedOrderItem($normalized) ? ($unitPrice * $qty) : 0.0;
+            $subtotal  += $lineTotal;
+        }
+
+        $discount = (float) ($order['discount_amount'] ?? 0);
+        $service  = (float) ($order['service_charge'] ?? 0);
+        $vat      = (float) ($order['vat_amount'] ?? 0);
+        $total    = $subtotal - $discount + $service + $vat;
+
+        if ($total < 0) {
+            $total = 0;
+        }
+
+        return [
+            'subtotal'    => round($subtotal, 2),
+            'total_price' => round($total, 2),
+        ];
+    }
+
     protected function getEffectiveOrderTotal(int $orderId): float
     {
         $this->recalculateOrderTotal($orderId);
@@ -860,8 +1034,16 @@ class POSController extends BaseController
                     'kitchen_ready_count'          => 0,
                     'kitchen_served_count'         => 0,
                     'kitchen_remaining_count'      => 0,
+                    'kitchen_total_item_count'     => 0,
+                    'kitchen_served_percent'       => 0,
                     'kitchen_served_partial'       => 0,
                     'kitchen_served_all'           => 0,
+                    'kitchen_served_item_names'    => [],
+                    'kitchen_ready_item_names'     => [],
+                    'kitchen_preparing_item_names' => [],
+                    'kitchen_last_served_at'       => null,
+                    'kitchen_focus_state'          => '',
+                    'kitchen_focus_label'          => '',
                     'cancel_request_count'         => 0,
                     'kitchen_cancel_request_count' => 0,
                     'merge_in_count'               => 0,
@@ -881,7 +1063,7 @@ class POSController extends BaseController
         $inOrderIds = array_keys($map);
 
         $itemBuilder = $this->db->table('order_items');
-        $itemBuilder->select('order_id, status');
+        $itemBuilder->select('order_id, status, product_name, item_detail');
         if ($this->db->fieldExists('served_at', 'order_items')) {
             $itemBuilder->select('served_at');
         }
@@ -892,6 +1074,25 @@ class POSController extends BaseController
             $itemBuilder->where('tenant_id', $tenantId);
         }
         $itemBuilder->whereIn('order_id', $inOrderIds);
+
+        $appendSignalName = static function (array &$signalRow, string $key, string $name): void {
+            $name = trim($name);
+            if ($name === '') {
+                return;
+            }
+
+            $signalRow[$key] = isset($signalRow[$key]) && is_array($signalRow[$key]) ? $signalRow[$key] : [];
+
+            if (in_array($name, $signalRow[$key], true)) {
+                return;
+            }
+
+            if (count($signalRow[$key]) >= 3) {
+                return;
+            }
+
+            $signalRow[$key][] = $name;
+        };
 
         foreach ($itemBuilder->get()->getResultArray() as $row) {
             $orderId = (int) ($row['order_id'] ?? 0);
@@ -905,6 +1106,7 @@ class POSController extends BaseController
                 $status = 'served';
             }
             $cancelRequestStatus = strtolower(trim((string) ($row['cancel_request_status'] ?? '')));
+            $productName = trim((string) ($row['product_name'] ?? $row['item_detail'] ?? ''));
 
             if (in_array($cancelRequestStatus, ['pending', 'requested', 'waiting'], true)) {
                 $map[$orderId]['cancel_request_count']++;
@@ -913,10 +1115,21 @@ class POSController extends BaseController
 
             if ($status === 'ready') {
                 $map[$orderId]['kitchen_ready_count']++;
+                $appendSignalName($map[$orderId], 'kitchen_ready_item_names', $productName);
             } elseif ($status === 'served') {
                 $map[$orderId]['kitchen_served_count']++;
+                $appendSignalName($map[$orderId], 'kitchen_served_item_names', $productName);
+                if ($servedAt !== '') {
+                    $existingServedAt = trim((string) ($map[$orderId]['kitchen_last_served_at'] ?? ''));
+                    $existingTs = $existingServedAt !== '' ? (strtotime($existingServedAt) ?: 0) : 0;
+                    $servedTs = strtotime($servedAt) ?: 0;
+                    if ($servedTs > 0 && $servedTs >= $existingTs) {
+                        $map[$orderId]['kitchen_last_served_at'] = $servedAt;
+                    }
+                }
             } elseif (in_array($status, ['preparing', 'cooking', 'processing'], true)) {
                 $map[$orderId]['kitchen_preparing_count']++;
+                $appendSignalName($map[$orderId], 'kitchen_preparing_item_names', $productName);
             } elseif (in_array($status, ['sent', 'submitted', 'sent_to_kitchen'], true)) {
                 $map[$orderId]['kitchen_sent_count']++;
             } elseif (in_array($status, ['pending', 'new', 'open'], true)) {
@@ -954,9 +1167,57 @@ class POSController extends BaseController
                 $signalRow['kitchen_served_count'] = $servedCount;
             }
 
+            $totalKitchenCount = $servedCount + $remainingCount;
+
             $signalRow['kitchen_remaining_count'] = $remainingCount;
+            $signalRow['kitchen_total_item_count'] = $totalKitchenCount;
+            $signalRow['kitchen_served_percent'] = $totalKitchenCount > 0
+                ? (int) round(($servedCount / $totalKitchenCount) * 100)
+                : 0;
             $signalRow['kitchen_served_partial'] = ($servedCount > 0 && $remainingCount > 0) ? 1 : 0;
             $signalRow['kitchen_served_all'] = ($servedCount > 0 && $remainingCount === 0) ? 1 : 0;
+
+            $translateSignal = static function (string $key, array $args, string $fallbackTh, string $fallbackEn) {
+                $text = lang($key, $args);
+                if ($text !== $key) {
+                    return $text;
+                }
+
+                $locale = service('request')->getLocale();
+                $fallback = $locale === 'th' ? $fallbackTh : $fallbackEn;
+                foreach ($args as $argKey => $argValue) {
+                    $fallback = str_replace('{' . $argKey . '}', (string) $argValue, $fallback);
+                }
+
+                return $fallback;
+            };
+
+            $focusLabel = '';
+            $focusState = '';
+            if ((int) ($signalRow['kitchen_cancel_request_count'] ?? 0) > 0) {
+                $focusState = 'cancel_request';
+                $focusLabel = $translateSignal('app.cancel_request_signal', ['count' => (int) ($signalRow['kitchen_cancel_request_count'] ?? 0)], 'รอยืนยันยกเลิก {count}', 'Cancel request {count}');
+            } elseif ((int) ($signalRow['kitchen_ready_count'] ?? 0) > 0) {
+                $focusState = 'ready';
+                $focusLabel = $translateSignal('app.ready_to_serve_signal', ['count' => (int) ($signalRow['kitchen_ready_count'] ?? 0)], 'พร้อมเสิร์ฟ {count}', 'Ready {count}');
+            } elseif ((int) ($signalRow['kitchen_preparing_count'] ?? 0) > 0) {
+                $focusState = 'preparing';
+                $focusLabel = $translateSignal('app.preparing_signal', ['count' => (int) ($signalRow['kitchen_preparing_count'] ?? 0)], 'กำลังทำ {count}', 'Preparing {count}');
+            } elseif ((int) ($signalRow['kitchen_sent_count'] ?? 0) > 0) {
+                $focusState = 'sent';
+                $focusLabel = $translateSignal('app.sent_to_kitchen_signal', ['count' => (int) ($signalRow['kitchen_sent_count'] ?? 0)], 'ส่งครัวแล้ว {count}', 'Sent to kitchen {count}');
+            } elseif ((int) ($signalRow['kitchen_pending_count'] ?? 0) > 0) {
+                $focusState = 'pending';
+                $focusLabel = $translateSignal('app.pending_kitchen_signal', ['count' => (int) ($signalRow['kitchen_pending_count'] ?? 0)], 'รอส่งครัว {count}', 'Pending kitchen {count}');
+            } elseif ((int) ($signalRow['kitchen_served_all'] ?? 0) === 1) {
+                $focusState = 'served_complete';
+                $focusLabel = $translateSignal('app.served_complete_signal', ['count' => $servedCount], 'เสิร์ฟครบแล้ว {count}', 'Served all {count}');
+            } elseif ((int) ($signalRow['kitchen_served_partial'] ?? 0) === 1) {
+                $focusState = 'served_partial';
+                $focusLabel = $translateSignal('app.served_partial_signal', ['served' => $servedCount, 'remaining' => $remainingCount], 'เสิร์ฟแล้ว {served} / คงเหลือ {remaining}', 'Served {served} / Remaining {remaining}');
+            }
+            $signalRow['kitchen_focus_state'] = $focusState;
+            $signalRow['kitchen_focus_label'] = $focusLabel;
         }
         unset($signalRow);
 
@@ -1311,6 +1572,7 @@ class POSController extends BaseController
             'tablePermissions' => [
                 'void_item'        => $this->userHasPermissionKey('cashier.void_item'),
                 'manager_override' => $this->userHasPermissionKey('cashier.manager_override'),
+                'split_bill'       => $this->userHasPermissionKey('cashier.split_bill'),
             ],
         ]);
     }
@@ -2062,6 +2324,7 @@ class POSController extends BaseController
         }
 
         $tableId = (int) $tableId;
+        $requestedOrderId = (int) ($this->request->getGet('order_id') ?? 0);
 
         $table = $this->getScopedTable($tableId);
         if (! $table) {
@@ -2071,32 +2334,179 @@ class POSController extends BaseController
             ]);
         }
 
-        $order = $this->findCurrentOrderByTable($tableId);
+        $activeOrder = $this->findCurrentOrderByTable($tableId);
 
-        if (! $order) {
+        if (! $activeOrder) {
             return $this->response->setJSON([
                 'status'        => 'empty',
                 'merged_notice' => $this->getLatestMergedNoticeByTable($tableId),
                 'moved_notice'  => $this->getLatestMoveNoticeBySourceTable($tableId),
                 'move_trace'    => [],
+                'split_group'   => [],
             ]);
         }
 
+        $order = $activeOrder;
+
+        if ($requestedOrderId > 0) {
+            $requestedOrder = $this->getScopedOrder($requestedOrderId);
+            if ($requestedOrder && (int) ($requestedOrder['table_id'] ?? 0) === $tableId && $this->ordersBelongToSameSplitGroup($activeOrder, $requestedOrder)) {
+                $order = $requestedOrder;
+            }
+        }
+
         $this->recalculateOrderTotal((int) $order['id']);
-        $order = $this->getScopedOrder((int) $order['id']);
+        $freshOrder = $this->getScopedOrder((int) $order['id']);
+        if ($freshOrder) {
+            $order = $freshOrder;
+        }
 
         $items = $this->orderItemModel->getByOrder((int) $order['id']);
         $items = array_map(fn (array $item): array => $this->normalizeOrderItemRowForResponse($item), $items);
 
+        $financialSnapshot = $this->buildOrderFinancialSnapshot($order, $items);
+        $order['subtotal'] = $financialSnapshot['subtotal'];
+        $order['total_price'] = $financialSnapshot['total_price'];
+
         return $this->response->setJSON([
-            'status'        => 'success',
-            'order'         => $order,
-            'items'         => $items,
-            'merged_notice' => null,
-            'merge_trace'   => $this->getMergeTraceByTargetOrder((int) ($order['id'] ?? 0)),
-            'moved_notice'  => null,
-            'move_trace'    => $this->getMoveTraceByOrder((int) ($order['id'] ?? 0)),
+            'status'            => 'success',
+            'order'             => $order,
+            'items'             => $items,
+            'selected_order_id' => (int) ($order['id'] ?? 0),
+            'split_group'       => $this->buildTableSplitGroupSummary($activeOrder, (int) ($order['id'] ?? 0)),
+            'merged_notice'     => null,
+            'merge_trace'       => $this->getMergeTraceByTargetOrder((int) ($order['id'] ?? 0)),
+            'moved_notice'      => null,
+            'move_trace'        => $this->getMoveTraceByOrder((int) ($order['id'] ?? 0)),
         ]);
+    }
+
+    protected function ordersBelongToSameSplitGroup(array $leftOrder, array $rightOrder): bool
+    {
+        return $this->resolveSplitGroupRootId($leftOrder) === $this->resolveSplitGroupRootId($rightOrder)
+            && (int) ($leftOrder['table_id'] ?? 0) === (int) ($rightOrder['table_id'] ?? 0);
+    }
+
+    protected function resolveSplitGroupRootId(array $order): int
+    {
+        $orderId = (int) ($order['id'] ?? 0);
+        $rootId = (int) ($order['split_root_order_id'] ?? 0);
+        $parentId = (int) ($order['parent_order_id'] ?? 0);
+
+        if ($rootId > 0) {
+            return $rootId;
+        }
+
+        if ($parentId > 0) {
+            return $parentId;
+        }
+
+        return $orderId;
+    }
+
+    protected function getSplitGroupOrdersByAnchor(array $anchorOrder): array
+    {
+        $tableId = (int) ($anchorOrder['table_id'] ?? 0);
+        $rootId = $this->resolveSplitGroupRootId($anchorOrder);
+
+        if ($tableId <= 0 || $rootId <= 0) {
+            return [];
+        }
+
+        return $this->scopedOrderQuery(null)
+            ->where('table_id', $tableId)
+            ->whereNotIn('status', ['merged'])
+            ->groupStart()
+                ->where('id', $rootId)
+                ->orWhere('split_root_order_id', $rootId)
+                ->orWhere('parent_order_id', $rootId)
+            ->groupEnd()
+            ->orderBy('CASE WHEN orders.id = ' . $rootId . ' THEN 0 ELSE 1 END', '', false)
+            ->orderBy('split_no', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->findAll();
+    }
+
+    protected function buildTableSplitGroupSummary(array $anchorOrder, int $selectedOrderId = 0): array
+    {
+        $rows = $this->getSplitGroupOrdersByAnchor($anchorOrder);
+        if (empty($rows)) {
+            return [];
+        }
+
+        $summaries = [];
+
+        foreach ($rows as $row) {
+            $orderId = (int) ($row['id'] ?? 0);
+            if ($orderId <= 0) {
+                continue;
+            }
+
+            $this->recalculateOrderTotal($orderId);
+            $freshOrder = $this->getScopedOrder($orderId) ?: $row;
+            $items = $this->orderItemModel->getByOrder($orderId);
+            $items = array_map(fn (array $item): array => $this->normalizeOrderItemRowForResponse($item), $items);
+            $financialSnapshot = $this->buildOrderFinancialSnapshot($freshOrder, $items);
+            $status = strtolower(trim((string) ($freshOrder['status'] ?? 'open')));
+            $billType = strtolower(trim((string) ($freshOrder['bill_type'] ?? 'normal')));
+
+            $role = 'normal';
+            if ($orderId === $this->resolveSplitGroupRootId($anchorOrder)) {
+                $role = 'root';
+            } elseif ($billType === 'split' || (int) ($freshOrder['split_no'] ?? 0) > 0) {
+                $role = 'child';
+            } elseif ((int) ($freshOrder['parent_order_id'] ?? 0) > 0) {
+                $role = 'parent';
+            }
+
+            $previewItems = [];
+            foreach ($items as $item) {
+                $normalizedItem = $this->normalizeOrderItemRowForResponse($item);
+                $normalizedItemStatus = $this->normalizeOrderItemStatus($normalizedItem['status'] ?? '');
+                $cancelRequestStatus = strtolower(trim((string) ($normalizedItem['cancel_request_status'] ?? '')));
+                $isHiddenPreviewItem = in_array($normalizedItemStatus, ['cancel', 'cancelled', 'canceled'], true)
+                    || in_array($cancelRequestStatus, ['approved', 'accepted'], true)
+                    || trim((string) ($normalizedItem['cancelled_at'] ?? '')) !== '';
+
+                if ($isHiddenPreviewItem) {
+                    continue;
+                }
+
+                $itemName = trim((string) ($normalizedItem['product_name'] ?? $normalizedItem['name'] ?? $normalizedItem['title'] ?? ''));
+                if ($itemName === '') {
+                    $itemName = 'Item #' . (int) ($normalizedItem['id'] ?? 0);
+                }
+
+                $itemQty = max(1, (int) ($normalizedItem['qty'] ?? 1));
+                $previewItems[] = [
+                    'name'       => $itemName,
+                    'qty'        => $itemQty,
+                    'status'     => $normalizedItemStatus,
+                    'line_total' => $this->isBillableNormalizedOrderItem($normalizedItem)
+                        ? round(((float) ($normalizedItem['price'] ?? 0)) * $itemQty, 2)
+                        : 0.0,
+                    'note'       => trim((string) ($normalizedItem['note'] ?? '')),
+                ];
+            }
+
+            $summaries[] = [
+                'id'             => $orderId,
+                'order_number'   => (string) ($freshOrder['order_number'] ?? ''),
+                'status'         => $status,
+                'bill_type'      => $billType,
+                'role'           => $role,
+                'split_no'       => (int) ($freshOrder['split_no'] ?? 0),
+                'item_count'     => count($items),
+                'total_price'    => (float) ($financialSnapshot['total_price'] ?? 0),
+                'can_pay'        => in_array($status, ['open', 'billing'], true),
+                'is_paid'        => $status === 'paid' || ! empty($freshOrder['paid_at']),
+                'is_selected'    => $selectedOrderId > 0 ? $selectedOrderId === $orderId : ((int) ($anchorOrder['id'] ?? 0) === $orderId),
+                'preview_items'  => $previewItems,
+                'preview_count'  => count($previewItems),
+            ];
+        }
+
+        return $summaries;
     }
 
     public function addItem()
@@ -2897,6 +3307,22 @@ public function sendKitchen()
             ]);
         }
 
+        if ($status === 'served') {
+            if (! $this->isServeItemFeatureEnabled()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.feature_not_available_for_plan'),
+                ]);
+            }
+
+            if (! $this->canServeItems()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.no_permission'),
+                ]);
+            }
+        }
+
         $item = method_exists($this->orderItemModel, 'findScoped')
             ? $this->orderItemModel->findScoped($itemId)
             : $this->orderItemModel->find($itemId);
@@ -3070,15 +3496,14 @@ public function sendKitchen()
                 'action_key'   => 'pos.item_served',
                 'action_label' => lang('app.audit_log_item_served'),
                 'ref_code'     => $order['order_number'] ?? null,
-                'meta_json'    => [
-                    'item_id'       => $itemId,
-                    'product_name'  => (string) ($item['product_name'] ?? ''),
-                    'qty'           => (int) ($item['qty'] ?? 0),
-                    'from_status'   => $currentStatus,
-                    'to_status'     => 'served',
-                    'served_at'     => $data['served_at'] ?? date('Y-m-d H:i:s'),
-                    'action_source' => 'pos.update_item_status',
-                ],
+                'meta_json'    => $this->buildServedAuditMeta(
+                    array_merge($item, ['id' => $itemId]),
+                    $order,
+                    $currentStatus,
+                    (string) ($data['served_at'] ?? date('Y-m-d H:i:s')),
+                    'pos.update_item_status',
+                    'pos_table'
+                ),
             ], 'pos.item_served.' . $itemId . '.' . ($data['served_at'] ?? ''), 3);
         }
 
@@ -3093,6 +3518,50 @@ public function sendKitchen()
         ]);
     }
 
+
+
+    protected function parseSplitBillItemsFromRequest(): array
+    {
+        $items = $this->request->getPost('items');
+
+        if (is_string($items) && trim($items) !== '') {
+            $decoded = json_decode($items, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $items = $decoded;
+            }
+        }
+
+        if (! is_array($items)) {
+            return [];
+        }
+
+        $rows = [];
+        foreach ($items as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+
+            $rows[] = [
+                'order_item_id' => (int) ($row['order_item_id'] ?? 0),
+                'split_qty'     => (int) ($row['split_qty'] ?? 0),
+            ];
+        }
+
+        return $rows;
+    }
+
+    protected function splitBillViewPermissionDenied()
+    {
+        if ($this->userHasPermissionKey('cashier.split_bill_view') || $this->userHasPermissionKey('cashier.split_bill')) {
+            return null;
+        }
+
+        return $this->response->setJSON([
+            'status'  => 'error',
+            'message' => lang('app.no_permission'),
+            'code'    => 'NO_PERMISSION',
+        ]);
+    }
 
     public function requestBill()
     {
@@ -3614,8 +4083,7 @@ public function sendKitchen()
             $normalizedItem = $this->normalizeOrderItemRowForResponse($item);
             $qty            = (int) ($normalizedItem['qty'] ?? 0);
             $unitPrice      = (float) ($normalizedItem['price'] ?? 0);
-            $status         = $this->normalizeOrderItemStatus($normalizedItem['status'] ?? '');
-            $lineTotal      = $this->isNonBillableOrderItemStatus($status) ? 0.0 : ($unitPrice * $qty);
+            $lineTotal      = $this->isBillableNormalizedOrderItem($normalizedItem) ? ($unitPrice * $qty) : 0.0;
 
             $this->orderItemModel->update((int) $item['id'], [
                 'line_total' => $lineTotal,
@@ -3996,6 +4464,227 @@ public function sendKitchen()
             'status' => 'success',
             'tables' => $data,
         ]);
+    }
+
+
+    public function splitBillPreview()
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
+
+        if ($response = $this->jsonFeatureDenied('feature.split_bill.enabled')) {
+            return $response;
+        }
+
+        $orderId = (int) ($this->request->getPost('order_id') ?? 0);
+        $items   = $this->parseSplitBillItemsFromRequest();
+        $reason  = trim((string) ($this->request->getPost('reason') ?? ''));
+
+        if ($response = $this->ensurePermissionOrManagerOverride('cashier.split_bill', 'split_bill', $orderId)) {
+            return $response;
+        }
+
+        if ($orderId <= 0) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
+
+        if (empty($items)) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.split_bill_no_items_selected'),
+            ]);
+        }
+
+        try {
+            $preview = $this->splitBillService->preview(
+                $orderId,
+                $items,
+                $this->currentTenantId(),
+                $this->getCurrentBranchId()
+            );
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message'=> lang('app.split_bill_preview_ready'),
+                'data'   => $preview,
+                'reason' => $reason,
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'splitBillPreview error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function splitBillConfirm()
+    {
+        if ($response = $this->jsonPosWriteDenied()) {
+            return $response;
+        }
+
+        if ($response = $this->jsonFeatureDenied('feature.split_bill.enabled')) {
+            return $response;
+        }
+
+        $orderId = (int) ($this->request->getPost('order_id') ?? 0);
+        $items   = $this->parseSplitBillItemsFromRequest();
+        $reason  = trim((string) ($this->request->getPost('reason') ?? ''));
+
+        if ($response = $this->ensurePermissionOrManagerOverride('cashier.split_bill', 'split_bill', $orderId)) {
+            return $response;
+        }
+
+        if ($orderId <= 0) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
+
+        if (empty($items)) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.split_bill_no_items_selected'),
+            ]);
+        }
+
+        try {
+            $result = $this->splitBillService->confirm(
+                $orderId,
+                $items,
+                $this->currentUserId(),
+                $this->currentTenantId(),
+                $this->getCurrentBranchId(),
+                $reason
+            );
+
+            $order = $this->getScopedOrder($orderId);
+            $this->writeAuditLog([
+                'branch_id'    => (int) ($order['branch_id'] ?? 0) ?: null,
+                'target_type'  => 'order',
+                'target_id'    => (int) ($result['child_order_id'] ?? 0),
+                'action_key'   => 'cashier.split_bill',
+                'action_label' => lang('app.audit_log_split_bill'),
+                'ref_code'     => (string) ($order['order_number'] ?? ''),
+                'order_id'     => (int) ($result['parent_order_id'] ?? 0),
+                'table_id'     => (int) ($order['table_id'] ?? 0) ?: null,
+                'meta_json'    => [
+                    'root_order_id'      => (int) ($result['root_order_id'] ?? 0),
+                    'source_order_id'    => (int) ($result['parent_order_id'] ?? 0),
+                    'target_order_id'    => (int) ($result['child_order_id'] ?? 0),
+                    'child_order_number' => (string) ($result['child_order_number'] ?? ''),
+                    'split_no'           => (int) ($result['split_no'] ?? 0),
+                    'split_group_code'   => (string) ($result['split_group_code'] ?? ''),
+                    'reason'             => $reason !== '' ? $reason : null,
+                    'moved_items'        => $result['items'] ?? [],
+                    'override_by'        => session('override_approved_by_name') ?? null,
+                ],
+            ]);
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => lang('app.split_bill_success'),
+                'data'    => $result,
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'splitBillConfirm error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => $e->getMessage() ?: lang('app.split_bill_failed'),
+            ]);
+        }
+    }
+
+    public function cashierOrderSplitGroup($orderId = null)
+    {
+        if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
+            return $response;
+        }
+
+        if ($response = $this->splitBillViewPermissionDenied()) {
+            return $response;
+        }
+
+        if ($response = $this->jsonFeatureDenied('feature.split_bill.enabled')) {
+            return $response;
+        }
+
+        $orderId = (int) $orderId;
+        if ($orderId <= 0) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
+
+        try {
+            $payload = $this->splitBillService->getSplitGroup($orderId, $this->currentTenantId(), $this->getCurrentBranchId());
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'data'   => $payload,
+            ]);
+        } catch (\Throwable $e) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function cashierOrderSplitHistory($orderId = null)
+    {
+        if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
+            return $response;
+        }
+
+        if ($response = $this->splitBillViewPermissionDenied()) {
+            return $response;
+        }
+
+        if ($response = $this->jsonFeatureDenied('feature.split_bill.enabled')) {
+            return $response;
+        }
+
+        $orderId = (int) $orderId;
+        if ($orderId <= 0) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.order_not_found'),
+            ]);
+        }
+
+        try {
+            $payload = $this->splitBillService->getSplitHistory($orderId, $this->currentTenantId(), $this->getCurrentBranchId());
+
+            $this->writeAuditLog([
+                'target_type'  => 'order',
+                'target_id'    => $orderId,
+                'action_key'   => 'cashier.split_bill_view',
+                'action_label' => lang('app.audit_log_split_bill_view'),
+                'order_id'     => $orderId,
+                'meta_json'    => [
+                    'screen'    => 'cashier_split_history',
+                    'branch_id' => $this->getCurrentBranchId(),
+                ],
+            ], 'cashier.split_bill_view.' . $orderId . '.' . $this->getCurrentBranchId(), 5);
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'data'   => $payload,
+            ]);
+        } catch (\Throwable $e) {
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function moveTable()

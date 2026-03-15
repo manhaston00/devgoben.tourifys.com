@@ -53,6 +53,7 @@ return [
     'settings_control_label_feature_quick_notes' => 'เปิดใช้ Quick Notes',
     'settings_control_label_feature_product_quick_options' => 'เปิดใช้ Product Quick Options',
     'settings_control_label_feature_tv_mode' => 'เปิดใช้ TV Mode',
+    'settings_control_label_feature_serve_item' => 'เปิดใช้ Serve Item',
     'settings_control_label_feature_served_history' => 'เปิดใช้ Served History',
     'settings_control_label_feature_cancel_request_flow' => 'เปิดใช้ Cancel Request Flow',
     'settings_control_label_feature_discount' => 'เปิดใช้ส่วนลด',

@@ -38,6 +38,13 @@ class OrderItemModel extends TenantScopedModel
         'cancel_decided_by',
         'cancel_rejected_reason',
         'cancel_rejected_note',
+        'parent_order_item_id',
+        'split_root_item_id',
+        'split_session_id',
+        'split_from_order_id',
+        'split_to_order_id',
+        'source_qty_before_split',
+        'moved_qty',
     ];
 
     protected $beforeInsert = ['beforeInsertTenant'];

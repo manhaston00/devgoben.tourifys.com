@@ -59,6 +59,43 @@ class KitchenMonitorController extends BaseController
         return (string) (service('request')->getLocale() ?: 'th');
     }
 
+
+    protected function currentUserPermissions(): array
+    {
+        $permissions = session('permissions') ?? [];
+
+        if (! is_array($permissions)) {
+            return [];
+        }
+
+        return array_values(array_unique(array_filter(array_map(
+            static fn ($item) => trim((string) $item),
+            $permissions
+        ))));
+    }
+
+    protected function userHasPermissionKey(string $permissionKey): bool
+    {
+        if ($permissionKey === '') {
+            return false;
+        }
+
+        return in_array($permissionKey, $this->currentUserPermissions(), true);
+    }
+
+    protected function canServeItems(): bool
+    {
+        return $this->userHasPermissionKey('kitchen.update_status')
+            || $this->userHasPermissionKey('kitchen.serve_item');
+    }
+
+    protected function isServeItemFeatureEnabled(): bool
+    {
+        helper('app');
+
+        return setting_bool('feature.serve_item.enabled', true);
+    }
+
     protected function writeAuditLog(array $payload, ?string $dedupeKey = null, int $dedupeSeconds = 0): void
     {
         try {
@@ -217,6 +254,167 @@ class KitchenMonitorController extends BaseController
     protected function flowText(string $th, string $en): string
     {
         return $this->currentLocale() === 'th' ? $th : $en;
+    }
+
+    protected function currentUserId(): int
+    {
+        return (int) (session('user_id') ?? 0);
+    }
+
+    protected function currentActorName(): string
+    {
+        return trim((string) (session('full_name') ?? session('username') ?? ''));
+    }
+
+    protected function currentActorRoleName(): string
+    {
+        return trim((string) (session('role_name') ?? session('role_code') ?? session('role') ?? ''));
+    }
+
+
+    protected function resolveServePermissionKey(): string
+    {
+        return $this->userHasPermissionKey('kitchen.serve_item')
+            ? 'kitchen.serve_item'
+            : 'kitchen.update_status';
+    }
+
+    protected function getScopedOrder(int $orderId): ?array
+    {
+        if ($orderId <= 0) {
+            return null;
+        }
+
+        $builder = $this->db->table('orders')->where('id', $orderId);
+
+        $tenantId = $this->currentTenantId();
+        if ($tenantId > 0 && $this->db->fieldExists('tenant_id', 'orders')) {
+            $builder->where('tenant_id', $tenantId);
+        }
+
+        $branchId = $this->currentBranchId();
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'orders')) {
+            $builder->where('branch_id', $branchId);
+        }
+
+        return $builder->get()->getRowArray() ?: null;
+    }
+
+    protected function getScopedTable(int $tableId): ?array
+    {
+        if ($tableId <= 0) {
+            return null;
+        }
+
+        $builder = $this->db->table('restaurant_tables')->where('id', $tableId);
+
+        $tenantId = $this->currentTenantId();
+        if ($tenantId > 0 && $this->db->fieldExists('tenant_id', 'restaurant_tables')) {
+            $builder->where('tenant_id', $tenantId);
+        }
+
+        $branchId = $this->currentBranchId();
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'restaurant_tables')) {
+            $builder->where('branch_id', $branchId);
+        }
+
+        return $builder->get()->getRowArray() ?: null;
+    }
+
+    protected function getKitchenTicketAuditContext(int $ticketId): array
+    {
+        if ($ticketId <= 0) {
+            return [
+                'ticket_no'    => '',
+                'batch_no'     => null,
+                'station_id'   => null,
+                'station_name' => '',
+            ];
+        }
+
+        $tenantId = $this->currentTenantId();
+        $branchId = $this->currentBranchId();
+
+        $builder = $this->db->table('kitchen_tickets kt')
+            ->select([
+                'kt.ticket_no',
+                'kt.dispatch_batch_no',
+                'p.kitchen_station_id',
+                'ks.station_name',
+                'ks.station_name_th',
+                'ks.station_name_en',
+            ])
+            ->join('order_items oi', 'oi.kitchen_ticket_id = kt.id AND oi.tenant_id = kt.tenant_id', 'left')
+            ->join('products p', 'p.id = oi.product_id AND p.tenant_id = oi.tenant_id', 'left')
+            ->join('kitchen_stations ks', 'ks.id = p.kitchen_station_id AND ks.tenant_id = p.tenant_id', 'left')
+            ->where('kt.id', $ticketId);
+
+        if ($tenantId > 0 && $this->db->fieldExists('tenant_id', 'kitchen_tickets')) {
+            $builder->where('kt.tenant_id', $tenantId);
+        }
+
+        if ($branchId > 0 && $this->db->fieldExists('branch_id', 'kitchen_tickets')) {
+            $builder->where('kt.branch_id', $branchId);
+        }
+
+        $row = $builder->orderBy('oi.id', 'ASC')->get()->getRowArray() ?: [];
+
+        $locale = $this->currentLocale();
+        $stationName = '';
+        if ($locale === 'th') {
+            $stationName = trim((string) ($row['station_name_th'] ?? $row['station_name'] ?? $row['station_name_en'] ?? ''));
+        } else {
+            $stationName = trim((string) ($row['station_name_en'] ?? $row['station_name'] ?? $row['station_name_th'] ?? ''));
+        }
+
+        return [
+            'ticket_no'    => trim((string) ($row['ticket_no'] ?? '')),
+            'batch_no'     => isset($row['dispatch_batch_no']) && $row['dispatch_batch_no'] !== '' ? (int) $row['dispatch_batch_no'] : null,
+            'station_id'   => isset($row['kitchen_station_id']) && $row['kitchen_station_id'] !== '' ? (int) $row['kitchen_station_id'] : null,
+            'station_name' => $stationName,
+        ];
+    }
+
+    protected function buildServedAuditMeta(array $item, ?array $order, string $fromStatus, string $servedAt, string $actionSource, string $sourceScreen): array
+    {
+        $tableId = isset($order['table_id']) ? (int) ($order['table_id'] ?? 0) : 0;
+        $table = $tableId > 0 ? $this->getScopedTable($tableId) : null;
+        $ticketId = (int) ($item['kitchen_ticket_id'] ?? 0);
+        $ticketContext = $this->getKitchenTicketAuditContext($ticketId);
+
+        $meta = [
+            'item_id'         => (int) ($item['id'] ?? 0),
+            'product_name'    => trim((string) ($item['product_name'] ?? '')),
+            'qty'             => (int) ($item['qty'] ?? 0),
+            'from_status'     => $fromStatus,
+            'to_status'       => 'served',
+            'served_at'       => $servedAt,
+            'action_source'   => $actionSource,
+            'source_screen'   => $sourceScreen,
+            'tenant_id'       => $this->currentTenantId(),
+            'branch_id'       => $this->currentBranchId(),
+            'order_id'        => (int) ($item['order_id'] ?? ($order['id'] ?? 0)),
+            'order_number'    => trim((string) ($order['order_number'] ?? '')),
+            'table_id'        => $tableId > 0 ? $tableId : null,
+            'table_name'      => trim((string) ($table['table_name'] ?? '')),
+            'ticket_id'       => $ticketId > 0 ? $ticketId : null,
+            'ticket_no'       => $ticketContext['ticket_no'] ?? '',
+            'batch_no'        => $ticketContext['batch_no'] ?? null,
+            'station_id'      => $ticketContext['station_id'] ?? null,
+            'station_name'    => trim((string) ($ticketContext['station_name'] ?? '')),
+            'actor_user_id'   => $this->currentUserId(),
+            'actor_name'      => $this->currentActorName(),
+            'actor_role_name' => $this->currentActorRoleName(),
+            'permission_key'  => $this->resolveServePermissionKey(),
+        ];
+
+        foreach ($meta as $key => $value) {
+            if ($value === null || $value === '') {
+                unset($meta[$key]);
+            }
+        }
+
+        return $meta;
     }
 
     protected function canShowCancelDecisionActions(array $row): bool
@@ -591,6 +789,24 @@ class KitchenMonitorController extends BaseController
             ]);
         }
 
+        if ($requestedStatus === 'served') {
+            if (! $this->isServeItemFeatureEnabled()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.feature_not_available_for_plan'),
+                    'token'   => csrf_hash(),
+                ]);
+            }
+
+            if (! $this->canServeItems()) {
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => lang('app.no_permission'),
+                    'token'   => csrf_hash(),
+                ]);
+            }
+        }
+
         $item = $this->getScopedItemFull($itemId);
 
         if (! $item) {
@@ -602,7 +818,7 @@ class KitchenMonitorController extends BaseController
 
         $fromStatus = (string) ($item['status'] ?? '');
         $now = date('Y-m-d H:i:s');
-        $userId = (int) (session('user_id') ?? 0);
+        $userId = $this->currentUserId();
 
         if ($requestedStatus === 'cancel_approved' && in_array(strtolower($fromStatus), ['cancel', 'cancelled', 'canceled'], true)) {
             return $this->response->setJSON([
@@ -839,7 +1055,7 @@ class KitchenMonitorController extends BaseController
 
         $orderId = (int) ($item['order_id'] ?? 0);
         if ($status === 'served' && $orderId > 0) {
-            $order = $this->orderModel->find($orderId);
+            $order = $this->getScopedOrder($orderId);
             $this->writeAuditLog([
                 'target_type'  => 'order_item',
                 'target_id'    => $itemId,
@@ -848,15 +1064,14 @@ class KitchenMonitorController extends BaseController
                 'action_key'   => 'pos.item_served',
                 'action_label' => lang('app.audit_log_item_served'),
                 'ref_code'     => $order['order_number'] ?? null,
-                'meta_json'    => [
-                    'item_id'       => $itemId,
-                    'product_name'  => (string) ($item['product_name'] ?? ''),
-                    'qty'           => (int) ($item['qty'] ?? 0),
-                    'from_status'   => $fromStatus,
-                    'to_status'     => 'served',
-                    'served_at'     => $data['served_at'] ?? $now,
-                    'action_source' => 'kitchen.monitor',
-                ],
+                'meta_json'    => $this->buildServedAuditMeta(
+                    array_merge($item, ['id' => $itemId]),
+                    $order,
+                    $fromStatus,
+                    (string) ($data['served_at'] ?? $now),
+                    'kitchen.monitor',
+                    'kitchen_monitor'
+                ),
             ], 'kitchen.item_served.' . $itemId . '.' . ($data['served_at'] ?? $now), 3);
         }
 

@@ -53,6 +53,7 @@ return [
     'settings_control_label_feature_quick_notes' => 'Enable Quick Notes',
     'settings_control_label_feature_product_quick_options' => 'Enable Product Quick Options',
     'settings_control_label_feature_tv_mode' => 'Enable TV Mode',
+    'settings_control_label_feature_serve_item' => 'Enable Serve Item',
     'settings_control_label_feature_served_history' => 'Enable Served History',
     'settings_control_label_feature_cancel_request_flow' => 'Enable Cancel Request Flow',
     'settings_control_label_feature_discount' => 'Enable Discount',

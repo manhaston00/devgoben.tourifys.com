@@ -341,13 +341,36 @@
                         $reservationRoute = site_url('pos/table/' . $table['id']);
                     ?>
 
-                    <?php
+                                        <?php
                         $signalItems = [];
+                        $flowCounts = [];
+                        $primaryFlowTone = 'slate';
+                        $primaryFlowLabel = $tr('app.open_order_exists', 'มีบิลเปิด', 'Open order');
+                        $servedCount = 0;
+                        $remainingCount = 0;
+                        $servedTotalCount = 0;
+                        $servedPercent = 0;
+                        $servedPartial = false;
+                        $servedAll = false;
+                        $servedItemNames = [];
+                        $servedTooltip = '';
+                        $servedProgressLabel = $tr('app.served_progress', 'ความคืบหน้าการเสิร์ฟ', 'Serving progress');
+                        $servedProgressText = '';
+                        $servedProgressNote = '';
+                        $servedProgressNoteClass = 'pos-served-progress-note';
+                        $servedLastAt = trim((string) ($table['kitchen_last_served_at'] ?? ''));
+                        $overviewNextFocus = trim((string) ($table['kitchen_focus_label'] ?? ''));
+                        $overviewNextFocusText = '';
+                        $overviewServedNamesText = '';
+                        $readyCount = 0;
+                        $preparingCount = 0;
+                        $sentCount = 0;
+                        $pendingCount = 0;
+                        $cancelRequestCount = 0;
 
                         if ($hasOpenOrder) {
                             $currentOrderStatus = strtolower(trim((string) ($table['current_order_status'] ?? 'open')));
                             $currentOrderTotal = (float) ($table['current_order_total'] ?? 0);
-                            $paidTotal = (float) ($table['payment_paid_total'] ?? 0);
 
                             if ($currentOrderStatus === 'billing') {
                                 $signalItems[] = [
@@ -373,8 +396,11 @@
                             $cancelRequestCount = (int) ($table['kitchen_cancel_request_count'] ?? 0);
                             $servedCount = (int) ($table['kitchen_served_count'] ?? ($table['served_count'] ?? 0));
                             $remainingCount = (int) ($table['kitchen_remaining_count'] ?? 0);
+                            $servedTotalCount = (int) ($table['kitchen_total_item_count'] ?? ($servedCount + $remainingCount));
+                            $servedPercent = (int) ($table['kitchen_served_percent'] ?? 0);
                             $servedPartial = ! empty($table['kitchen_served_partial']);
                             $servedAll = ! empty($table['kitchen_served_all']);
+                            $servedItemNames = array_values(array_filter(is_array($table['kitchen_served_item_names'] ?? null) ? $table['kitchen_served_item_names'] : []));
                             $mergeInCount = (int) ($table['merge_in_count'] ?? 0);
                             $moveInCount = (int) ($table['move_in_count'] ?? 0);
                             $wasReopened = ! empty($table['was_reopened']);
@@ -391,25 +417,54 @@
                                 }
                             }
 
+                            if ($servedTotalCount <= 0 && ($servedCount > 0 || $remainingCount > 0)) {
+                                $servedTotalCount = $servedCount + $remainingCount;
+                            }
+                            if ($servedPercent <= 0 && $servedTotalCount > 0 && $servedCount > 0) {
+                                $servedPercent = (int) round(($servedCount / $servedTotalCount) * 100);
+                            }
+
                             if ($readyCount > 0) {
                                 $signalItems[] = [
                                     'tone' => 'emerald',
                                     'label' => $tr('app.ready_to_serve_signal', 'พร้อมเสิร์ฟ {count}', 'Ready {count}', ['count' => $readyCount]),
                                 ];
-                            } elseif ($preparingCount > 0) {
+                                $flowCounts[] = [
+                                    'tone' => 'emerald',
+                                    'short' => $tr('app.ready_short_count', 'พร้อม {count}', 'Ready {count}', ['count' => $readyCount]),
+                                ];
+                            }
+
+                            if ($preparingCount > 0) {
                                 $signalItems[] = [
                                     'tone' => 'amber',
                                     'label' => $tr('app.preparing_signal', 'กำลังทำ {count}', 'Preparing {count}', ['count' => $preparingCount]),
                                 ];
-                            } elseif ($sentCount > 0) {
+                                $flowCounts[] = [
+                                    'tone' => 'amber',
+                                    'short' => $tr('app.preparing_short_count', 'ทำอยู่ {count}', 'Prep {count}', ['count' => $preparingCount]),
+                                ];
+                            }
+
+                            if ($sentCount > 0) {
                                 $signalItems[] = [
                                     'tone' => 'blue',
                                     'label' => $tr('app.sent_to_kitchen_signal', 'ส่งครัวแล้ว {count}', 'Sent to kitchen {count}', ['count' => $sentCount]),
                                 ];
-                            } elseif ($pendingCount > 0) {
+                                $flowCounts[] = [
+                                    'tone' => 'blue',
+                                    'short' => $tr('app.sent_short_count', 'ส่งครัว {count}', 'Sent {count}', ['count' => $sentCount]),
+                                ];
+                            }
+
+                            if ($pendingCount > 0) {
                                 $signalItems[] = [
                                     'tone' => 'slate',
                                     'label' => $tr('app.pending_kitchen_signal', 'รอส่งครัว {count}', 'Pending kitchen {count}', ['count' => $pendingCount]),
+                                ];
+                                $flowCounts[] = [
+                                    'tone' => 'slate',
+                                    'short' => $tr('app.pending_short_count', 'ค้างส่ง {count}', 'Pending {count}', ['count' => $pendingCount]),
                                 ];
                             }
 
@@ -417,6 +472,10 @@
                                 $signalItems[] = [
                                     'tone' => 'rose',
                                     'label' => $tr('app.cancel_request_signal', 'รอยืนยันยกเลิก {count}', 'Cancel request {count}', ['count' => $cancelRequestCount]),
+                                ];
+                                $flowCounts[] = [
+                                    'tone' => 'rose',
+                                    'short' => $tr('app.cancel_request_short_count', 'ยกเลิก {count}', 'Cancel {count}', ['count' => $cancelRequestCount]),
                                 ];
                             }
 
@@ -429,6 +488,15 @@
                                 $signalItems[] = [
                                     'tone' => 'teal',
                                     'label' => $tr('app.served_partial_signal', 'เสิร์ฟแล้ว {served} / คงเหลือ {remaining}', 'Served {served} / Remaining {remaining}', ['served' => $servedCount, 'remaining' => $remainingCount]),
+                                ];
+                            }
+
+                            if ($servedCount > 0) {
+                                $flowCounts[] = [
+                                    'tone' => $servedAll ? 'emerald' : 'teal',
+                                    'short' => $servedAll
+                                        ? $tr('app.served_all_short_count', 'เสิร์ฟครบ {count}', 'Served all {count}', ['count' => $servedCount])
+                                        : $tr('app.served_short_count', 'เสิร์ฟ {count}', 'Served {count}', ['count' => $servedCount]),
                                 ];
                             }
 
@@ -452,6 +520,70 @@
                                     'label' => $tr('app.reopened_signal', 'Reopen แล้ว', 'Reopened'),
                                 ];
                             }
+
+                            if ($cancelRequestCount > 0) {
+                                $primaryFlowTone = 'rose';
+                                $primaryFlowLabel = $tr('app.cancel_request_primary', 'มีรายการรอยืนยันยกเลิก {count}', 'Cancel request {count}', ['count' => $cancelRequestCount]);
+                            } elseif ($readyCount > 0) {
+                                $primaryFlowTone = 'emerald';
+                                $primaryFlowLabel = $tr('app.ready_primary', 'พร้อมเสิร์ฟ {count}', 'Ready to serve {count}', ['count' => $readyCount]);
+                            } elseif ($preparingCount > 0) {
+                                $primaryFlowTone = 'amber';
+                                $primaryFlowLabel = $tr('app.preparing_primary', 'กำลังทำ {count}', 'Preparing {count}', ['count' => $preparingCount]);
+                            } elseif ($sentCount > 0) {
+                                $primaryFlowTone = 'blue';
+                                $primaryFlowLabel = $tr('app.sent_primary', 'ส่งครัวแล้ว {count}', 'Sent {count}', ['count' => $sentCount]);
+                            } elseif ($pendingCount > 0) {
+                                $primaryFlowTone = 'slate';
+                                $primaryFlowLabel = $tr('app.pending_primary', 'รอส่งครัว {count}', 'Pending {count}', ['count' => $pendingCount]);
+                            } elseif ($servedAll) {
+                                $primaryFlowTone = 'emerald';
+                                $primaryFlowLabel = $tr('app.served_complete_primary', 'เสิร์ฟครบแล้ว', 'Served complete');
+                            } elseif ($servedPartial) {
+                                $primaryFlowTone = 'teal';
+                                $primaryFlowLabel = $tr('app.served_partial_primary', 'เสิร์ฟบางส่วนแล้ว', 'Partially served');
+                            }
+                        }
+
+                        if ($servedAll) {
+                            $cardClass .= ' pos-table-card--served-complete';
+                        } elseif ($servedPartial) {
+                            $cardClass .= ' pos-table-card--served-partial';
+                        }
+
+                        if ($servedCount > 0) {
+                            $servedProgressText = $servedAll
+                                ? $tr('app.served_complete_signal', 'เสิร์ฟครบแล้ว {count}', 'Served all {count}', ['count' => $servedCount])
+                                : $tr('app.served_partial_signal', 'เสิร์ฟแล้ว {served} / คงเหลือ {remaining}', 'Served {served} / Remaining {remaining}', ['served' => $servedCount, 'remaining' => $remainingCount]);
+
+                            if (! empty($servedItemNames)) {
+                                $servedTooltip = implode("
+", $servedItemNames);
+                                $servedProgressNote = $tr('app.served_items_hint', 'รายการที่เสิร์ฟแล้ว: {items}', 'Served items: {items}', ['items' => implode(', ', $servedItemNames)]);
+                            } elseif ($servedAll) {
+                                $servedProgressNote = $tr('app.served_complete_hint', 'ทุกรายการในรอบนี้เสิร์ฟครบแล้ว', 'All active items in this round have been served');
+                            } else {
+                                $servedProgressNote = $tr('app.served_progress_hint', 'ยังมีรายการที่ต้องติดตามต่อ', 'Some items are still in progress');
+                            }
+
+                            if ($servedAll) {
+                                $servedProgressNoteClass .= ' pos-served-progress-note--complete';
+                            }
+                        }
+
+                        if ($overviewNextFocus === '') {
+                            $overviewNextFocus = $primaryFlowLabel;
+                        }
+                        $overviewNextFocusText = $overviewNextFocus !== ''
+                            ? $overviewNextFocus
+                            : $tr('app.open_order_exists', 'มีบิลเปิด', 'Open order');
+
+                        if (! empty($servedItemNames)) {
+                            $overviewServedNamesText = implode(', ', $servedItemNames);
+                        } elseif ($servedCount > 0) {
+                            $overviewServedNamesText = $servedAll
+                                ? $tr('app.served_complete_hint', 'ทุกรายการในรอบนี้เสิร์ฟครบแล้ว', 'All active items in this round have been served')
+                                : $tr('app.served_progress_hint', 'ยังมีรายการที่ต้องติดตามต่อ', 'Some items are still in progress');
                         }
                     ?>
 
@@ -478,6 +610,41 @@
                                 <span class="pos-reservation-inline-note"><?= esc($reservationInlineText) ?></span>
                             <?php endif; ?>
                         </div>
+
+                        <?php if ($hasOpenOrder): ?>
+                            <div class="pos-table-hybrid-summary">
+                                <div class="pos-table-primary-flow">
+                                    <span class="pos-primary-flow-chip pos-primary-flow-chip--<?= esc($primaryFlowTone) ?>"><?= esc($primaryFlowLabel) ?></span>
+                                    <?php if (! empty($flowCounts)): ?>
+                                        <div class="pos-flow-counts">
+                                            <?php foreach ($flowCounts as $flowCount): ?>
+                                                <span class="pos-flow-count pos-flow-count--<?= esc((string) ($flowCount['tone'] ?? 'slate')) ?>"><strong><?= esc((string) ($flowCount['short'] ?? '')) ?></strong></span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <?php if ($servedCount > 0): ?>
+                                    <div class="pos-served-progress<?= $servedAll ? ' pos-served-progress--complete' : '' ?>"<?= $servedTooltip !== '' ? ' title="' . esc($servedTooltip) . '"' : '' ?>>
+                                        <div class="pos-served-progress-head">
+                                            <span><?= esc($servedProgressLabel) ?></span>
+                                            <span class="pos-served-progress-percent"><?= esc((string) $servedPercent) ?>%</span>
+                                        </div>
+                                        <div class="pos-served-progress-bar" aria-hidden="true">
+                                            <span class="pos-served-progress-fill" style="width: <?= esc((string) max(0, min(100, $servedPercent))) ?>%;"></span>
+                                        </div>
+                                        <div class="pos-served-progress-meta">
+                                            <span><?= esc($servedProgressText) ?></span>
+                                            <span><?= esc($tr('app.total_items_short', 'รวม {count}', 'Total {count}', ['count' => max(0, $servedTotalCount)])) ?></span>
+                                        </div>
+                                        <?php if ($servedProgressNote !== ''): ?>
+                                            <span class="<?= esc($servedProgressNoteClass) ?>"><?= esc($servedProgressNote) ?></span>
+                                        <?php endif; ?>
+                                        <span class="pos-served-progress-mobile-summary"><?= esc($tr('app.served_compact_summary', 'เสิร์ฟ {served}/{total}', 'Served {served}/{total}', ['served' => $servedCount, 'total' => max(0, $servedTotalCount)])) ?></span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
 
                         <?php if (! empty($signalItems)): ?>
                             <div class="pos-table-signals">

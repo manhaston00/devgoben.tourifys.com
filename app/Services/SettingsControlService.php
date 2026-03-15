@@ -47,6 +47,7 @@ class SettingsControlService
                     $this->boolSetting('feature.quick_notes.enabled', 'settings_control_label_feature_quick_notes', 'tenant', 'pos.access'),
                     $this->boolSetting('feature.product_quick_options.enabled', 'settings_control_label_feature_product_quick_options', 'tenant', 'pos.access'),
                     $this->boolSetting('feature.tv_mode.enabled', 'settings_control_label_feature_tv_mode', 'branch', 'pos.access'),
+                    $this->boolSetting('feature.serve_item.enabled', 'settings_control_label_feature_serve_item', 'branch', 'pos.access'),
                     $this->boolSetting('feature.served_history.enabled', 'settings_control_label_feature_served_history', 'branch', 'pos.access'),
                     $this->boolSetting('feature.cancel_request_flow.enabled', 'settings_control_label_feature_cancel_request_flow', 'branch', 'pos.access'),
                     $this->boolSetting('feature.discount.enabled', 'settings_control_label_feature_discount', 'tenant'),

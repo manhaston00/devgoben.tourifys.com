@@ -2,6 +2,13 @@
 
 <?= $this->section('content') ?>
 <style>
+/* UX PATCH v1 preserve layout */
+.bill-card:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.08);} 
+.bill-card.active{border:2px solid #4F7BFF;background:#F5F8FF;} 
+.menu-item:hover{background:#f8fafc;} 
+.pos-bill-panel{scroll-behavior:smooth;} 
+@media (max-width:1024px){button{min-height:44px;}}
+
 .mobile-category-scroll {
     scrollbar-width: thin;
     -webkit-overflow-scrolling: touch;
@@ -100,7 +107,8 @@
 #btnSendKitchen,
 #btnPay,
 #btnMoveTable,
-#btnMergeBill {
+#btnMergeBill,
+#btnSplitBill {
     min-height: 50px;
     border-radius: 16px;
     font-weight: 600;
@@ -225,6 +233,240 @@
     min-height: 0;
     padding-right: .25rem;
     padding-bottom: .35rem;
+}
+
+.pos-split-group-panel {
+    display: grid;
+    gap: .75rem;
+    margin-bottom: .9rem;
+}
+
+.pos-split-group-panel.is-hidden {
+    display: none;
+}
+
+.pos-split-group-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: wrap;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 18px;
+    padding: .85rem .95rem;
+    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.pos-split-group-title {
+    font-size: .98rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.pos-split-group-note {
+    font-size: .82rem;
+    color: #64748b;
+    margin-top: .2rem;
+}
+
+.pos-split-group-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+}
+
+.pos-split-group-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 34px;
+    padding: .32rem .7rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: #fff;
+    color: #334155;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.pos-split-group-list {
+    display: grid;
+    gap: .65rem;
+}
+
+.pos-split-group-card {
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 18px;
+    padding: .8rem .9rem;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+}
+
+.pos-split-group-card.is-selected {
+    border-color: rgba(37, 99, 235, 0.36);
+    background: rgba(59, 130, 246, 0.06);
+    box-shadow: 0 14px 28px rgba(37, 99, 235, 0.10);
+}
+
+.pos-split-group-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: .55rem;
+}
+
+.pos-split-group-card-title {
+    font-weight: 800;
+    color: #0f172a;
+    word-break: break-word;
+}
+
+.pos-split-group-card-role {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    margin-top: .35rem;
+    padding: .22rem .6rem;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: .74rem;
+    font-weight: 700;
+}
+
+.pos-split-group-card-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .55rem;
+    margin-bottom: .65rem;
+}
+
+.pos-split-group-card-meta-item {
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 14px;
+    padding: .55rem .65rem;
+    background: #f8fafc;
+}
+
+.pos-split-group-card-meta-label {
+    font-size: .72rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: .18rem;
+}
+
+.pos-split-group-card-meta-value {
+    font-size: .9rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.pos-split-group-card-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .55rem;
+}
+
+.pos-split-group-card-actions .btn {
+    min-height: 42px;
+    border-radius: 14px;
+    font-weight: 700;
+}
+
+.pos-split-group-card-toggle {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+}
+
+.pos-split-group-card-toggle:focus-visible {
+    outline: 2px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 4px;
+    border-radius: 16px;
+}
+
+.pos-split-group-card-caret {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    background: #fff;
+    color: #475569;
+    font-size: .95rem;
+    transition: transform .18s ease;
+}
+
+.pos-split-group-card.is-expanded .pos-split-group-card-caret {
+    transform: rotate(180deg);
+}
+
+.pos-split-group-card-preview {
+    display: none;
+    border-top: 1px dashed rgba(148, 163, 184, 0.24);
+    margin-top: .72rem;
+    padding-top: .72rem;
+}
+
+.pos-split-group-card.is-expanded .pos-split-group-card-preview {
+    display: block;
+}
+
+.pos-split-group-preview-list {
+    display: grid;
+    gap: .45rem;
+}
+
+.pos-split-group-preview-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 14px;
+    padding: .6rem .7rem;
+    background: #f8fafc;
+}
+
+.pos-split-group-preview-name {
+    font-size: .88rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.35;
+}
+
+.pos-split-group-preview-note {
+    font-size: .76rem;
+    color: #64748b;
+    margin-top: .18rem;
+}
+
+.pos-split-group-preview-qty {
+    flex: 0 0 auto;
+    font-size: .78rem;
+    font-weight: 700;
+    color: #1d4ed8;
+    background: #eff6ff;
+    border-radius: 999px;
+    padding: .2rem .55rem;
+    min-width: 52px;
+    text-align: center;
+}
+
+.pos-split-group-empty-preview {
+    border: 1px dashed rgba(148, 163, 184, 0.24);
+    border-radius: 14px;
+    padding: .75rem;
+    text-align: center;
+    color: #64748b;
+    font-size: .82rem;
+    background: #f8fafc;
 }
 
 .pos-bill-summary {
@@ -552,6 +794,11 @@
 }
 
 @media (max-width: 767.98px) {
+    .pos-split-group-card-meta,
+    .pos-split-group-card-actions {
+        grid-template-columns: 1fr;
+    }
+
     .pos-touch-header {
         flex-direction: column;
         border-radius: 20px;
@@ -651,7 +898,8 @@
     #btnSendKitchen,
     #btnPay,
     #btnMoveTable,
-    #btnMergeBill {
+    #btnMergeBill,
+    #btnSplitBill {
         min-height: 44px;
         border-radius: 14px;
     }
@@ -695,6 +943,34 @@
 
 .pos-bill-timeline-dialog.modal-dialog {
     max-width: 720px;
+}
+
+.pos-timeline-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .6rem;
+    margin-bottom: .85rem;
+}
+
+.pos-timeline-summary-card {
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 16px;
+    background: #f8fafc;
+    padding: .7rem .8rem;
+}
+
+.pos-timeline-summary-label {
+    font-size: .74rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: .2rem;
+}
+
+.pos-timeline-summary-value {
+    font-size: .96rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.25;
 }
 
 .pos-timeline-list {
@@ -858,10 +1134,778 @@
         justify-content: flex-start;
     }
 
+    .pos-timeline-summary {
+        grid-template-columns: 1fr;
+        gap: .5rem;
+        margin-bottom: .75rem;
+    }
+
+    .pos-timeline-summary-card {
+        padding: .65rem .7rem;
+        border-radius: 14px;
+    }
+
     .pos-timeline-row {
-        grid-template-columns: 92px minmax(0, 1fr);
-        gap: .45rem;
+        grid-template-columns: 86px minmax(0, 1fr);
+        gap: .4rem;
         font-size: .84rem;
+    }
+}
+
+
+.split-bill-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+.split-bill-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+    gap: 1rem;
+    align-items: start;
+}
+.split-bill-pane {
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 22px;
+    background: #fff;
+    padding: .85rem;
+    min-height: 100%;
+}
+.split-bill-pane.is-target {
+    background: linear-gradient(180deg, #f7fcff 0%, #ffffff 100%);
+}
+.split-bill-pane-head {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    align-items: flex-start;
+    margin-bottom: .9rem;
+    flex-wrap: wrap;
+}
+.split-bill-pane-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+.split-bill-pane-hint {
+    font-size: .84rem;
+    color: #64748b;
+}
+.split-bill-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .65rem;
+    margin-bottom: .9rem;
+}
+
+.split-bill-quick-guide {
+    display: flex;
+    gap: .75rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: linear-gradient(180deg, #f8fdff 0%, #f8fafc 100%);
+    border-radius: 18px;
+    padding: .85rem 1rem;
+    margin-bottom: .95rem;
+}
+.split-bill-quick-guide-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 202, 240, 0.12);
+    color: #0891b2;
+    font-weight: 800;
+    flex: 0 0 auto;
+}
+.split-bill-quick-guide-title {
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: .15rem;
+}
+.split-bill-quick-guide-text {
+    font-size: .85rem;
+    color: #475569;
+    line-height: 1.45;
+}
+.split-bill-mobile-totalbar {
+    display: none;
+}
+.split-bill-summary-card {
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 18px;
+    padding: .8rem .85rem;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+}
+.split-bill-summary-card.is-accent {
+    background: rgba(13, 202, 240, 0.08);
+    border-color: rgba(13, 202, 240, 0.25);
+}
+.split-bill-summary-label {
+    font-size: .77rem;
+    color: #64748b;
+    margin-bottom: .2rem;
+}
+.split-bill-summary-value {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+.split-bill-section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .32rem .7rem;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: .76rem;
+    font-weight: 700;
+}
+.split-bill-items,
+.split-bill-target-list {
+    display: grid;
+    gap: .75rem;
+}
+.split-bill-card {
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 18px;
+    background: #fff;
+    padding: .72rem .8rem;
+    transition: .18s ease;
+}
+.split-bill-card.is-active {
+    border-color: rgba(13, 202, 240, 0.42);
+    background: rgba(13, 202, 240, 0.08);
+    box-shadow: 0 12px 30px rgba(13, 202, 240, 0.10);
+}
+.split-bill-card.is-target {
+    border-color: rgba(13, 202, 240, 0.22);
+}
+.split-bill-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .75rem;
+    margin-bottom: .45rem;
+}
+.split-bill-card-name {
+    font-weight: 700;
+    color: #0f172a;
+}
+.split-bill-card-option {
+    font-size: .82rem;
+    color: #0ea5e9;
+}
+.split-bill-card-note {
+    font-size: .82rem;
+    color: #64748b;
+}
+.split-bill-card-meta {
+    display: flex;
+    gap: .45rem;
+    flex-wrap: wrap;
+    margin-top: .55rem;
+}
+.split-bill-meta-chip {
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    padding: .25rem .6rem;
+    font-size: .76rem;
+    color: #334155;
+}
+.split-bill-source-card {
+    cursor: default;
+}
+.split-bill-source-card:hover {
+    border-color: rgba(37, 99, 235, 0.25);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.08);
+}
+.split-bill-source-card-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .6rem;
+    align-items: flex-start;
+    margin-bottom: .3rem;
+}
+.split-bill-main-tap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 94px;
+    min-height: 36px;
+    padding: .52rem .78rem;
+    border-radius: 14px;
+    border: 1px solid rgba(14, 165, 233, 0.34);
+    background: #f7fcff;
+    color: #0f766e;
+    font-weight: 700;
+    font-size: .82rem;
+    line-height: 1;
+}
+.split-bill-main-tap.is-disabled,
+.split-bill-main-tap:disabled {
+    opacity: 1;
+    border-color: rgba(148, 163, 184, 0.24);
+    background: #f8fafc;
+    color: #94a3b8;
+}
+.split-bill-main-tap small {
+    display: none;
+}
+.split-bill-state-note {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2rem .55rem;
+    margin-top: .45rem;
+    border-radius: 999px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #c2410c;
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+.split-bill-action-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .55rem;
+    align-items: center;
+    margin-top: .7rem;
+}
+.split-bill-quick-actions {
+    display: inline-flex;
+    gap: .4rem;
+    flex-wrap: wrap;
+}
+.split-bill-quick-actions .btn,
+.split-bill-card-actions .btn,
+.split-bill-qty-stepper .btn {
+    border-radius: 12px;
+}
+.split-bill-quick-actions .btn,
+.split-bill-card-actions .btn {
+    min-height: 34px;
+    padding: .42rem .72rem;
+    font-size: .78rem;
+    font-weight: 700;
+}
+.split-bill-qty-stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: .28rem;
+    flex-shrink: 0;
+}
+.split-bill-qty-stepper .btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-weight: 700;
+}
+.split-bill-qty-stepper .split-bill-qty-display {
+    min-width: 38px;
+    text-align: center;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: #fff;
+    padding: .34rem .45rem;
+    font-weight: 700;
+    font-size: .82rem;
+    color: #0f172a;
+}
+.split-bill-empty-state {
+    border: 1px dashed rgba(148, 163, 184, 0.45);
+    border-radius: 18px;
+    padding: 1rem;
+    text-align: center;
+    color: #64748b;
+    background: rgba(248, 250, 252, 0.8);
+}
+.split-bill-preview-box {
+    margin-top: 1rem;
+    border-top: 1px dashed rgba(148, 163, 184, 0.28);
+    padding-top: .9rem;
+}
+.split-bill-preview-box .split-bill-summary-grid {
+    margin-bottom: 0;
+}
+.split-bill-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    border-radius: 999px;
+    background: rgba(13, 202, 240, 0.12);
+    color: #0f766e;
+    padding: .28rem .6rem;
+    font-size: .76rem;
+    font-weight: 700;
+}
+.split-bill-target-summary {
+    border: 1px dashed rgba(14, 165, 233, 0.2);
+    border-radius: 16px;
+    background: #fcfeff;
+    padding: .7rem;
+    margin-bottom: .75rem;
+}
+.split-bill-target-summary-title {
+    font-size: .82rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: .35rem;
+}
+.split-bill-target-summary-meta {
+    display: flex;
+    gap: .45rem;
+    flex-wrap: wrap;
+}
+.split-bill-card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-top: .85rem;
+}
+.split-bill-target-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: .75rem;
+    padding-bottom: .75rem;
+    border-bottom: 1px dashed rgba(148, 163, 184, 0.25);
+}
+.split-bill-target-hero strong {
+    font-size: 1.15rem;
+    color: #0f172a;
+}
+.split-bill-footer-layout {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.split-bill-footer-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+.split-bill-footer-chip {
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    padding: .4rem .7rem;
+    font-size: .8rem;
+    color: #334155;
+}
+.split-bill-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+}
+.split-bill-legacy-preview-toggle {
+    white-space: nowrap;
+}
+@media (max-width: 1199.98px) {
+    .split-bill-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 991.98px) {
+    .split-bill-workspace {
+        grid-template-columns: 1fr;
+    }
+    .split-bill-pane {
+        min-height: auto;
+    }
+    .split-bill-pane.is-target {
+    }
+}
+@media (max-width: 767.98px) {
+
+.split-bill-summary-grid {
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.split-bill-summary-card {
+    padding: 9px 12px;
+    border-radius: 15px;
+    background: #fbfcfd;
+    border: 1px solid #e6ecf2;
+    min-height: 64px;
+}
+.split-bill-summary-card.is-accent,
+.split-bill-pane.is-target,
+.split-bill-mobile-totalbar .split-bill-summary-card.is-accent {
+    background: #f4fbff;
+    border-color: #cfe8f6;
+}
+.split-bill-summary-label {
+    font-size: 12px;
+    color: #7b8794;
+}
+.split-bill-summary-value {
+    font-size: 15px;
+    color: #1f2937;
+}
+.split-bill-quick-guide {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    background: #f8fbfd;
+    border: 1px solid #e5edf3;
+}
+.split-bill-quick-guide-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
+    background: #eaf7fd;
+    color: #1991c1;
+}
+.split-bill-workspace {
+    gap: 12px;
+}
+.split-bill-pane {
+    padding: 10px;
+    border-radius: 16px;
+    background: #fcfdff;
+    border: 1px solid #e6ecf2;
+}
+.split-bill-pane-head {
+    margin-bottom: 10px;
+}
+.split-bill-pane-title {
+    font-size: 18px;
+    margin-top: 6px !important;
+}
+.split-bill-pane-hint,
+.split-bill-quick-guide-text {
+    font-size: 12px;
+    line-height: 1.45;
+    color: #667085;
+}
+.split-bill-section-badge,
+.split-bill-live-badge {
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    background: #eef6fb;
+    color: #32789a;
+}
+.split-bill-items,
+.split-bill-target-list {
+    gap: 10px;
+}
+.split-bill-card {
+    padding: 10px;
+    border-radius: 15px;
+    border: 1px solid #e8edf3;
+    background: #fff;
+    box-shadow: none;
+}
+.split-bill-card.is-active,
+.split-bill-card.is-target {
+    border-color: #cfe2f3;
+    background: #fbfdff;
+}
+.split-bill-source-card-main {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto;
+    gap: 10px;
+    align-items: start;
+    margin-bottom: 8px;
+}
+.split-bill-card-name {
+    font-size: 15px;
+    line-height: 1.35;
+    margin-bottom: 2px;
+}
+.split-bill-card-option,
+.split-bill-card-note {
+    font-size: 11px;
+    line-height: 1.35;
+}
+.split-bill-card-meta {
+    gap: 6px;
+    margin-bottom: 8px;
+}
+.split-bill-meta-chip,
+.split-bill-footer-chip {
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 999px;
+    background: #f5f7fa;
+    border: 1px solid #e5eaf0;
+    color: #5b6572;
+}
+.split-bill-main-tap {
+    min-width: 92px;
+    min-height: 34px;
+    padding: 7px 9px;
+    border-radius: 11px;
+    background: #eefafd;
+    border: 1px solid #bfe8f5;
+    color: #1683ab;
+    font-size: 11px;
+    line-height: 1.1;
+    text-align: center;
+    cursor: pointer;
+}
+.split-bill-main-tap small {
+    display: none;
+}
+.split-bill-action-row,
+.split-bill-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+.split-bill-quick-actions {
+    display: inline-flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.split-bill-quick-actions .btn,
+.split-bill-card-actions .btn,
+.split-bill-qty-stepper .btn {
+    min-height: 32px;
+    padding: 5px 10px;
+    border-radius: 11px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.split-bill-qty-stepper {
+    gap: 6px;
+    flex-shrink: 0;
+}
+.split-bill-qty-stepper .btn {
+    min-width: 30px;
+    padding: 5px 0;
+}
+.split-bill-qty-stepper .split-bill-qty-display {
+    min-width: 34px;
+    min-height: 30px;
+    padding: 5px 7px;
+    font-size: 12px;
+    border-radius: 11px;
+    background: #f7f9fb;
+    border: 1px solid #e3e8ef;
+}
+.split-bill-target-hero {
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px dashed #cae5f2;
+    background: #fff;
+    margin-bottom: 10px;
+}
+.split-bill-target-hero strong {
+    font-size: 24px;
+    color: #1f2937;
+}
+.split-bill-preview-box {
+    padding: 10px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e6ecf2;
+}
+.split-bill-footer-layout {
+    gap: 10px;
+    align-items: center;
+}
+.split-bill-footer-actions .btn {
+    min-height: 40px;
+    border-radius: 14px;
+    padding: 8px 14px;
+}
+@media (max-width: 991.98px) {
+    .split-bill-workspace {
+        grid-template-columns: 1fr;
+    }
+    .split-bill-pane.is-target {
+    }
+    .split-bill-mobile-totalbar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+}
+@media (max-width: 767.98px) {
+    .split-bill-summary-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .split-bill-summary-card {
+        min-height: 68px;
+        padding: 9px 12px;
+    }
+    .split-bill-summary-value {
+        font-size: 14px;
+    }
+    .split-bill-pane {
+        padding: 10px;
+        border-radius: 16px;
+    }
+    .split-bill-source-card-main {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    .split-bill-main-tap {
+        width: 100%;
+        min-width: 0;
+    }
+    .split-bill-action-row,
+    .split-bill-card-actions {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+    }
+    .split-bill-quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        width: 100%;
+    }
+    .split-bill-quick-actions .btn {
+        width: 100%;
+        padding: 7px 10px;
+    }
+    .split-bill-qty-stepper {
+        margin-left: auto;
+    }
+    .split-bill-footer-layout {
+        display: grid;
+        gap: 10px;
+    }
+    .split-bill-footer-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .split-bill-footer-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+    }
+    .split-bill-footer-actions .btn {
+        width: 100%;
+        min-height: 42px;
+        padding: 8px 6px;
+        font-size: 12px;
+    }
+    .split-bill-state-note {
+        margin-top: 0;
+        font-size: 10px;
+        padding: 4px 7px;
+    }
+}
+
+    #splitBillModal .modal-dialog {
+        margin: .35rem;
+        max-width: calc(100vw - .7rem);
+    }
+    #splitBillModal .modal-content {
+        border-radius: 20px;
+    }
+    #splitBillModal .modal-footer {
+        position: sticky;
+        bottom: 0;
+        background: rgba(255,255,255,0.98);
+        border-top: 1px solid rgba(148, 163, 184, 0.12);
+        z-index: 4;
+    }
+    .split-bill-summary-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .split-bill-pane {
+        padding: .9rem;
+    }
+    .split-bill-source-card-main {
+        grid-template-columns: 1fr;
+    }
+    .split-bill-main-tap {
+        width: 100%;
+    }
+    .split-bill-action-row,
+    .split-bill-card-actions,
+    .split-bill-target-hero {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .split-bill-quick-actions,
+    .split-bill-footer-actions,
+    .split-bill-footer-summary,
+    .split-bill-target-summary-meta {
+        width: 100%;
+    }
+    .split-bill-quick-actions .btn,
+    .split-bill-footer-actions .btn,
+    .split-bill-card-actions .btn {
+        flex: 1 1 auto;
+    }
+    .split-bill-preview-box .split-bill-summary-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .split-bill-mobile-totalbar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .55rem;
+        margin-bottom: .75rem;
+    }
+    .split-bill-quick-guide {
+        padding: .75rem .85rem;
+    }
+}
+
+
+
+/* ==== Split Bill Final Polish ==== */
+.split-bill-card.is-active{
+    background:#f8fcff;
+    border-color:#b9deee;
+    box-shadow:0 4px 12px rgba(14,165,233,.06);
+}
+.split-bill-pane.is-target{
+    background:#f9fcfe;
+    border-color:#d9e8ef;
+}
+.split-bill-main-tap{
+    min-width:88px;
+    min-height:32px;
+    padding:.38rem .62rem;
+    border-radius:999px;
+    background:#f3f7fa;
+    border:1px solid #d8e2ea;
+    color:#4b5563;
+    font-size:.74rem;
+    font-weight:700;
+    cursor:default;
+}
+.split-bill-main-tap.is-disabled,
+.split-bill-main-tap:disabled{
+    background:#fff7ed;
+    border-color:#fed7aa;
+    color:#c2410c;
+}
+@media (max-width: 767.98px){
+    .split-bill-main-tap{
+        min-width:74px;
+        min-height:28px;
+        padding:5px 8px;
+        font-size:10px;
+    }
+    .split-bill-card.is-active{
+        background:#fbfeff;
     }
 }
 
@@ -883,6 +1927,77 @@
     $addToBillLabel = lang('app.add_to_bill');
     if ($addToBillLabel === 'app.add_to_bill') {
         $addToBillLabel = service('request')->getLocale() === 'th' ? 'เพิ่มลงบิล' : 'Add to bill';
+    }
+
+    $splitBillLabels = [
+        'quickGuideTitle' => lang('app.split_bill_quick_guide_title'),
+        'quickGuideText' => lang('app.split_bill_quick_guide_text'),
+        'sourceBadge' => lang('app.split_bill_source_badge'),
+        'targetBadge' => lang('app.split_bill_target_badge'),
+        'selectSingles' => lang('app.split_bill_select_all_single_qty'),
+        'clearAll' => lang('app.split_bill_clear_all'),
+        'originalBill' => lang('app.split_bill_original_bill'),
+        'newBill' => lang('app.split_bill_new_bill'),
+        'livePreview' => lang('app.split_bill_live_preview'),
+        'touchToMove' => lang('app.split_bill_touch_to_move'),
+        'targetEmptyHint' => lang('app.split_bill_target_empty_hint'),
+        'emptyNewBill' => lang('app.split_bill_empty_new_bill'),
+        'noPreview' => lang('app.split_bill_no_preview'),
+        'reason' => lang('app.split_bill_reason'),
+        'reasonPlaceholder' => lang('app.split_bill_reason_placeholder'),
+        'confirm' => lang('app.confirm_split_bill'),
+        'notBillable' => lang('app.split_bill_not_billable'),
+        'stillBillable' => lang('app.split_bill_still_billable'),
+    ];
+
+    $splitBillFallbacks = service('request')->getLocale() === 'th'
+        ? [
+            'quickGuideTitle' => 'วิธีใช้แบบเร็ว',
+            'quickGuideText' => 'รายการที่มี 1 ชิ้น แตะการ์ดเพื่อย้ายได้ทันที • ถ้ามีหลายชิ้น ใช้ปุ่ม ย้าย 1 ชิ้น / ย้ายทั้งหมด หรือปุ่ม + - เพื่อปรับจำนวน',
+            'sourceBadge' => 'แตะทางนี้เพื่อย้าย',
+            'targetBadge' => 'ตรวจสอบก่อนยืนยัน',
+            'selectSingles' => 'เลือก 1 ชิ้นทั้งหมด',
+            'clearAll' => 'ล้างทั้งหมด',
+            'originalBill' => 'บิลเดิม',
+            'newBill' => 'บิลใหม่',
+            'livePreview' => 'อัปเดตสด',
+            'touchToMove' => 'แตะเพื่อย้ายทันที',
+            'targetEmptyHint' => 'รายการที่เลือกไว้จะมาอยู่ฝั่งนี้ทันที',
+            'emptyNewBill' => 'เริ่มจากแตะรายการฝั่งบิลเดิม',
+            'noPreview' => 'ยังไม่มีข้อมูลพรีวิว',
+            'reason' => 'เหตุผลการแยกบิล',
+            'reasonPlaceholder' => 'เช่น ลูกค้าจ่ายแยก / แยกเฉพาะเครื่องดื่ม / แยกของลูกค้าโต๊ะเดียวกัน',
+            'confirm' => 'ยืนยันแยกบิล',
+            'notBillable' => 'ยังไม่คิดเงิน',
+            'stillBillable' => 'ยังคิดเงินอยู่',
+        ]
+        : [
+            'quickGuideTitle' => 'Quick guide',
+            'quickGuideText' => 'Tap a single-qty card to move it instantly • For multi-qty items, use Move 1 / Move all or the + - buttons to adjust the quantity.',
+            'sourceBadge' => 'Tap here to move',
+            'targetBadge' => 'Review before confirm',
+            'selectSingles' => 'Select all single-qty',
+            'clearAll' => 'Clear all',
+            'originalBill' => 'Original Bill',
+            'newBill' => 'New Bill',
+            'livePreview' => 'Live preview',
+            'touchToMove' => 'Tap to move instantly',
+            'targetEmptyHint' => 'Selected items will appear here instantly.',
+            'emptyNewBill' => 'Start by tapping items from the original bill.',
+            'noPreview' => 'No preview yet',
+            'reason' => 'Split reason',
+            'reasonPlaceholder' => 'For example: separate payment / drinks only / split for one guest',
+            'confirm' => 'Confirm Split Bill',
+            'notBillable' => 'Not billable',
+            'stillBillable' => 'Still billable',
+        ];
+
+    foreach ($splitBillFallbacks as $key => $fallbackValue) {
+        if (($splitBillLabels[$key] ?? '') === 'app.split_bill_' . strtolower(preg_replace('/([A-Z])/', '_$1', $key)) || ($splitBillLabels[$key] ?? '') === 'app.confirm_split_bill') {
+            $splitBillLabels[$key] = $fallbackValue;
+        } elseif (($splitBillLabels[$key] ?? '') === '' || strpos((string) ($splitBillLabels[$key] ?? ''), 'app.') === 0) {
+            $splitBillLabels[$key] = $fallbackValue;
+        }
     }
 ?>
 <div class="pos-touch-shell mobile-bottom-space">
@@ -1078,6 +2193,7 @@
                     </div>
 
                     <div class="pos-bill-scroll">
+                        <div id="splitGroupPanel" class="pos-split-group-panel is-hidden"></div>
                         <div id="orderMetaIndicators" class="d-flex flex-wrap gap-2 mb-3"></div>
                         <div id="billMergeAuditBox" class="mb-3"></div>
                         <div id="billMoveAuditBox" class="mb-3"></div>
@@ -1132,6 +2248,15 @@
                             >
                                 <?= esc(lang('app.merge_bill')) ?>
                             </button>
+
+                            <button
+                                type="button"
+                                class="btn btn-outline-info"
+                                id="btnSplitBill"
+                                <?= $tableDisabled ? 'disabled' : '' ?>
+                            >
+                                <?= esc(lang('app.split_bill') ?? 'Split Bill') ?>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1163,6 +2288,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div id="billTimelineSummary" class="pos-timeline-summary"></div>
                 <div id="billTimelineBody" class="pos-timeline-list">
                     <div class="pos-timeline-empty"><?= esc(lang('app.no_data')) ?></div>
                 </div>
@@ -1357,6 +2483,139 @@
 </div>
 
 
+
+<div class="modal fade" id="splitBillModal" tabindex="-1" aria-labelledby="splitBillModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="splitBillModalLabel"><?= esc(lang('app.split_bill')) ?></h5>
+                    <div class="small text-muted" id="splitBillModalMeta">-</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= esc(lang('app.close')) ?>"></button>
+            </div>
+            <div class="modal-body">
+                <div class="split-bill-summary-grid" id="splitBillSummaryGrid">
+                    <div class="split-bill-summary-card">
+                        <div class="split-bill-summary-label"><?= esc(lang('app.table') ?? (service('request')->getLocale() === 'th' ? 'โต๊ะ' : 'Table')) ?></div>
+                        <div class="split-bill-summary-value" id="splitBillSummaryTable">-</div>
+                    </div>
+                    <div class="split-bill-summary-card">
+                        <div class="split-bill-summary-label"><?= esc(lang('app.split_bill_summary_items') ?? (service('request')->getLocale() === 'th' ? 'จำนวนรายการ' : 'Items')) ?></div>
+                        <div class="split-bill-summary-value" id="splitBillSummaryItems">0</div>
+                    </div>
+                    <div class="split-bill-summary-card">
+                        <div class="split-bill-summary-label"><?= esc(lang('app.split_bill_summary_qty') ?? (service('request')->getLocale() === 'th' ? 'จำนวนรวม' : 'Qty')) ?></div>
+                        <div class="split-bill-summary-value" id="splitBillSummaryQty">0</div>
+                    </div>
+                    <div class="split-bill-summary-card is-accent">
+                        <div class="split-bill-summary-label"><?= esc(lang('app.split_bill_preview_child_total') ?? (service('request')->getLocale() === 'th' ? 'ยอดบิลใหม่' : 'New bill total')) ?></div>
+                        <div class="split-bill-summary-value" id="splitBillSummaryTotal"><?= esc(number_format(0, 2)) ?></div>
+                    </div>
+                </div>
+
+                <div class="split-bill-quick-guide">
+                    <div class="split-bill-quick-guide-icon">↔</div>
+                    <div>
+                        <div class="split-bill-quick-guide-title"><?= esc($splitBillLabels['quickGuideTitle']) ?></div>
+                        <div class="split-bill-quick-guide-text"><?= esc($splitBillLabels['quickGuideText']) ?></div>
+                    </div>
+                </div>
+                <div class="split-bill-mobile-totalbar">
+                    <div class="split-bill-summary-card is-accent">
+                        <div class="split-bill-summary-label"><?= esc(lang('app.split_bill_new_bill')) ?></div>
+                        <div class="split-bill-summary-value" id="splitBillMobileTotal"><?= esc(number_format(0, 2)) ?></div>
+                    </div>
+                    <div class="split-bill-summary-card">
+                        <div class="split-bill-summary-label"><?= esc(lang('app.split_bill_summary_qty')) ?></div>
+                        <div class="split-bill-summary-value" id="splitBillMobileQty">0</div>
+                    </div>
+                </div>
+
+                <div class="split-bill-workspace">
+                    <div class="split-bill-pane">
+                        <div class="split-bill-pane-head">
+                            <div>
+                                <div class="split-bill-section-badge"><?= esc($splitBillLabels['sourceBadge']) ?></div>
+                                <div class="split-bill-pane-title mt-2"><?= esc($splitBillLabels['originalBill']) ?></div>
+                                <div class="split-bill-pane-hint"><?= esc($splitBillLabels['touchToMove']) ?></div>
+                            </div>
+                            <div class="split-bill-toolbar">
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="btnSplitBillSelectSingles">
+                                    <?= esc($splitBillLabels['selectSingles']) ?>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSplitBillClearAll">
+                                    <?= esc($splitBillLabels['clearAll']) ?>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="splitBillItemsBox" class="split-bill-items">
+                            <div class="split-bill-empty-state"><?= esc(lang('app.no_data')) ?></div>
+                        </div>
+                    </div>
+
+                    <div class="split-bill-pane is-target">
+                        <div class="split-bill-pane-head">
+                            <div>
+                                <div class="split-bill-section-badge"><?= esc($splitBillLabels['targetBadge']) ?></div>
+                                <div class="split-bill-pane-title mt-2"><?= esc($splitBillLabels['newBill']) ?></div>
+                                <div class="split-bill-pane-hint" id="splitBillPreviewHint"><?= esc(lang('app.split_bill_select_items_hint') ?? (service('request')->getLocale() === 'th' ? 'เริ่มแตะรายการทางซ้ายเพื่อย้ายไปบิลใหม่' : 'Start tapping items on the left to move them into the new bill')) ?></div>
+                            </div>
+                            <div class="split-bill-live-badge"><?= esc($splitBillLabels['livePreview']) ?></div>
+                        </div>
+
+                        <div class="split-bill-target-summary">
+                            <div class="split-bill-target-hero">
+                                <div>
+                                    <div class="split-bill-target-summary-title"><?= esc(lang('app.split_bill_items_moved') ?? (service('request')->getLocale() === 'th' ? 'รายการที่จะย้ายไปบิลใหม่' : 'Items moving to new bill')) ?></div>
+                                    <div class="split-bill-pane-hint"><?= esc($splitBillLabels['targetEmptyHint']) ?></div>
+                                </div>
+                                <strong id="splitBillTargetHeroTotal"><?= esc(number_format(0, 2)) ?></strong>
+                            </div>
+                            <div class="split-bill-target-summary-meta">
+                                <span class="split-bill-footer-chip" id="splitBillTargetSummaryItems">0</span>
+                                <span class="split-bill-footer-chip" id="splitBillTargetSummaryQty">0</span>
+                            </div>
+                        </div>
+
+                        <div id="splitBillTargetBox" class="split-bill-target-list">
+                            <div class="split-bill-empty-state"><?= esc($splitBillLabels['emptyNewBill']) ?></div>
+                        </div>
+
+                        <div class="split-bill-preview-box small" id="splitBillPreviewBox">
+                            <div class="text-muted"><?= esc($splitBillLabels['noPreview']) ?></div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label fw-semibold" for="splitBillReason"><?= esc($splitBillLabels['reason']) ?></label>
+                            <textarea class="form-control" id="splitBillReason" rows="2" placeholder="<?= esc($splitBillLabels['reasonPlaceholder']) ?>"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="split-bill-footer-layout">
+                    <div class="split-bill-footer-summary">
+                        <span class="split-bill-footer-chip" id="splitBillFooterTable">-</span>
+                        <span class="split-bill-footer-chip" id="splitBillFooterItems">0</span>
+                        <span class="split-bill-footer-chip" id="splitBillFooterQty">0</span>
+                        <span class="split-bill-footer-chip" id="splitBillFooterTotal"><?= esc(number_format(0, 2)) ?></span>
+                    </div>
+                    <div class="split-bill-footer-actions">
+                        <button type="button" class="btn btn-outline-secondary split-bill-legacy-preview-toggle" id="btnSplitBillPreviewRefresh">
+                            <?= esc(lang('app.refresh') ?? (service('request')->getLocale() === 'th' ? 'รีเฟรช' : 'Refresh')) ?>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?= esc(lang('app.cancel')) ?></button>
+                        <button type="button" class="btn btn-info" id="btnConfirmSplitBill" disabled>
+                            <?= esc($splitBillLabels['confirm']) ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="recentItemsModal" tabindex="-1" aria-labelledby="recentItemsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4">
@@ -1441,19 +2700,32 @@
 $(function () {
     const TABLE_ID = <?= json_encode((int) ($table['id'] ?? 0)) ?>;
     const TABLE_IS_ACTIVE = <?= json_encode(!$tableDisabled) ?>;
+    const TABLE_NAME_CONST = <?= json_encode((string) ($table['table_name'] ?? '-'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
     let CURRENT_ORDER_ID = <?= json_encode(!empty($currentOrder['id']) ? (int) $currentOrder['id'] : null) ?>;
     let CURRENT_ORDER_STATUS = <?= json_encode($currentOrder['status'] ?? null) ?>;
+    // Compatibility shim: some older event handlers still reference CURRENT_TABLE_NAME.
+    // Keep this global/fallback in sync with the visible table label to prevent runtime errors.
+    let CURRENT_TABLE_NAME = String(TABLE_NAME_CONST || '').trim();
+    window.CURRENT_TABLE_NAME = CURRENT_TABLE_NAME;
     let SELECTED_PRODUCT_ID = null;
     let SELECTED_PRODUCT_NAME = '';
     let SELECTED_PRODUCT_PRICE = 0;
     let AUTO_REFRESH_TIMER = null;
     let RECENT_PRODUCT_ITEMS = [];
+    let CURRENT_ORDER_DATA = null;
+    let CURRENT_ORDER_ITEMS = [];
+    let CURRENT_SPLIT_GROUP = [];
+    let SPLIT_PREVIEW_CACHE = null;
+    let SPLIT_BILL_WORKSPACE_STATE = null;
 
     const moveTableModalEl = document.getElementById('moveTableModal');
     const moveTableModal = moveTableModalEl ? new bootstrap.Modal(moveTableModalEl) : null;
 
     const mergeBillModalEl = document.getElementById('mergeBillModal');
     const mergeBillModal = mergeBillModalEl ? new bootstrap.Modal(mergeBillModalEl) : null;
+
+    const splitBillModalEl = document.getElementById('splitBillModal');
+    const splitBillModal = splitBillModalEl ? new bootstrap.Modal(splitBillModalEl) : null;
 
     const TXT = {
         tableDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -1559,6 +2831,25 @@ $(function () {
         cancelRequestRejected: <?= json_encode(service('request')->getLocale() === 'th' ? 'ครัวปฏิเสธการยกเลิก' : 'Kitchen rejected cancellation', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         cancelRequestApproved: <?= json_encode(service('request')->getLocale() === 'th' ? 'ครัวอนุมัติยกเลิกแล้ว' : 'Cancellation approved by kitchen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         itemStillBillable: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการนี้ยังต้องคิดเงินตามปกติ' : 'This item is still billable', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupTitle: <?= json_encode(lang('app.split_group_panel_title'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupNote: <?= json_encode(lang('app.split_group_panel_note'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupBills: <?= json_encode(lang('app.split_group_bills_count'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupPaid: <?= json_encode(lang('app.split_group_paid_count'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupRemaining: <?= json_encode(lang('app.split_group_remaining_total'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillRoleRoot: <?= json_encode(lang('app.split_bill_root'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillRoleParent: <?= json_encode(lang('app.split_bill_parent'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillRoleChild: <?= json_encode(lang('app.split_bill_child'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupSelectBill: <?= json_encode(lang('app.split_group_select_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupPayBill: <?= json_encode(lang('app.split_group_pay_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupAlreadyPaid: <?= json_encode(lang('app.split_group_already_paid'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupSelected: <?= json_encode(lang('app.selected'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupItemsLabel: <?= json_encode(lang('app.split_bill_summary_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupTotalLabel: <?= json_encode(lang('app.grand_total'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupItemsInBill: <?= json_encode(lang('app.split_group_items_in_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupShowItems: <?= json_encode(lang('app.split_group_show_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupHideItems: <?= json_encode(lang('app.split_group_hide_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitGroupNoItems: <?= json_encode(lang('app.split_group_no_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        currentBill: <?= json_encode(lang('app.current_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         retryCancelRequest: <?= json_encode(service('request')->getLocale() === 'th' ? 'ขอยกเลิกอีกครั้ง' : 'Request cancel again', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         acknowledge: <?= json_encode(service('request')->getLocale() === 'th' ? 'รับทราบ' : 'Acknowledge', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         billHasPendingCancelRequest: <?= json_encode(service('request')->getLocale() === 'th' ? 'มีรายการรออนุมัติยกเลิก' : 'There are items waiting for cancel approval', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -1590,6 +2881,69 @@ $(function () {
         paymentType: <?= json_encode(service('request')->getLocale() === 'th' ? 'ชำระเงิน' : 'Payment', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         tableType: <?= json_encode(service('request')->getLocale() === 'th' ? 'โต๊ะ' : 'Table', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         generalType: <?= json_encode(service('request')->getLocale() === 'th' ? 'ทั่วไป' : 'General', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        timelineSummaryServed: <?= json_encode(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        timelineSummaryKitchen: <?= json_encode(service('request')->getLocale() === 'th' ? 'ส่งเข้าครัว' : 'Sent to kitchen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        timelineSummaryLatest: <?= json_encode(service('request')->getLocale() === 'th' ? 'ล่าสุด' : 'Latest update', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        sourceScreenKitchenBoard: <?= json_encode(service('request')->getLocale() === 'th' ? 'บอร์ดครัว' : 'Kitchen board', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        sourceScreenPosTable: <?= json_encode(service('request')->getLocale() === 'th' ? 'หน้าโต๊ะ POS' : 'POS table', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        statusServed: <?= json_encode(service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        statusReady: <?= json_encode(service('request')->getLocale() === 'th' ? 'พร้อมเสิร์ฟ' : 'Ready', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        statusPreparing: <?= json_encode(service('request')->getLocale() === 'th' ? 'กำลังทำ' : 'Preparing', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        statusSent: <?= json_encode(service('request')->getLocale() === 'th' ? 'ส่งครัวแล้ว' : 'Sent to kitchen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBill: <?= json_encode(lang('app.split_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillPreviewReady: <?= json_encode(lang('app.split_bill_preview_ready'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillSuccess: <?= json_encode(lang('app.split_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillFailed: <?= json_encode(lang('app.split_bill_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillNoItemsSelected: <?= json_encode(lang('app.split_bill_no_items_selected'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillItemCancelled: <?= json_encode(lang('app.split_bill_item_cancelled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillRoot: <?= json_encode(service('request')->getLocale() === 'th' ? 'บิลหลัก' : 'Root Bill', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillParent: <?= json_encode(service('request')->getLocale() === 'th' ? 'บิลหลักที่ถูกแยกแล้ว' : 'Split Parent', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillChild: <?= json_encode(service('request')->getLocale() === 'th' ? 'บิลแยก' : 'Split Child', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillSelectItemsHint: <?= json_encode(service('request')->getLocale() === 'th' ? 'เลือกรายการก่อนเพื่อดูยอดสรุป' : 'Select items to see the summary', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillSummaryItems: <?= json_encode(lang('app.split_bill_summary_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillSummaryQty: <?= json_encode(lang('app.split_bill_summary_qty'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillSelectSingle: <?= json_encode(lang('app.split_bill_select_single'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillSelected: <?= json_encode(service('request')->getLocale() === 'th' ? 'เลือกแล้ว' : 'Selected', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillItemsMoved: <?= json_encode(lang('app.split_bill_items_moved'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillNoPreview: <?= json_encode(service('request')->getLocale() === 'th' ? 'ยังไม่มีข้อมูลตัวอย่าง' : 'No preview yet', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillNoEligibleItems: <?= json_encode(service('request')->getLocale() === 'th' ? 'ไม่มีรายการที่สามารถแยกบิลได้' : 'No eligible items for split bill', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillQty: <?= json_encode(service('request')->getLocale() === 'th' ? 'จำนวนที่แยก' : 'Split qty', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillSourceQty: <?= json_encode(service('request')->getLocale() === 'th' ? 'จำนวนเดิม' : 'Original qty', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillRemainingQty: <?= json_encode(service('request')->getLocale() === 'th' ? 'คงเหลือ' : 'Remaining', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillPreviewChildTotal: <?= json_encode(service('request')->getLocale() === 'th' ? 'ยอดรวมบิลใหม่' : 'New bill total', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillPreviewParentTotal: <?= json_encode(service('request')->getLocale() === 'th' ? 'ยอดคงเหลือบิลเดิม' : 'Remaining parent total', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillSelectAtLeastOne: <?= json_encode(service('request')->getLocale() === 'th' ? 'กรุณาเลือกจำนวนอย่างน้อย 1 รายการ' : 'Please enter at least one split quantity', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillLoading: <?= json_encode(service('request')->getLocale() === 'th' ? 'กำลังโหลดตัวอย่าง...' : 'Loading preview...', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillIneligibleStatus: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการนี้ไม่สามารถแยกบิลได้' : 'This item cannot be split', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillTapToMoveHint: <?= json_encode(lang('app.split_bill_tap_to_move_hint'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillTouchToMove: <?= json_encode(lang('app.split_bill_touch_to_move'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillMoveOne: <?= json_encode((lang('app.split_bill_move_one') === 'app.split_bill_move_one' ? (service('request')->getLocale() === 'th' ? 'ย้าย 1 ชิ้น' : 'Move 1') : lang('app.split_bill_move_one')), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillMoveAll: <?= json_encode((lang('app.split_bill_move_all') === 'app.split_bill_move_all' ? (service('request')->getLocale() === 'th' ? 'ย้ายทั้งหมด' : 'Move all') : lang('app.split_bill_move_all')), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillMoveBack: <?= json_encode(lang('app.split_bill_move_back'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillBackOne: <?= json_encode(lang('app.split_bill_back_one'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillMovedQty: <?= json_encode(lang('app.split_bill_moved_qty'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillTargetReady: <?= json_encode(lang('app.split_bill_target_ready'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillTableLabel: <?= json_encode(lang('app.table'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillEmptyNewBill: <?= json_encode(lang('app.split_bill_empty_new_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillTouchToMove: <?= json_encode(lang('app.split_bill_touch_to_move'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillQuickGuideTitle: <?= json_encode(lang('app.split_bill_quick_guide_title'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillQuickGuideText: <?= json_encode(lang('app.split_bill_quick_guide_text'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillSourceBadge: <?= json_encode(lang('app.split_bill_source_badge'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillTargetBadge: <?= json_encode(lang('app.split_bill_target_badge'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillTouchToMoveHint: <?= json_encode(lang('app.split_bill_tap_to_move_hint'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillTargetReady: <?= json_encode(lang('app.split_bill_target_ready'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillTargetEmptyHint: <?= json_encode(lang('app.split_bill_target_empty_hint'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillBackOne: <?= json_encode(lang('app.split_bill_back_one'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillMovedQty: <?= json_encode(lang('app.split_bill_moved_qty'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillMoveOne: <?= json_encode((lang('app.split_bill_move_one') === 'app.split_bill_move_one' ? (service('request')->getLocale() === 'th' ? 'ย้าย 1 ชิ้น' : 'Move 1') : lang('app.split_bill_move_one')), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillMoveAll: <?= json_encode((lang('app.split_bill_move_all') === 'app.split_bill_move_all' ? (service('request')->getLocale() === 'th' ? 'ย้ายทั้งหมด' : 'Move all') : lang('app.split_bill_move_all')), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillMoveBack: <?= json_encode(lang('app.split_bill_move_back'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillLivePreview: <?= json_encode($splitBillLabels['livePreview'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillOriginalBill: <?= json_encode($splitBillLabels['originalBill'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillMovedFully: <?= json_encode(service('request')->getLocale() === 'th' ? 'ย้ายครบแล้ว' : 'Moved fully', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillNewBill: <?= json_encode($splitBillLabels['newBill'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillEmptyNewBill: <?= json_encode(lang('app.split_bill_empty_new_bill'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBillNotBillable: <?= json_encode($splitBillLabels['notBillable'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         reasonLabel: <?= json_encode(lang('app.note'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
     };
 
@@ -1611,7 +2965,8 @@ $(function () {
     let managerOverrideResolver = null;
 
     const TABLE_PERMISSIONS = {
-        voidItem: <?= json_encode((bool) ($tablePermissions['void_item'] ?? false), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+        voidItem: <?= json_encode((bool) ($tablePermissions['void_item'] ?? false), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        splitBill: <?= json_encode((bool) ($tablePermissions['split_bill'] ?? false), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
     };
 
     const voidItemModalEl = document.getElementById('voidItemModal');
@@ -1717,44 +3072,124 @@ $(function () {
             target_order_number: <?= json_encode(service('request')->getLocale() === 'th' ? 'บิลปลายทาง' : 'Target bill') ?>,
             served_at: <?= json_encode(service('request')->getLocale() === 'th' ? 'เวลาเสิร์ฟ' : 'Served at') ?>,
             from_status: <?= json_encode(service('request')->getLocale() === 'th' ? 'จากสถานะ' : 'From status') ?>,
-            to_status: <?= json_encode(service('request')->getLocale() === 'th' ? 'เป็นสถานะ' : 'To status') ?>
+            to_status: <?= json_encode(service('request')->getLocale() === 'th' ? 'เป็นสถานะ' : 'To status') ?>,
+            table_name: <?= json_encode(service('request')->getLocale() === 'th' ? 'โต๊ะ' : 'Table') ?>,
+            station_name: <?= json_encode(service('request')->getLocale() === 'th' ? 'สถานีครัว' : 'Kitchen station') ?>,
+            source_screen: <?= json_encode(service('request')->getLocale() === 'th' ? 'หน้าที่ทำรายการ' : 'Source screen') ?>,
+            permission_key: <?= json_encode(service('request')->getLocale() === 'th' ? 'สิทธิ์ที่ใช้' : 'Permission used') ?>,
+            actor_role_name: <?= json_encode(service('request')->getLocale() === 'th' ? 'บทบาทผู้ใช้' : 'Actor role') ?>
         };
 
         return map[key] || key.replace(/_/g, ' ');
     }
 
-    function timelineVisibleMeta(meta) {
-        const allowed = [
-            'ticket_no',
-            'batch_no',
-            'item_count',
-            'payment_method',
-            'amount',
-            'received_amount',
-            'change_amount',
-            'product_name',
-            'qty',
-            'reason',
-            'from_table_name',
-            'to_table_name',
-            'source_order_number',
-            'target_order_number',
-            'served_at',
-            'from_status',
-            'to_status'
-        ];
+    function formatTimelineStatus(value) {
+        const status = String(value || '').toLowerCase().trim();
+        if (status === 'served') return TXT.statusServed;
+        if (status === 'ready') return TXT.statusReady;
+        if (status === 'preparing' || status === 'cooking' || status === 'processing') return TXT.statusPreparing;
+        if (status === 'sent' || status === 'submitted' || status === 'sent_to_kitchen') return TXT.statusSent;
+        return String(value || '');
+    }
 
-        const rows = [];
+    function formatTimelineSourceScreen(value) {
+        const screen = String(value || '').toLowerCase().trim();
+        if (screen === 'kitchen_board') return TXT.sourceScreenKitchenBoard;
+        if (screen === 'pos_table') return TXT.sourceScreenPosTable;
+        return String(value || '');
+    }
+
+    function timelineVisibleMeta(actionKey, meta) {
+        const key = String(actionKey || '').toLowerCase();
         const source = meta && typeof meta === 'object' ? meta : {};
-        allowed.forEach(function (key) {
-            const value = source[key];
+        const rows = [];
+        const pushRow = function (label, value) {
             if (value === null || value === undefined || value === '') {
                 return;
             }
-            rows.push({ label: beautifyTimelineMetaLabel(key), value: value });
-        });
+            rows.push({ label: label, value: value });
+        };
+
+        if (key === 'pos.item_served') {
+            pushRow(beautifyTimelineMetaLabel('table_name'), source.table_name || '');
+            pushRow(beautifyTimelineMetaLabel('station_name'), source.station_name || '');
+            pushRow(beautifyTimelineMetaLabel('served_at'), source.served_at ? formatDateTime(String(source.served_at), { mode: 'compact' }) : '');
+            pushRow(beautifyTimelineMetaLabel('source_screen'), source.source_screen ? formatTimelineSourceScreen(source.source_screen) : '');
+            return rows;
+        }
+
+        if (key === 'pos.send_kitchen') {
+            pushRow(beautifyTimelineMetaLabel('ticket_no'), source.ticket_no || '');
+            pushRow(beautifyTimelineMetaLabel('batch_no'), source.batch_no ? '#' + String(source.batch_no) : '');
+            pushRow(beautifyTimelineMetaLabel('item_count'), source.item_count ? String(source.item_count) : '');
+            pushRow(beautifyTimelineMetaLabel('station_name'), source.station_name || '');
+            pushRow(beautifyTimelineMetaLabel('table_name'), source.table_name || '');
+            return rows;
+        }
+
+        pushRow(beautifyTimelineMetaLabel('ticket_no'), source.ticket_no || '');
+        pushRow(beautifyTimelineMetaLabel('batch_no'), source.batch_no ? '#' + String(source.batch_no) : '');
+        pushRow(beautifyTimelineMetaLabel('table_name'), source.table_name || '');
+        pushRow(beautifyTimelineMetaLabel('source_screen'), source.source_screen ? formatTimelineSourceScreen(source.source_screen) : '');
         return rows;
     }
+
+
+    function timelineHighlightChips(actionKey, meta) {
+        const key = String(actionKey || '').toLowerCase();
+        const source = meta && typeof meta === 'object' ? meta : {};
+        const chips = [];
+        if (key === 'pos.item_served') {
+            chips.push(TXT.statusServed);
+            if (source.qty) chips.push(String(source.qty) + '×');
+            if (source.station_name) chips.push(String(source.station_name));
+        }
+        if (key === 'pos.send_kitchen') {
+            chips.push(TXT.statusSent);
+            if (source.item_count) chips.push(String(source.item_count) + ' <?= service('request')->getLocale() === 'th' ? 'รายการ' : 'items' ?>');
+            if (source.batch_no) chips.push('#' + String(source.batch_no));
+        }
+        return chips.slice(0, 3);
+    }
+
+
+    function buildTimelineLead(actionKey, meta) {
+        const key = String(actionKey || '').toLowerCase();
+        const source = meta && typeof meta === 'object' ? meta : {};
+        if (key === 'pos.item_served') {
+            if (source.product_name) {
+                return '<?= service('request')->getLocale() === 'th' ? 'เสิร์ฟแล้ว' : 'Served' ?> • ' + String(source.product_name) + (source.qty ? ' × ' + String(source.qty) : '');
+            }
+            return TXT.statusServed;
+        }
+        if (key === 'pos.send_kitchen') {
+            if (source.item_count) {
+                return '<?= service('request')->getLocale() === 'th' ? 'ส่งเข้าครัว' : 'Sent to kitchen' ?> • ' + String(source.item_count) + ' <?= service('request')->getLocale() === 'th' ? 'รายการ' : 'items' ?>';
+            }
+            return TXT.statusSent;
+        }
+        return '';
+    }
+
+
+    function renderTimelineSummary(rows) {
+        if (!Array.isArray(rows) || rows.length === 0) {
+            return '';
+        }
+        let servedCount = 0;
+        let kitchenCount = 0;
+        let latest = '';
+        rows.forEach(function (row) {
+            const key = String(row.action_key || '').toLowerCase();
+            if (key === 'pos.item_served') servedCount += 1;
+            if (key === 'pos.send_kitchen') kitchenCount += 1;
+            if (!latest && row.created_at) latest = formatDateTime(row.created_at, { mode: 'compact' });
+        });
+        return '<div class="pos-timeline-summary-card"><div class="pos-timeline-summary-label">' + escapeHtml(TXT.timelineSummaryServed) + '</div><div class="pos-timeline-summary-value">' + escapeHtml(String(servedCount)) + ' <?= service('request')->getLocale() === 'th' ? 'รายการ' : 'items' ?></div></div>'
+            + '<div class="pos-timeline-summary-card"><div class="pos-timeline-summary-label">' + escapeHtml(TXT.timelineSummaryKitchen) + '</div><div class="pos-timeline-summary-value">' + escapeHtml(String(kitchenCount)) + ' <?= service('request')->getLocale() === 'th' ? 'ครั้ง' : 'times' ?></div></div>'
+            + '<div class="pos-timeline-summary-card"><div class="pos-timeline-summary-label">' + escapeHtml(TXT.timelineSummaryLatest) + '</div><div class="pos-timeline-summary-value">' + escapeHtml(latest || '-') + '</div></div>';
+    }
+
 
     function renderTimelineRows(rows) {
         if (!Array.isArray(rows) || rows.length === 0) {
@@ -1763,23 +3198,30 @@ $(function () {
 
         return rows.map(function (row) {
             const action = timelineActionMeta(row.action_key, row.action_label);
-            const metaRows = timelineVisibleMeta(row.meta || {});
+            const metaRows = timelineVisibleMeta(row.action_key, row.meta || {});
             const actorName = row.actor_name || row.username || row.full_name || '-';
+            const highlights = timelineHighlightChips(row.action_key, row.meta || {});
+            const leadText = buildTimelineLead(row.action_key, row.meta || {});
 
-            const bodyHtml = metaRows.length
-                ? metaRows.map(function (metaRow) {
-                    const metaValue = (metaRow.label === beautifyTimelineMetaLabel('served_at'))
-                        ? formatDateTime(metaRow.value, { mode: 'compact' })
-                        : escapeHtml(String(metaRow.value));
+            const bodyHtml = (leadText
+                ? '<div class="pos-timeline-lead">' + escapeHtml(leadText) + '</div>'
+                : '')
+                + (highlights.length
+                ? '<div class="pos-timeline-highlight">' + highlights.map(function (item) {
+                    return '<span class="pos-timeline-highlight-chip">' + escapeHtml(item) + '</span>';
+                }).join('') + '</div>'
+                : '')
+                + (metaRows.length
+                ? '<div class="pos-timeline-meta-grid">' + metaRows.map(function (metaRow) {
                     return '<div class="pos-timeline-row">'
                         + '<div class="pos-timeline-row-label">' + escapeHtml(metaRow.label) + '</div>'
-                        + '<div class="pos-timeline-row-value">' + metaValue + '</div>'
+                        + '<div class="pos-timeline-row-value">' + escapeHtml(String(metaRow.value)) + '</div>'
                         + '</div>';
-                }).join('')
+                }).join('') + '</div>'
                 : '<div class="pos-timeline-row">'
                     + '<div class="pos-timeline-row-label">' + escapeHtml(TXT.noteLabel) + '</div>'
                     + '<div class="pos-timeline-row-value">-</div>'
-                    + '</div>';
+                    + '</div>');
 
             return '<div class="pos-timeline-card">'
                 + '<div class="pos-timeline-card-head">'
@@ -1805,6 +3247,7 @@ $(function () {
 
         const body = document.getElementById('billTimelineBody');
         const meta = document.getElementById('billTimelineMeta');
+        const summary = document.getElementById('billTimelineSummary');
         if (!body || !meta || !billTimelineModal) {
             return;
         }
@@ -1824,6 +3267,9 @@ $(function () {
                     meta.textContent = ($('#tableName').text() || '').trim() + ' • ' + res.order.order_number;
                 }
 
+                if (summary) {
+                    summary.innerHTML = renderTimelineSummary(res.rows || []);
+                }
                 body.innerHTML = renderTimelineRows(res.rows || []);
             })
             .fail(function (xhr) {
@@ -2479,8 +3925,489 @@ $(function () {
         $('#moveAuditModalBody').html(itemsHtml);
     }
 
+
+    function getSplitBillBadge(order) {
+        if (!order || !order.bill_type) {
+            return '';
+        }
+
+        const billType = String(order.bill_type || 'normal').toLowerCase();
+        if (billType === 'split_parent') {
+            const label = (Number(order.split_root_order_id || 0) === Number(order.id || 0)) ? TXT.splitBillRoot : TXT.splitBillParent;
+            return `<span class="split-bill-group-chip bg-info-subtle text-info-emphasis">${escapeHtml(label)}</span>`;
+        }
+
+        if (billType === 'split_child') {
+            const splitNo = Number(order.split_no || 0);
+            const label = splitNo > 0 ? `${TXT.splitBillChild} #${splitNo}` : TXT.splitBillChild;
+            return `<span class="split-bill-group-chip bg-warning-subtle text-warning-emphasis">${escapeHtml(label)}</span>`;
+        }
+
+        return '';
+    }
+
+    function isSplitBillableItem(item) {
+        const status = normalizeItemStatus(item && item.status ? item.status : 'pending');
+        const requestState = getRequestStateMeta(item || {});
+        const cancelledAt = item && item.cancelled_at ? String(item.cancelled_at).trim() : '';
+
+        if (status === 'pending' || status === 'open' || status === 'new') {
+            return false;
+        }
+        if (status === 'cancel' || status === 'cancelled' || status === 'canceled') {
+            return false;
+        }
+        if (cancelledAt !== '') {
+            return false;
+        }
+        if (requestState && requestState.key === 'approved') {
+            return false;
+        }
+        return true;
+    }
+
+    function getSplittableItems() {
+        return (Array.isArray(CURRENT_ORDER_ITEMS) ? CURRENT_ORDER_ITEMS : []).filter(function (item) {
+            const status = normalizeItemStatus(item.status || 'pending');
+            if (status === 'cancel' || status === 'cancelled' || status === 'canceled') {
+                return false;
+            }
+            return Number(item.qty || 0) > 0;
+        });
+    }
+
+    function syncCurrentTableName() {
+        const titleText = $('.pos-touch-title').first().text().trim();
+        const fallbackName = String(TABLE_NAME_CONST || '').trim();
+        let parsedName = fallbackName;
+
+        if (titleText) {
+            const match = titleText.match(/(?:โต๊ะ|Table)\s+(.+)$/i);
+            if (match && match[1]) {
+                parsedName = $.trim(match[1]);
+            }
+        }
+
+        CURRENT_TABLE_NAME = parsedName || fallbackName || '-';
+        window.CURRENT_TABLE_NAME = CURRENT_TABLE_NAME;
+    }
+
+    function buildSplitBillWorkspaceState() {
+        const items = getSplittableItems().map(function (item) {
+            const sourceQty = Math.max(0, Number(item.qty || 0));
+            const unitPrice = Number(item.price || item.unit_price || item.product_price || 0);
+            const isBillable = isSplitBillableItem(item);
+            return {
+                id: Number(item.id || 0),
+                product_name: String(item.product_name || item.name || ''),
+                option_summary: String(item.option_summary || item.option_text || item.option_name || ''),
+                note: String(item.note || item.remark || ''),
+                status: String(item.status || 'pending'),
+                source_qty: sourceQty,
+                moved_qty: 0,
+                remaining_qty: sourceQty,
+                price: unitPrice,
+                effective_price: isBillable ? unitPrice : 0,
+                is_billable: isBillable ? 1 : 0
+            };
+        });
+
+        return {
+            table_name: CURRENT_TABLE_NAME || '',
+            items: items
+        };
+    }
+
+    function resetSplitBillModal() {
+        syncCurrentTableName();
+        SPLIT_PREVIEW_CACHE = null;
+        SPLIT_BILL_WORKSPACE_STATE = buildSplitBillWorkspaceState();
+        $('#splitBillReason').val('');
+        $('#splitBillPreviewHint').text(TXT.splitBillTapToMoveHint || TXT.splitBillSelectItemsHint);
+        $('#splitBillPreviewBox').html('<div class="text-muted">' + escapeHtml(TXT.splitBillNoPreview) + '</div>');
+        $('#splitBillSummaryTable').text(CURRENT_TABLE_NAME || '-');
+        $('#splitBillSummaryItems').text('0');
+        $('#splitBillSummaryQty').text('0');
+        $('#splitBillSummaryTotal').text(money(0));
+        $('#splitBillFooterTable').text((TXT.splitBillTableLabel || 'Table') + ': ' + (CURRENT_TABLE_NAME || '-'));
+        $('#splitBillFooterItems').text((TXT.splitBillSummaryItems || 'Items') + ': 0');
+        $('#splitBillFooterQty').text((TXT.splitBillSummaryQty || 'Qty') + ': 0');
+        $('#splitBillFooterTotal').text((TXT.splitBillPreviewChildTotal || 'New bill total') + ': ' + money(0));
+        $('#splitBillTargetHeroTotal').text(money(0));
+        $('#splitBillMobileTotal').text(money(0));
+        $('#splitBillMobileQty').text('0');
+        $('#splitBillTargetSummaryItems').text((TXT.splitBillSummaryItems || 'Items') + ': 0');
+        $('#splitBillTargetSummaryQty').text((TXT.splitBillSummaryQty || 'Qty') + ': 0');
+        $('#btnConfirmSplitBill').prop('disabled', true);
+    }
+
+    function findSplitBillWorkspaceItem(orderItemId) {
+        if (!SPLIT_BILL_WORKSPACE_STATE || !Array.isArray(SPLIT_BILL_WORKSPACE_STATE.items)) {
+            return null;
+        }
+        return SPLIT_BILL_WORKSPACE_STATE.items.find(function (item) {
+            return Number(item.id || 0) === Number(orderItemId || 0);
+        }) || null;
+    }
+
+    function setWorkspaceItemMovedQty(orderItemId, nextQty) {
+        const item = findSplitBillWorkspaceItem(orderItemId);
+        if (!item) {
+            return;
+        }
+        const max = Math.max(0, Number(item.source_qty || 0));
+        let qty = Number(nextQty || 0);
+        if (qty < 0) qty = 0;
+        if (qty > max) qty = max;
+        item.moved_qty = qty;
+        item.remaining_qty = max - qty;
+    }
+
+    function moveSplitBillItem(orderItemId, deltaQty) {
+        const item = findSplitBillWorkspaceItem(orderItemId);
+        if (!item) {
+            return;
+        }
+        setWorkspaceItemMovedQty(orderItemId, Number(item.moved_qty || 0) + Number(deltaQty || 0));
+        renderSplitBillWorkspace();
+    }
+
+    function moveAllSplitBillItem(orderItemId) {
+        const item = findSplitBillWorkspaceItem(orderItemId);
+        if (!item) {
+            return;
+        }
+        setWorkspaceItemMovedQty(orderItemId, Number(item.source_qty || 0));
+        renderSplitBillWorkspace();
+    }
+
+    function returnSplitBillItem(orderItemId, deltaQty) {
+        const item = findSplitBillWorkspaceItem(orderItemId);
+        if (!item) {
+            return;
+        }
+        setWorkspaceItemMovedQty(orderItemId, Number(item.moved_qty || 0) - Number(deltaQty || 0));
+        renderSplitBillWorkspace();
+    }
+
+    function clearSplitBillWorkspace() {
+        if (!SPLIT_BILL_WORKSPACE_STATE || !Array.isArray(SPLIT_BILL_WORKSPACE_STATE.items)) {
+            return;
+        }
+        SPLIT_BILL_WORKSPACE_STATE.items.forEach(function (item) {
+            item.moved_qty = 0;
+            item.remaining_qty = Number(item.source_qty || 0);
+        });
+        SPLIT_PREVIEW_CACHE = null;
+        renderSplitBillWorkspace();
+    }
+
+    function collectSplitBillItems() {
+        const stateItems = SPLIT_BILL_WORKSPACE_STATE && Array.isArray(SPLIT_BILL_WORKSPACE_STATE.items)
+            ? SPLIT_BILL_WORKSPACE_STATE.items
+            : [];
+
+        return stateItems.filter(function (item) {
+            return Number(item.moved_qty || 0) > 0;
+        }).map(function (item) {
+            return {
+                order_item_id: Number(item.id || 0),
+                split_qty: Number(item.moved_qty || 0)
+            };
+        });
+    }
+
+    function getSplitBillWorkspaceSummary() {
+        const stateItems = SPLIT_BILL_WORKSPACE_STATE && Array.isArray(SPLIT_BILL_WORKSPACE_STATE.items)
+            ? SPLIT_BILL_WORKSPACE_STATE.items
+            : [];
+
+        return stateItems.reduce(function (carry, item) {
+            const movedQty = Number(item.moved_qty || 0);
+            const sourceQty = Number(item.source_qty || 0);
+            const effectivePrice = Number(item.effective_price != null ? item.effective_price : (item.price || 0));
+            const isBillable = Number(item.is_billable || 0) === 1;
+
+            if (movedQty > 0) {
+                carry.selected_items += 1;
+                carry.selected_qty += movedQty;
+                if (isBillable) {
+                    carry.child_total += movedQty * effectivePrice;
+                }
+            }
+
+            if (isBillable) {
+                carry.parent_total += Math.max(0, sourceQty - movedQty) * effectivePrice;
+            }
+
+            return carry;
+        }, {
+            selected_items: 0,
+            selected_qty: 0,
+            child_total: 0,
+            parent_total: 0
+        });
+    }
+
+    function renderSplitBillSourcePane() {
+        const items = SPLIT_BILL_WORKSPACE_STATE && Array.isArray(SPLIT_BILL_WORKSPACE_STATE.items)
+            ? SPLIT_BILL_WORKSPACE_STATE.items
+            : [];
+
+        if (!items.length) {
+            $('#splitBillItemsBox').html('<div class="split-bill-empty-state">' + escapeHtml(TXT.splitBillNoEligibleItems) + '</div>');
+            return;
+        }
+
+        const html = items.map(function (item) {
+            const sourceQty = Number(item.source_qty || 0);
+            const movedQty = Number(item.moved_qty || 0);
+            const remainingQty = Number(item.remaining_qty || 0);
+            const canMove = remainingQty > 0;
+            const isActive = movedQty > 0;
+            const isBillable = Number(item.is_billable || 0) === 1;
+            const statusLabel = movedQty > 0
+                ? (remainingQty <= 0
+                    ? (TXT.splitBillMovedFully || 'Moved fully')
+                    : ((TXT.splitBillMovedQty || 'Moved') + ': ' + movedQty))
+                : (TXT.splitBillRemainingQty + ': ' + remainingQty);
+
+            return `
+                <div class="split-bill-card split-bill-source-card ${isActive ? 'is-active' : ''}" data-split-item-id="${item.id}" data-order-item-id="${item.id}">
+                    <div class="split-bill-source-card-main">
+                        <div>
+                            <div class="split-bill-card-name">${escapeHtml(item.product_name || '')}</div>
+                            ${item.option_summary ? `<div class="split-bill-card-option">${escapeHtml(item.option_summary)}</div>` : ''}
+                            ${item.note ? `<div class="split-bill-card-note">${escapeHtml(item.note)}</div>` : ''}
+                            ${!isBillable ? `<div class="split-bill-state-note">${escapeHtml(TXT.splitBillNotBillable || 'Not billable')}</div>` : ''}
+                        </div>
+                        <span class="split-bill-main-tap ${canMove ? '' : 'is-disabled'}">${escapeHtml(statusLabel)}</span>
+                    </div>
+                    <div class="split-bill-card-meta">
+                        <span class="split-bill-meta-chip">${escapeHtml(TXT.splitBillSourceQty)}: <strong>${escapeHtml(String(sourceQty))}</strong></span>
+                        <span class="split-bill-meta-chip">${escapeHtml(TXT.splitBillRemainingQty)}: <strong>${escapeHtml(String(remainingQty))}</strong></span>
+                        <span class="split-bill-meta-chip">${escapeHtml(TXT.splitBillMovedQty || 'Moved')}: <strong>${escapeHtml(String(movedQty))}</strong></span>
+                        <span class="split-bill-meta-chip">${money(item.effective_price != null ? item.effective_price : (item.price || 0))}</span>
+                    </div>
+                    <div class="split-bill-action-row">
+                        <div class="split-bill-quick-actions">
+                            <button type="button" class="btn btn-outline-info btn-sm split-bill-move-one" data-order-item-id="${item.id}" ${canMove ? '' : 'disabled'}>${escapeHtml(TXT.splitBillMoveOne || 'Move 1')}</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm split-bill-move-all" data-order-item-id="${item.id}" ${canMove ? '' : 'disabled'}>${escapeHtml(TXT.splitBillMoveAll || 'Move all')}</button>
+                        </div>
+                        <div class="split-bill-qty-stepper">
+                            <button type="button" class="btn btn-outline-secondary split-bill-workspace-step" data-order-item-id="${item.id}" data-type="minus" ${movedQty > 0 ? '' : 'disabled'}>-</button>
+                            <span class="split-bill-qty-display">${escapeHtml(String(movedQty))}</span>
+                            <button type="button" class="btn btn-outline-secondary split-bill-workspace-step" data-order-item-id="${item.id}" data-type="plus" ${canMove ? '' : 'disabled'}>+</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        $('#splitBillItemsBox').html(html);
+    }
+
+    function renderSplitBillTargetPane() {
+        const stateItems = SPLIT_BILL_WORKSPACE_STATE && Array.isArray(SPLIT_BILL_WORKSPACE_STATE.items)
+            ? SPLIT_BILL_WORKSPACE_STATE.items
+            : [];
+        const movedItems = stateItems.filter(function (item) {
+            return Number(item.moved_qty || 0) > 0;
+        });
+
+        if (!movedItems.length) {
+            $('#splitBillTargetBox').html('<div class="split-bill-empty-state">' + escapeHtml(TXT.splitBillEmptyNewBill || TXT.splitBillNoPreview) + '</div>');
+            return;
+        }
+
+        const html = movedItems.map(function (item) {
+            const movedQty = Number(item.moved_qty || 0);
+            const effectivePrice = Number(item.effective_price != null ? item.effective_price : (item.price || 0));
+            const isBillable = Number(item.is_billable || 0) === 1;
+            const lineTotal = movedQty * effectivePrice;
+            return `
+                <div class="split-bill-card is-target" data-target-item-id="${item.id}">
+                    <div class="split-bill-card-head">
+                        <div>
+                            <div class="split-bill-card-name">${escapeHtml(item.product_name || '')}</div>
+                            ${item.option_summary ? `<div class="split-bill-card-option">${escapeHtml(item.option_summary)}</div>` : ''}
+                            ${item.note ? `<div class="split-bill-card-note">${escapeHtml(item.note)}</div>` : ''}
+                            ${!isBillable ? `<div class="split-bill-state-note">${escapeHtml(TXT.splitBillNotBillable || 'Not billable')}</div>` : ''}
+                        </div>
+                        <span class="split-bill-meta-chip">${escapeHtml(TXT.splitBillQty)} ${escapeHtml(String(movedQty))}</span>
+                    </div>
+                    <div class="split-bill-card-meta">
+                        <span class="split-bill-meta-chip">${money(effectivePrice)} × ${escapeHtml(String(movedQty))}</span>
+                        <span class="split-bill-meta-chip">${money(lineTotal)}</span>
+                    </div>
+                    <div class="split-bill-card-actions">
+                        <div class="split-bill-quick-actions">
+                            <button type="button" class="btn btn-outline-secondary btn-sm split-bill-return-one" data-order-item-id="${item.id}">${escapeHtml(TXT.splitBillBackOne || '-1')}</button>
+                            <button type="button" class="btn btn-outline-danger btn-sm split-bill-return-all" data-order-item-id="${item.id}">${escapeHtml(TXT.splitBillMoveBack || 'Move back')}</button>
+                        </div>
+                        <div class="split-bill-qty-stepper">
+                            <button type="button" class="btn btn-outline-secondary split-bill-target-step" data-order-item-id="${item.id}" data-type="minus">-</button>
+                            <span class="split-bill-qty-display">${escapeHtml(String(movedQty))}</span>
+                            <button type="button" class="btn btn-outline-secondary split-bill-target-step" data-order-item-id="${item.id}" data-type="plus" ${(Number(item.remaining_qty || 0) > 0) ? '' : 'disabled'}>+</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        $('#splitBillTargetBox').html(html);
+    }
+
+    function renderSplitBillLiveSummary() {
+        const summary = getSplitBillWorkspaceSummary();
+        $('#splitBillSummaryTable').text(CURRENT_TABLE_NAME || '-');
+        $('#splitBillSummaryItems').text(String(summary.selected_items || 0));
+        $('#splitBillSummaryQty').text(String(summary.selected_qty || 0));
+        $('#splitBillSummaryTotal').text(money(summary.child_total || 0));
+        $('#splitBillFooterTable').text((TXT.splitBillTableLabel || 'Table') + ': ' + (CURRENT_TABLE_NAME || '-'));
+        $('#splitBillFooterItems').text((TXT.splitBillSummaryItems || 'Items') + ': ' + String(summary.selected_items || 0));
+        $('#splitBillFooterQty').text((TXT.splitBillSummaryQty || 'Qty') + ': ' + String(summary.selected_qty || 0));
+        $('#splitBillFooterTotal').text((TXT.splitBillPreviewChildTotal || 'New bill total') + ': ' + money(summary.child_total || 0));
+        $('#splitBillTargetHeroTotal').text(money(summary.child_total || 0));
+        $('#splitBillTargetSummaryItems').text((TXT.splitBillSummaryItems || 'Items') + ': ' + String(summary.selected_items || 0));
+        $('#splitBillTargetSummaryQty').text((TXT.splitBillSummaryQty || 'Qty') + ': ' + String(summary.selected_qty || 0));
+        $('#splitBillMobileTotal').text(money(summary.child_total || 0));
+        $('#splitBillMobileQty').text(String(summary.selected_qty || 0));
+
+        if (summary.selected_qty > 0) {
+            $('#splitBillPreviewHint').text(TXT.splitBillTargetReady || TXT.splitBillPreviewReady);
+            $('#splitBillPreviewBox').html(`
+                <div class="split-bill-preview-summary">
+                    <div class="split-bill-summary-card">
+                        <div class="split-bill-summary-label">${escapeHtml(TXT.splitBillSummaryItems)}</div>
+                        <div class="split-bill-summary-value">${escapeHtml(String(summary.selected_items || 0))}</div>
+                    </div>
+                    <div class="split-bill-summary-card">
+                        <div class="split-bill-summary-label">${escapeHtml(TXT.splitBillSummaryQty)}</div>
+                        <div class="split-bill-summary-value">${escapeHtml(String(summary.selected_qty || 0))}</div>
+                    </div>
+                    <div class="split-bill-summary-card is-accent">
+                        <div class="split-bill-summary-label">${escapeHtml(TXT.splitBillPreviewChildTotal)}</div>
+                        <div class="split-bill-summary-value">${money(summary.child_total || 0)}</div>
+                    </div>
+                    <div class="split-bill-summary-card">
+                        <div class="split-bill-summary-label">${escapeHtml(TXT.splitBillPreviewParentTotal)}</div>
+                        <div class="split-bill-summary-value">${money(summary.parent_total || 0)}</div>
+                    </div>
+                </div>
+            `);
+        } else {
+            $('#splitBillPreviewHint').text(TXT.splitBillTapToMoveHint || TXT.splitBillSelectItemsHint);
+            $('#splitBillPreviewBox').html('<div class="text-muted">' + escapeHtml(TXT.splitBillNoPreview) + '</div>');
+        }
+
+        $('#btnConfirmSplitBill').prop('disabled', !(summary.selected_qty > 0));
+    }
+
+    function renderSplitBillWorkspace() {
+        renderSplitBillSourcePane();
+        renderSplitBillTargetPane();
+        renderSplitBillLiveSummary();
+    }
+
+    function renderSplitBillPreview(payload) {
+        const data = payload && payload.data ? payload.data : null;
+        if (!data) {
+            renderSplitBillLiveSummary();
+            return;
+        }
+
+        const summary = getSplitBillWorkspaceSummary();
+        const childItems = Array.isArray(data.child_items) ? data.child_items : [];
+        const childQty = childItems.reduce(function (sum, item) { return sum + Number(item.split_qty || 0); }, 0);
+        $('#splitBillPreviewHint').text(payload.message || TXT.splitBillPreviewReady);
+        $('#splitBillPreviewBox').html(`
+            <div class="split-bill-preview-summary">
+                <div class="split-bill-summary-card">
+                    <div class="split-bill-summary-label">${escapeHtml(TXT.splitBillSummaryItems)}</div>
+                    <div class="split-bill-summary-value">${escapeHtml(String(summary.selected_items || childItems.length || 0))}</div>
+                </div>
+                <div class="split-bill-summary-card">
+                    <div class="split-bill-summary-label">${escapeHtml(TXT.splitBillSummaryQty)}</div>
+                    <div class="split-bill-summary-value">${escapeHtml(String(summary.selected_qty || childQty || 0))}</div>
+                </div>
+                <div class="split-bill-summary-card is-accent">
+                    <div class="split-bill-summary-label">${escapeHtml(TXT.splitBillPreviewChildTotal)}</div>
+                    <div class="split-bill-summary-value">${money(summary.child_total || 0)}</div>
+                </div>
+                <div class="split-bill-summary-card">
+                    <div class="split-bill-summary-label">${escapeHtml(TXT.splitBillPreviewParentTotal)}</div>
+                    <div class="split-bill-summary-value">${money(summary.parent_total || 0)}</div>
+                </div>
+            </div>
+        `);
+        $('#btnConfirmSplitBill').prop('disabled', !(summary.selected_qty > 0));
+    }
+
+    function requestSplitBillPreview() {
+        const items = collectSplitBillItems();
+        if (!CURRENT_ORDER_ID) {
+            notify(TXT.noBillYet);
+            return;
+        }
+        if (!items.length) {
+            SPLIT_PREVIEW_CACHE = null;
+            renderSplitBillPreview(null);
+            notify(TXT.splitBillSelectAtLeastOne);
+            return;
+        }
+
+        $('#splitBillPreviewHint').text(TXT.splitBillLoading);
+        $('#splitBillPreviewBox').html('<div class="text-muted">' + escapeHtml(TXT.splitBillLoading) + '</div>');
+        $('#btnConfirmSplitBill').prop('disabled', true);
+
+        $.post("<?= site_url('pos/split-bill/preview') ?>", {
+            order_id: CURRENT_ORDER_ID,
+            items: items,
+            reason: $.trim($('#splitBillReason').val())
+        })
+        .done(function (res) {
+            if (!res || res.status !== 'success') {
+                SPLIT_PREVIEW_CACHE = null;
+                renderSplitBillPreview(null);
+                notify((res && res.message) ? res.message : TXT.splitBillFailed);
+                return;
+            }
+            SPLIT_PREVIEW_CACHE = res;
+            renderSplitBillPreview(res);
+        })
+        .fail(function (xhr) {
+            console.error('splitBillPreview error:', xhr.responseText);
+            SPLIT_PREVIEW_CACHE = null;
+            renderSplitBillPreview(null);
+            notify(TXT.splitBillFailed);
+        });
+    }
+
+    function openSplitBillModal() {
+        if (!CURRENT_ORDER_ID) {
+            notify(TXT.noBillYet);
+            return;
+        }
+        if (!TABLE_PERMISSIONS.splitBill) {
+            notify(TXT.managerOverrideRequired || TXT.splitBillFailed);
+            return;
+        }
+        resetSplitBillModal();
+        renderSplitBillWorkspace();
+        const orderNo = CURRENT_ORDER_DATA && CURRENT_ORDER_DATA.order_number ? CURRENT_ORDER_DATA.order_number : '-';
+        $('#splitBillModalMeta').text('#' + orderNo);
+        if (splitBillModal) {
+            splitBillModal.show();
+        }
+    }
+
     function renderOrderMetaIndicators(order = null) {
         const indicators = [];
+        const splitBadge = getSplitBillBadge(order);
+        if (splitBadge) {
+            indicators.push(splitBadge);
+        }
         const mergedNotice = order && order.merged_notice ? order.merged_notice : null;
         const traces = Array.isArray(order && order.merge_trace) ? order.merge_trace : [];
         const movedNotice = order && order.moved_notice ? order.moved_notice : null;
@@ -2545,6 +4472,7 @@ $(function () {
 			$('#btnPay').prop('disabled', true);
 			$('#btnMoveTable').prop('disabled', true);
 			$('#btnMergeBill').prop('disabled', true);
+			$('#btnSplitBill').prop('disabled', true);
 			$('#btnBillTimelineQuick').prop('disabled', true);
 			$('.product-btn').prop('disabled', true);
 		} else {
@@ -2558,6 +4486,7 @@ $(function () {
 			$('#btnPay').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
 			$('#btnMoveTable').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
 			$('#btnMergeBill').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
+			$('#btnSplitBill').prop('disabled', !(TABLE_PERMISSIONS.splitBill && (CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')));
 			$('#btnBillTimelineQuick').prop('disabled', !CURRENT_ORDER_ID);
 			$('.product-btn').prop('disabled', false);
 		}
@@ -2664,6 +4593,182 @@ $(function () {
 
         const previousStatus = normalizeItemStatus((item && item.cancel_request_prev_status) ? item.cancel_request_prev_status : '');
         return previousStatus === 'pending' || previousStatus === 'open' || previousStatus === 'new';
+    }
+
+
+    function splitGroupRoleLabel(role, splitNo) {
+        const normalizedRole = String(role || '').toLowerCase().trim();
+        const splitNumber = parseInt(splitNo || 0, 10);
+
+        if (normalizedRole === 'root') {
+            return TXT.splitBillRoleRoot;
+        }
+
+        if (normalizedRole === 'parent') {
+            return TXT.splitBillRoleParent;
+        }
+
+        if (normalizedRole === 'child') {
+            if (splitNumber > 0) {
+                return TXT.splitBillRoleChild + ' #' + splitNumber;
+            }
+
+            return TXT.splitBillRoleChild;
+        }
+
+        return TXT.currentBill;
+    }
+
+    function renderSplitGroupPanel(group, selectedOrderId) {
+        const $panel = $('#splitGroupPanel');
+        const normalizedGroup = Array.isArray(group) ? group : [];
+        CURRENT_SPLIT_GROUP = normalizedGroup;
+
+        if (!$panel.length) {
+            return;
+        }
+
+        if (normalizedGroup.length <= 1) {
+            $panel.addClass('is-hidden').empty();
+            return;
+        }
+
+        const paidCount = normalizedGroup.filter(function (bill) {
+            return !!bill.is_paid;
+        }).length;
+
+        const remainingTotal = normalizedGroup.reduce(function (sum, bill) {
+            return sum + (bill.can_pay ? Number(bill.total_price || 0) : 0);
+        }, 0);
+
+        let cardsHtml = '';
+
+        normalizedGroup.forEach(function (bill) {
+            const billId = Number(bill.id || 0);
+            const isSelected = Number(selectedOrderId || 0) === billId;
+            const canPay = !!bill.can_pay;
+            const statusLabel = statusText(bill.status || 'open');
+            const statusClass = statusBadgeClass(bill.status || 'open');
+            const roleLabel = splitGroupRoleLabel(bill.role || '', bill.split_no || 0);
+            const previewItems = Array.isArray(bill.preview_items) ? bill.preview_items : [];
+            const actionSecondaryLabel = isSelected ? TXT.splitGroupSelected : TXT.splitGroupSelectBill;
+
+            const previewHtml = previewItems.length
+                ? previewItems.map(function (item) {
+                    const itemName = escapeHtml(item.name || '-');
+                    const itemQty = Number(item.qty || 0);
+                    const itemNote = String(item.note || '').trim();
+
+                    return `
+                        <div class="pos-split-group-preview-item">
+                            <div class="min-w-0">
+                                <div class="pos-split-group-preview-name">${itemName}</div>
+                                ${itemNote !== '' ? `<div class="pos-split-group-preview-note">${escapeHtml(itemNote)}</div>` : ''}
+                            </div>
+                            <div class="pos-split-group-preview-qty">x ${itemQty}</div>
+                        </div>
+                    `;
+                }).join('')
+                : `<div class="pos-split-group-empty-preview">${escapeHtml(TXT.splitGroupNoItems)}</div>`;
+
+            cardsHtml += `
+                <div class="pos-split-group-card ${isSelected ? 'is-selected is-expanded' : ''}" data-order-id="${billId}">
+                    <div class="pos-split-group-card-head">
+                        <div>
+                            <div class="pos-split-group-card-title">${escapeHtml(bill.order_number || '-')}</div>
+                            <div class="pos-split-group-card-role">${escapeHtml(roleLabel)}</div>
+                        </div>
+                        <span class="badge ${escapeHtml(statusClass)}">${escapeHtml(statusLabel)}</span>
+                    </div>
+
+                    <div class="pos-split-group-card-meta">
+                        <div class="pos-split-group-card-meta-item">
+                            <div class="pos-split-group-card-meta-label">${escapeHtml(TXT.splitGroupItemsLabel)}</div>
+                            <div class="pos-split-group-card-meta-value">${Number(bill.preview_count || bill.item_count || 0)}</div>
+                        </div>
+                        <div class="pos-split-group-card-meta-item">
+                            <div class="pos-split-group-card-meta-label">${escapeHtml(TXT.splitGroupTotalLabel)}</div>
+                            <div class="pos-split-group-card-meta-value">${escapeHtml(money(Number(bill.total_price || 0)))}</div>
+                        </div>
+                    </div>
+
+                    ${isSelected ? `
+                        <div class="pos-split-group-card-preview">
+                            <div class="pos-split-group-card-meta-label mb-2">${escapeHtml(TXT.splitGroupItemsInBill)}</div>
+                            <div class="pos-split-group-preview-list js-split-group-selected-detail" data-order-id="${billId}">${previewHtml}</div>
+                        </div>
+                    ` : ''}
+
+                    <div class="pos-split-group-card-actions">
+                        <button type="button" class="btn btn-outline-primary btn-select-split-group-bill" data-order-id="${billId}">${escapeHtml(actionSecondaryLabel)}</button>
+                        ${canPay
+                            ? `<button type="button" class="btn btn-success btn-pay-split-group-bill" data-order-id="${billId}">${escapeHtml(TXT.splitGroupPayBill)}</button>`
+                            : `<button type="button" class="btn btn-outline-secondary" disabled>${escapeHtml(TXT.splitGroupAlreadyPaid)}</button>`}
+                    </div>
+                </div>
+            `;
+        });
+
+        $panel
+            .removeClass('is-hidden')
+            .html(`
+                <div class="pos-split-group-head">
+                    <div>
+                        <div class="pos-split-group-title">${escapeHtml(TXT.splitGroupTitle)}</div>
+                        <div class="pos-split-group-note">${escapeHtml(TXT.splitGroupNote)}</div>
+                    </div>
+                    <div class="pos-split-group-stats">
+                        <span class="pos-split-group-stat">${escapeHtml(TXT.splitGroupBills)}: ${normalizedGroup.length}</span>
+                        <span class="pos-split-group-stat">${escapeHtml(TXT.splitGroupPaid)}: ${paidCount}/${normalizedGroup.length}</span>
+                        <span class="pos-split-group-stat">${escapeHtml(TXT.splitGroupRemaining)}: ${escapeHtml(money(remainingTotal))}</span>
+                    </div>
+                </div>
+                <div class="pos-split-group-list">${cardsHtml}</div>
+            `);
+    }
+
+    function syncSplitGroupSelectedDetail(activeHtml, canceledHtml) {
+        const hasSplitGroup = Array.isArray(CURRENT_SPLIT_GROUP) && CURRENT_SPLIT_GROUP.length > 1;
+        const $orderBox = $('#orderBox');
+        const $canceledBox = $('#canceledItemsBox');
+
+        if (!hasSplitGroup) {
+            $orderBox.removeClass('d-none');
+            $canceledBox.removeClass('d-none');
+            $('.js-split-group-selected-detail').each(function () {
+                $(this).removeClass('is-mounted-detail');
+            });
+            return;
+        }
+
+        const currentOrderId = Number(CURRENT_ORDER_ID || 0);
+        let mounted = false;
+
+        $('.js-split-group-selected-detail').each(function () {
+            const $target = $(this);
+            const targetOrderId = Number($target.data('order-id') || 0);
+
+            if (targetOrderId === currentOrderId) {
+                const detailHtml = `
+                    <div class="pos-split-group-detail-mounted">
+                        <div class="pos-split-group-detail-active">${activeHtml}</div>
+                        ${canceledHtml || ''}
+                    </div>
+                `;
+                $target.html(detailHtml).addClass('is-mounted-detail');
+                mounted = true;
+            } else if ($target.hasClass('is-mounted-detail')) {
+                $target.removeClass('is-mounted-detail');
+            }
+        });
+
+        if (mounted) {
+            $orderBox.addClass('d-none').html('');
+            $canceledBox.addClass('d-none').html('');
+        } else {
+            $orderBox.removeClass('d-none');
+            $canceledBox.removeClass('d-none');
+        }
     }
 
     function renderItems(order, items) {
@@ -2806,8 +4911,9 @@ $(function () {
             return !(normalizedStatus === 'cancel' || normalizedStatus === 'cancelled' || normalizedStatus === 'canceled' || (requestState && requestState.key === 'approved'));
         }).length;
 
-        $('#orderBox').html(activeHtml);
-        $('#canceledItemsBox').html(canceledHtml);
+        $('#orderBox').html(activeHtml).removeClass('d-none');
+        $('#canceledItemsBox').html(canceledHtml).removeClass('d-none');
+        syncSplitGroupSelectedDetail(activeHtml, canceledHtml);
         $('#billTotal').text(money(order.total_price || 0));
         updateMobileBillSummary(activeItemCount, order.total_price || 0, order.order_number || '');
         renderRecentProductToolbar(items || []);
@@ -2818,6 +4924,7 @@ $(function () {
             || $('#paymentModal').hasClass('show')
             || $('#moveTableModal').hasClass('show')
             || $('#mergeBillModal').hasClass('show')
+            || $('#splitBillModal').hasClass('show')
             || $('#mergeAuditModal').hasClass('show')
             || $('#moveAuditModal').hasClass('show')
             || $('#managerOverrideModal').hasClass('show')
@@ -2825,16 +4932,26 @@ $(function () {
             || $('#billTimelineModal').hasClass('show');
     }
 
-    function loadOrder() {
-		if (isAnyModalOpen()) {
-			return;
+    function loadOrder(orderId = null, options = {}) {
+		if (isAnyModalOpen() && !options.force) {
+			return $.Deferred().resolve().promise();
 		}
 
-		$.get("<?= site_url('pos/current-order') ?>/" + TABLE_ID)
+        const params = {};
+        const requestedOrderId = parseInt(orderId || 0, 10);
+        if (requestedOrderId > 0) {
+            params.order_id = requestedOrderId;
+        }
+
+		return $.get("<?= site_url('pos/current-order') ?>/" + TABLE_ID, params)
 			.done(function (res) {
 				if (!res) {
 					CURRENT_ORDER_ID = null;
 					CURRENT_ORDER_STATUS = null;
+                    CURRENT_ORDER_ITEMS = [];
+                    CURRENT_SPLIT_GROUP = [];
+                    CURRENT_ORDER_DATA = null;
+                    renderSplitGroupPanel([], 0);
 					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
 					$('#billTotal').text('฿0.00');
 					updateOrderHeader(null);
@@ -2844,6 +4961,10 @@ $(function () {
 				if (res.status === 'empty') {
 					CURRENT_ORDER_ID = null;
 					CURRENT_ORDER_STATUS = null;
+                    CURRENT_ORDER_ITEMS = [];
+                    CURRENT_SPLIT_GROUP = [];
+                    CURRENT_ORDER_DATA = null;
+                    renderSplitGroupPanel([], 0);
 					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
 					$('#billTotal').text('฿0.00');
 					updateOrderHeader({
@@ -2857,6 +4978,10 @@ $(function () {
 				if (res.status !== 'success') {
 					CURRENT_ORDER_ID = null;
 					CURRENT_ORDER_STATUS = null;
+                    CURRENT_ORDER_ITEMS = [];
+                    CURRENT_SPLIT_GROUP = [];
+                    CURRENT_ORDER_DATA = null;
+                    renderSplitGroupPanel([], 0);
 					$('#orderBox').html('<div class="text-muted">' + TXT.noBillYet + '</div>');
 					$('#billTotal').text('฿0.00');
 					updateOrderHeader(null);
@@ -2865,20 +4990,31 @@ $(function () {
 
 				CURRENT_ORDER_ID = res.order.id;
 				CURRENT_ORDER_STATUS = res.order.status || 'open';
+                CURRENT_ORDER_ITEMS = Array.isArray(res.items) ? res.items : [];
+                CURRENT_SPLIT_GROUP = (Array.isArray(res.split_group) ? res.split_group : []).map(function (bill) {
+                    const billId = Number(bill.id || 0);
+                    bill.is_expanded = billId === Number(CURRENT_ORDER_ID || 0) || !!bill.is_selected;
+                    return bill;
+                });
 
 				const orderData = Object.assign({}, res.order, {
 					merged_notice: res.merged_notice || null,
 					merge_trace: Array.isArray(res.merge_trace) ? res.merge_trace : [],
                     moved_notice: res.moved_notice || null,
-                    move_trace: Array.isArray(res.move_trace) ? res.move_trace : []
+                    move_trace: Array.isArray(res.move_trace) ? res.move_trace : [],
+                    split_group: CURRENT_SPLIT_GROUP
 				});
 
+                CURRENT_ORDER_DATA = orderData;
+                renderSplitGroupPanel(CURRENT_SPLIT_GROUP, CURRENT_ORDER_ID);
 				renderItems(orderData, res.items || []);
 				updateOrderHeader(orderData);
 			})
 			.fail(function (xhr) {
 				console.error('loadOrder error:', xhr.responseText);
-				$('#orderBox').html('<div class="text-danger">' + TXT.loadBillFailed + '</div>');
+                    renderSplitGroupPanel([], 0);
+				$('#orderBox').removeClass('d-none').html('<div class="text-danger">' + TXT.loadBillFailed + '</div>');
+				$('#canceledItemsBox').removeClass('d-none').html('');
 				$('#billTotal').text('฿0.00');
 			});
 	}
@@ -2890,7 +5026,7 @@ $(function () {
 
         AUTO_REFRESH_TIMER = setInterval(function () {
             if (TABLE_ID > 0 && !isAnyModalOpen()) {
-                loadOrder();
+                loadOrder(CURRENT_ORDER_ID || null);
             }
         }, 5000);
     }
@@ -3402,6 +5538,46 @@ $(document).on('click', '#btnConfirmVoidItem', async function () {
         });
     });
 
+
+    $(document).on('click', '.btn-select-split-group-bill', function () {
+        const targetOrderId = parseInt($(this).data('order-id') || 0, 10);
+        if (!targetOrderId) {
+            return;
+        }
+
+        if (targetOrderId === CURRENT_ORDER_ID) {
+            renderSplitGroupPanel(CURRENT_SPLIT_GROUP, CURRENT_ORDER_ID);
+            return;
+        }
+
+        loadOrder(targetOrderId, { force: true });
+    });
+
+    $(document).on('click', '.btn-pay-split-group-bill', function () {
+        const targetOrderId = parseInt($(this).data('order-id') || 0, 10);
+        if (!targetOrderId) {
+            return;
+        }
+
+        const openPayment = function () {
+            if ($('#btnPay').prop('disabled')) {
+                showToast(TXT.billCannotPay, 'warning');
+                return;
+            }
+
+            $('#btnPay').trigger('click');
+        };
+
+        if (targetOrderId === CURRENT_ORDER_ID) {
+            openPayment();
+            return;
+        }
+
+        loadOrder(targetOrderId, { force: true }).done(function () {
+            openPayment();
+        });
+    });
+
     $(document).on('click', '#btnPay', function () {
 		if (!TABLE_IS_ACTIVE) {
 			notify(TXT.tableDisabled);
@@ -3451,6 +5627,8 @@ $(document).on('click', '#btnConfirmVoidItem', async function () {
 				notify(res.message || TXT.closeBillSuccess);
 				CURRENT_ORDER_ID = null;
 				CURRENT_ORDER_STATUS = null;
+                CURRENT_ORDER_DATA = null;
+                CURRENT_ORDER_ITEMS = [];
 				loadOrder();
 			});
 
@@ -3648,6 +5826,143 @@ $(document).on('click', '#btnConfirmVoidItem', async function () {
         });
     });
 
+
+    $(document).on('click', '#btnSplitBill', function () {
+        openSplitBillModal();
+    });
+
+    $(document).on('click', '#splitBillItemsBox .split-bill-main-tap', function (e) {
+        e.stopPropagation();
+        if ($(this).is('[disabled]') || $(this).hasClass('is-disabled')) {
+            return;
+        }
+        const itemId = Number($(this).data('order-item-id') || 0);
+        moveSplitBillItem(itemId, 1);
+    });
+
+    $(document).on('click', '#splitBillItemsBox .split-bill-workspace-step', function (e) {
+        e.stopPropagation();
+        const itemId = Number($(this).data('order-item-id') || 0);
+        const type = String($(this).data('type') || 'plus');
+        if (type === 'minus') {
+            returnSplitBillItem(itemId, 1);
+        } else {
+            moveSplitBillItem(itemId, 1);
+        }
+    });
+
+    $(document).on('click', '#splitBillItemsBox .split-bill-move-one', function (e) {
+        e.stopPropagation();
+        const itemId = Number($(this).data('order-item-id') || 0);
+        moveSplitBillItem(itemId, 1);
+    });
+
+    $(document).on('click', '#splitBillItemsBox .split-bill-move-all', function (e) {
+        e.stopPropagation();
+        const itemId = Number($(this).data('order-item-id') || 0);
+        moveAllSplitBillItem(itemId);
+    });
+
+    $(document).on('click', '#splitBillItemsBox .split-bill-move-qty', function (e) {
+        e.stopPropagation();
+        const itemId = Number($(this).data('order-item-id') || 0);
+        const qty = Number($(this).data('qty') || 0);
+        if (qty > 0) {
+            moveSplitBillItem(itemId, qty);
+        }
+    });
+
+    $(document).on('click', '#splitBillTargetBox .split-bill-return-one', function (e) {
+        e.stopPropagation();
+        const itemId = Number($(this).data('order-item-id') || 0);
+        returnSplitBillItem(itemId, 1);
+    });
+
+    $(document).on('click', '#splitBillTargetBox .split-bill-return-all', function (e) {
+        e.stopPropagation();
+        const itemId = Number($(this).data('order-item-id') || 0);
+        setWorkspaceItemMovedQty(itemId, 0);
+        renderSplitBillWorkspace();
+    });
+
+    $(document).on('click', '#splitBillTargetBox .split-bill-target-step', function (e) {
+        e.stopPropagation();
+        const itemId = Number($(this).data('order-item-id') || 0);
+        const type = String($(this).data('type') || 'minus');
+        if (type === 'minus') {
+            returnSplitBillItem(itemId, 1);
+        } else {
+            moveSplitBillItem(itemId, 1);
+        }
+    });
+
+    $(document).on('click', '#btnSplitBillSelectSingles', function () {
+        const items = SPLIT_BILL_WORKSPACE_STATE && Array.isArray(SPLIT_BILL_WORKSPACE_STATE.items)
+            ? SPLIT_BILL_WORKSPACE_STATE.items
+            : [];
+        items.forEach(function (item) {
+            if (Number(item.source_qty || 0) === 1) {
+                setWorkspaceItemMovedQty(item.id, 1);
+            }
+        });
+        renderSplitBillWorkspace();
+    });
+
+    $(document).on('click', '#btnSplitBillClearAll', function () {
+        clearSplitBillWorkspace();
+    });
+
+    $(document).on('click', '#btnSplitBillPreviewRefresh', function () {
+        requestSplitBillPreview();
+    });
+
+    $(document).on('click', '#btnConfirmSplitBill', function () {
+        const items = collectSplitBillItems();
+        if (!CURRENT_ORDER_ID) {
+            notify(TXT.noBillYet);
+            return;
+        }
+        if (!items.length) {
+            notify(TXT.splitBillSelectAtLeastOne);
+            return;
+        }
+
+        const $btn = $(this);
+        $btn.prop('disabled', true);
+
+        $.post("<?= site_url('pos/split-bill/confirm') ?>", {
+            order_id: CURRENT_ORDER_ID,
+            items: items,
+            reason: $.trim($('#splitBillReason').val())
+        })
+        .done(function (res) {
+            if (!res || res.status !== 'success') {
+                notify((res && res.message) ? res.message : TXT.splitBillFailed);
+                $btn.prop('disabled', false);
+                return;
+            }
+
+            if (splitBillModal) {
+                splitBillModal.hide();
+            }
+
+            notify(res.message || TXT.splitBillSuccess);
+            loadOrder();
+        })
+        .fail(function (xhr) {
+            console.error('splitBillConfirm error:', xhr.responseText);
+            notify(TXT.splitBillFailed);
+        })
+        .always(function () {
+            $btn.prop('disabled', false);
+        });
+    });
+
+    $(document).on('hidden.bs.modal', '#splitBillModal', function () {
+        resetSplitBillModal();
+    });
+
+
     $(document).on('click', '#btnMoveTable', function () {
         if (!CURRENT_ORDER_ID) {
             notify(TXT.noBillYet);
@@ -3699,7 +6014,7 @@ $(document).on('click', '#btnConfirmVoidItem', async function () {
         });
     });
 
-    $(document).on('click', '#btnMoveTable, #btnMergeBill, #btnConfirmMoveTable, #btnConfirmMergeBill, #btnViewMergeAudit, #btnViewMoveAudit', function (e) {
+    $(document).on('click', '#btnMoveTable, #btnMergeBill, #btnSplitBill, #btnConfirmMoveTable, #btnConfirmMergeBill, #btnConfirmSplitBill, #btnSplitBillPreview, #btnSplitBillPreviewRefresh, #btnViewMergeAudit, #btnViewMoveAudit', function (e) {
         e.preventDefault();
         e.stopPropagation();
     });
@@ -3810,3 +6125,17 @@ $(document).on('click', '#btnConfirmVoidItem', async function () {
 });
 </script>
 <?= $this->endSection() ?>
+
+<style>
+/* Split Bill final i18n + polish */
+.split-bill-quick-guide{padding:.7rem .9rem}
+.split-bill-quick-guide-text{line-height:1.35}
+.split-bill-target-summary{margin-bottom:.6rem}
+.split-bill-pane.is-target .split-bill-empty-state{min-height:54px;display:flex;align-items:center;justify-content:center}
+@media (max-width:767.98px){
+  .split-bill-quick-guide{padding:.65rem .8rem;margin-bottom:.75rem}
+  .split-bill-pane-head{margin-bottom:.7rem}
+  .split-bill-target-summary{margin-bottom:.5rem}
+}
+</style>
+

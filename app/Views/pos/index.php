@@ -907,6 +907,182 @@
         white-space: nowrap;
     }
 
+    .pos-table-card--served-complete {
+        border-color: rgba(16, 185, 129, .42);
+        box-shadow: 0 20px 48px rgba(16, 185, 129, .16);
+    }
+
+    .pos-table-card--served-partial {
+        border-color: rgba(20, 184, 166, .34);
+    }
+
+    .pos-table-hybrid-summary {
+        display: grid;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .pos-table-primary-flow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .pos-primary-flow-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        max-width: 100%;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: .72rem;
+        font-weight: 900;
+        line-height: 1.15;
+        border: 1px solid transparent;
+        white-space: nowrap;
+    }
+
+    .pos-primary-flow-chip--slate {
+        background: #f8fafc;
+        color: #334155;
+        border-color: #cbd5e1;
+    }
+
+    .pos-primary-flow-chip--blue {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+    }
+
+    .pos-primary-flow-chip--amber {
+        background: #fffbeb;
+        color: #b45309;
+        border-color: #fde68a;
+    }
+
+    .pos-primary-flow-chip--violet {
+        background: #f5f3ff;
+        color: #7c3aed;
+        border-color: #ddd6fe;
+    }
+
+    .pos-primary-flow-chip--emerald {
+        background: #ecfdf5;
+        color: #047857;
+        border-color: #a7f3d0;
+    }
+
+    .pos-primary-flow-chip--teal {
+        background: #f0fdfa;
+        color: #0f766e;
+        border-color: #99f6e4;
+    }
+
+    .pos-primary-flow-chip--rose {
+        background: #fff1f2;
+        color: #be123c;
+        border-color: #fecdd3;
+    }
+
+    .pos-flow-counts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .pos-flow-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.78);
+        border: 1px solid rgba(203, 213, 225, .9);
+        color: #334155;
+        font-size: .65rem;
+        font-weight: 800;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .pos-flow-count strong {
+        font-weight: 900;
+        color: #0f172a;
+    }
+
+    .pos-served-progress {
+        display: grid;
+        gap: 6px;
+        padding: .62rem .68rem;
+        border-radius: 14px;
+        background: rgba(255,255,255,.84);
+        border: 1px solid rgba(191, 219, 254, .95);
+    }
+
+    .pos-served-progress--complete {
+        border-color: rgba(167, 243, 208, .95);
+        background: rgba(236, 253, 245, .92);
+    }
+
+    .pos-served-progress-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: .7rem;
+        font-weight: 900;
+        color: #0f172a;
+    }
+
+    .pos-served-progress-percent {
+        color: #0f766e;
+        font-size: .68rem;
+    }
+
+    .pos-served-progress-bar {
+        position: relative;
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e2e8f0;
+    }
+
+    .pos-served-progress-fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 0;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #14b8a6 0%, #10b981 100%);
+    }
+
+    .pos-served-progress-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: .62rem;
+        color: #475569;
+        font-weight: 700;
+    }
+
+    .pos-served-progress-note {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #0f766e;
+        font-size: .61rem;
+        font-weight: 800;
+    }
+
+    .pos-served-progress-note--complete {
+        color: #047857;
+    }
+
     .pos-table-metrics {
         display: grid;
         grid-template-columns: 1fr;
@@ -1086,6 +1262,10 @@
     }
 
     .pos-mobile-sheet-head {
+        display: none;
+    }
+
+    .pos-served-progress-mobile-summary {
         display: none;
     }
 
@@ -1410,11 +1590,94 @@
         }
 
         .pos-table-card {
-            min-height: 118px;
-            padding: 10px 9px 9px;
-            border-radius: 16px;
+            min-height: 108px;
+            padding: 9px 8px 8px;
+            border-radius: 15px;
+            gap: 5px;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.035);
+        }
+
+        .pos-table-zone {
+            font-size: .67rem;
+            margin-bottom: 2px;
+        }
+
+        .pos-table-body {
             gap: 6px;
-            box-shadow: 0 5px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .pos-table-status-row {
+            gap: 4px;
+        }
+
+        .pos-status-pill,
+        .pos-meta-pill,
+        .pos-table-top-badge,
+        .pos-primary-flow-chip,
+        .pos-flow-count {
+            font-size: .62rem;
+            line-height: 1.15;
+            padding: 4px 8px;
+        }
+
+        .pos-flow-counts {
+            gap: 4px;
+        }
+
+        .pos-flow-count:nth-child(n+3) {
+            display: none;
+        }
+
+        .pos-table-signals {
+            display: none;
+        }
+
+        .pos-table-metrics,
+        .pos-table-action,
+        .pos-table-indicator,
+        .pos-served-progress-note {
+            display: none;
+        }
+
+        .pos-served-progress {
+            padding: 8px 8px 7px;
+            border-radius: 12px;
+            gap: 5px;
+        }
+
+        .pos-served-progress-head span:first-child {
+            font-size: .64rem;
+        }
+
+        .pos-served-progress-percent {
+            font-size: .68rem;
+        }
+
+        .pos-served-progress-bar {
+            height: 6px;
+        }
+
+        .pos-served-progress-meta {
+            display: none;
+        }
+
+        .pos-served-progress-mobile-summary {
+            display: block;
+            font-size: .64rem;
+            font-weight: 800;
+            color: #0f766e;
+        }
+
+        .pos-table-foot {
+            margin-top: auto;
+            gap: 6px;
+        }
+
+        .pos-table-foot > .btn,
+        .pos-table-foot > a,
+        .pos-reservation-trigger {
+            min-height: 32px;
+            font-size: .66rem;
         }
 
         .pos-table-name {
@@ -1452,6 +1715,51 @@
 
         .pos-table-status-row {
             gap: .26rem;
+        }
+
+        .pos-table-hybrid-summary {
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .pos-table-primary-flow {
+            align-items: stretch;
+            gap: 6px;
+        }
+
+        .pos-primary-flow-chip {
+            width: 100%;
+            justify-content: center;
+            font-size: .61rem;
+            padding: 5px 8px;
+        }
+
+        .pos-flow-counts {
+            gap: 4px;
+        }
+
+        .pos-flow-count {
+            font-size: .57rem;
+            padding: 3px 6px;
+        }
+
+        .pos-flow-count:nth-child(n+4) {
+            display: none;
+        }
+
+        .pos-served-progress {
+            padding: .5rem .56rem;
+            border-radius: 12px;
+        }
+
+        .pos-served-progress-head {
+            font-size: .61rem;
+        }
+
+        .pos-served-progress-percent,
+        .pos-served-progress-meta,
+        .pos-served-progress-note {
+            font-size: .56rem;
         }
 
         .pos-status-pill {
@@ -1510,6 +1818,10 @@
 
         .pos-table-card {
             min-height: 126px;
+        }
+
+        .pos-flow-count:nth-child(n+3) {
+            display: none;
         }
 
         .pos-reservation-detail-sheet {
@@ -1907,13 +2219,36 @@
                         $reservationRoute = site_url('pos/table/' . $table['id']);
                     ?>
 
-                    <?php
+                                        <?php
                         $signalItems = [];
+                        $flowCounts = [];
+                        $primaryFlowTone = 'slate';
+                        $primaryFlowLabel = $tr('app.open_order_exists', 'มีบิลเปิด', 'Open order');
+                        $servedCount = 0;
+                        $remainingCount = 0;
+                        $servedTotalCount = 0;
+                        $servedPercent = 0;
+                        $servedPartial = false;
+                        $servedAll = false;
+                        $servedItemNames = [];
+                        $servedTooltip = '';
+                        $servedProgressLabel = $tr('app.served_progress', 'ความคืบหน้าการเสิร์ฟ', 'Serving progress');
+                        $servedProgressText = '';
+                        $servedProgressNote = '';
+                        $servedProgressNoteClass = 'pos-served-progress-note';
+                        $servedLastAt = trim((string) ($table['kitchen_last_served_at'] ?? ''));
+                        $overviewNextFocus = trim((string) ($table['kitchen_focus_label'] ?? ''));
+                        $overviewNextFocusText = '';
+                        $overviewServedNamesText = '';
+                        $readyCount = 0;
+                        $preparingCount = 0;
+                        $sentCount = 0;
+                        $pendingCount = 0;
+                        $cancelRequestCount = 0;
 
                         if ($hasOpenOrder) {
                             $currentOrderStatus = strtolower(trim((string) ($table['current_order_status'] ?? 'open')));
                             $currentOrderTotal = (float) ($table['current_order_total'] ?? 0);
-                            $paidTotal = (float) ($table['payment_paid_total'] ?? 0);
 
                             if ($currentOrderStatus === 'billing') {
                                 $signalItems[] = [
@@ -1937,41 +2272,77 @@
                             $sentCount = (int) ($table['kitchen_sent_count'] ?? 0);
                             $pendingCount = (int) ($table['kitchen_pending_count'] ?? 0);
                             $cancelRequestCount = (int) ($table['kitchen_cancel_request_count'] ?? 0);
-                            $servedCount = (int) ($table['kitchen_served_count'] ?? 0);
+                            $servedCount = (int) ($table['kitchen_served_count'] ?? ($table['served_count'] ?? 0));
                             $remainingCount = (int) ($table['kitchen_remaining_count'] ?? 0);
+                            $servedTotalCount = (int) ($table['kitchen_total_item_count'] ?? ($servedCount + $remainingCount));
+                            $servedPercent = (int) ($table['kitchen_served_percent'] ?? 0);
                             $servedPartial = ! empty($table['kitchen_served_partial']);
                             $servedAll = ! empty($table['kitchen_served_all']);
+                            $servedItemNames = array_values(array_filter(is_array($table['kitchen_served_item_names'] ?? null) ? $table['kitchen_served_item_names'] : []));
+                            $mergeInCount = (int) ($table['merge_in_count'] ?? 0);
+                            $moveInCount = (int) ($table['move_in_count'] ?? 0);
+                            $wasReopened = ! empty($table['was_reopened']);
 
                             if (! $servedAll && ! $servedPartial && $servedCount > 0) {
-                                if ($remainingCount > 0) {
+                                $activeKitchenCount = $readyCount + $preparingCount + $sentCount + $pendingCount + $cancelRequestCount;
+                                if ($remainingCount > 0 || $activeKitchenCount > 0) {
                                     $servedPartial = true;
+                                    if ($remainingCount <= 0) {
+                                        $remainingCount = $activeKitchenCount;
+                                    }
                                 } else {
                                     $servedAll = true;
                                 }
                             }
-                            $mergeInCount = (int) ($table['merge_in_count'] ?? 0);
-                            $moveInCount = (int) ($table['move_in_count'] ?? 0);
-                            $wasReopened = ! empty($table['was_reopened']);
+
+                            if ($servedTotalCount <= 0 && ($servedCount > 0 || $remainingCount > 0)) {
+                                $servedTotalCount = $servedCount + $remainingCount;
+                            }
+                            if ($servedPercent <= 0 && $servedTotalCount > 0 && $servedCount > 0) {
+                                $servedPercent = (int) round(($servedCount / $servedTotalCount) * 100);
+                            }
 
                             if ($readyCount > 0) {
                                 $signalItems[] = [
                                     'tone' => 'emerald',
                                     'label' => $tr('app.ready_to_serve_signal', 'พร้อมเสิร์ฟ {count}', 'Ready {count}', ['count' => $readyCount]),
                                 ];
-                            } elseif ($preparingCount > 0) {
+                                $flowCounts[] = [
+                                    'tone' => 'emerald',
+                                    'short' => $tr('app.ready_short_count', 'พร้อม {count}', 'Ready {count}', ['count' => $readyCount]),
+                                ];
+                            }
+
+                            if ($preparingCount > 0) {
                                 $signalItems[] = [
                                     'tone' => 'amber',
                                     'label' => $tr('app.preparing_signal', 'กำลังทำ {count}', 'Preparing {count}', ['count' => $preparingCount]),
                                 ];
-                            } elseif ($sentCount > 0) {
+                                $flowCounts[] = [
+                                    'tone' => 'amber',
+                                    'short' => $tr('app.preparing_short_count', 'ทำอยู่ {count}', 'Prep {count}', ['count' => $preparingCount]),
+                                ];
+                            }
+
+                            if ($sentCount > 0) {
                                 $signalItems[] = [
                                     'tone' => 'blue',
                                     'label' => $tr('app.sent_to_kitchen_signal', 'ส่งครัวแล้ว {count}', 'Sent to kitchen {count}', ['count' => $sentCount]),
                                 ];
-                            } elseif ($pendingCount > 0) {
+                                $flowCounts[] = [
+                                    'tone' => 'blue',
+                                    'short' => $tr('app.sent_short_count', 'ส่งครัว {count}', 'Sent {count}', ['count' => $sentCount]),
+                                ];
+                            }
+
+                            if ($pendingCount > 0) {
                                 $signalItems[] = [
                                     'tone' => 'slate',
                                     'label' => $tr('app.pending_kitchen_signal', 'รอส่งครัว {count}', 'Pending kitchen {count}', ['count' => $pendingCount]),
+                                ];
+                                $flowCounts[] = [
+                                    'tone' => 'slate',
+                                    'short' => $tr('app.pending_short_count', 'ค้างส่ง {count}', 'Pending {count}', ['count' => $pendingCount]),
                                 ];
                             }
 
@@ -1979,6 +2350,10 @@
                                 $signalItems[] = [
                                     'tone' => 'rose',
                                     'label' => $tr('app.cancel_request_signal', 'รอยืนยันยกเลิก {count}', 'Cancel request {count}', ['count' => $cancelRequestCount]),
+                                ];
+                                $flowCounts[] = [
+                                    'tone' => 'rose',
+                                    'short' => $tr('app.cancel_request_short_count', 'ยกเลิก {count}', 'Cancel {count}', ['count' => $cancelRequestCount]),
                                 ];
                             }
 
@@ -1991,6 +2366,15 @@
                                 $signalItems[] = [
                                     'tone' => 'teal',
                                     'label' => $tr('app.served_partial_signal', 'เสิร์ฟแล้ว {served} / คงเหลือ {remaining}', 'Served {served} / Remaining {remaining}', ['served' => $servedCount, 'remaining' => $remainingCount]),
+                                ];
+                            }
+
+                            if ($servedCount > 0) {
+                                $flowCounts[] = [
+                                    'tone' => $servedAll ? 'emerald' : 'teal',
+                                    'short' => $servedAll
+                                        ? $tr('app.served_all_short_count', 'เสิร์ฟครบ {count}', 'Served all {count}', ['count' => $servedCount])
+                                        : $tr('app.served_short_count', 'เสิร์ฟ {count}', 'Served {count}', ['count' => $servedCount]),
                                 ];
                             }
 
@@ -2014,6 +2398,70 @@
                                     'label' => $tr('app.reopened_signal', 'Reopen แล้ว', 'Reopened'),
                                 ];
                             }
+
+                            if ($cancelRequestCount > 0) {
+                                $primaryFlowTone = 'rose';
+                                $primaryFlowLabel = $tr('app.cancel_request_primary', 'มีรายการรอยืนยันยกเลิก {count}', 'Cancel request {count}', ['count' => $cancelRequestCount]);
+                            } elseif ($readyCount > 0) {
+                                $primaryFlowTone = 'emerald';
+                                $primaryFlowLabel = $tr('app.ready_primary', 'พร้อมเสิร์ฟ {count}', 'Ready to serve {count}', ['count' => $readyCount]);
+                            } elseif ($preparingCount > 0) {
+                                $primaryFlowTone = 'amber';
+                                $primaryFlowLabel = $tr('app.preparing_primary', 'กำลังทำ {count}', 'Preparing {count}', ['count' => $preparingCount]);
+                            } elseif ($sentCount > 0) {
+                                $primaryFlowTone = 'blue';
+                                $primaryFlowLabel = $tr('app.sent_primary', 'ส่งครัวแล้ว {count}', 'Sent {count}', ['count' => $sentCount]);
+                            } elseif ($pendingCount > 0) {
+                                $primaryFlowTone = 'slate';
+                                $primaryFlowLabel = $tr('app.pending_primary', 'รอส่งครัว {count}', 'Pending {count}', ['count' => $pendingCount]);
+                            } elseif ($servedAll) {
+                                $primaryFlowTone = 'emerald';
+                                $primaryFlowLabel = $tr('app.served_complete_primary', 'เสิร์ฟครบแล้ว', 'Served complete');
+                            } elseif ($servedPartial) {
+                                $primaryFlowTone = 'teal';
+                                $primaryFlowLabel = $tr('app.served_partial_primary', 'เสิร์ฟบางส่วนแล้ว', 'Partially served');
+                            }
+                        }
+
+                        if ($servedAll) {
+                            $cardClass .= ' pos-table-card--served-complete';
+                        } elseif ($servedPartial) {
+                            $cardClass .= ' pos-table-card--served-partial';
+                        }
+
+                        if ($servedCount > 0) {
+                            $servedProgressText = $servedAll
+                                ? $tr('app.served_complete_signal', 'เสิร์ฟครบแล้ว {count}', 'Served all {count}', ['count' => $servedCount])
+                                : $tr('app.served_partial_signal', 'เสิร์ฟแล้ว {served} / คงเหลือ {remaining}', 'Served {served} / Remaining {remaining}', ['served' => $servedCount, 'remaining' => $remainingCount]);
+
+                            if (! empty($servedItemNames)) {
+                                $servedTooltip = implode("
+", $servedItemNames);
+                                $servedProgressNote = $tr('app.served_items_hint', 'รายการที่เสิร์ฟแล้ว: {items}', 'Served items: {items}', ['items' => implode(', ', $servedItemNames)]);
+                            } elseif ($servedAll) {
+                                $servedProgressNote = $tr('app.served_complete_hint', 'ทุกรายการในรอบนี้เสิร์ฟครบแล้ว', 'All active items in this round have been served');
+                            } else {
+                                $servedProgressNote = $tr('app.served_progress_hint', 'ยังมีรายการที่ต้องติดตามต่อ', 'Some items are still in progress');
+                            }
+
+                            if ($servedAll) {
+                                $servedProgressNoteClass .= ' pos-served-progress-note--complete';
+                            }
+                        }
+
+                        if ($overviewNextFocus === '') {
+                            $overviewNextFocus = $primaryFlowLabel;
+                        }
+                        $overviewNextFocusText = $overviewNextFocus !== ''
+                            ? $overviewNextFocus
+                            : $tr('app.open_order_exists', 'มีบิลเปิด', 'Open order');
+
+                        if (! empty($servedItemNames)) {
+                            $overviewServedNamesText = implode(', ', $servedItemNames);
+                        } elseif ($servedCount > 0) {
+                            $overviewServedNamesText = $servedAll
+                                ? $tr('app.served_complete_hint', 'ทุกรายการในรอบนี้เสิร์ฟครบแล้ว', 'All active items in this round have been served')
+                                : $tr('app.served_progress_hint', 'ยังมีรายการที่ต้องติดตามต่อ', 'Some items are still in progress');
                         }
                     ?>
 
@@ -2040,6 +2488,41 @@
                                 <span class="pos-reservation-inline-note"><?= esc($reservationInlineText) ?></span>
                             <?php endif; ?>
                         </div>
+
+                        <?php if ($hasOpenOrder): ?>
+                            <div class="pos-table-hybrid-summary">
+                                <div class="pos-table-primary-flow">
+                                    <span class="pos-primary-flow-chip pos-primary-flow-chip--<?= esc($primaryFlowTone) ?>"><?= esc($primaryFlowLabel) ?></span>
+                                    <?php if (! empty($flowCounts)): ?>
+                                        <div class="pos-flow-counts">
+                                            <?php foreach ($flowCounts as $flowCount): ?>
+                                                <span class="pos-flow-count pos-flow-count--<?= esc((string) ($flowCount['tone'] ?? 'slate')) ?>"><strong><?= esc((string) ($flowCount['short'] ?? '')) ?></strong></span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <?php if ($servedCount > 0): ?>
+                                    <div class="pos-served-progress<?= $servedAll ? ' pos-served-progress--complete' : '' ?>"<?= $servedTooltip !== '' ? ' title="' . esc($servedTooltip) . '"' : '' ?>>
+                                        <div class="pos-served-progress-head">
+                                            <span><?= esc($servedProgressLabel) ?></span>
+                                            <span class="pos-served-progress-percent"><?= esc((string) $servedPercent) ?>%</span>
+                                        </div>
+                                        <div class="pos-served-progress-bar" aria-hidden="true">
+                                            <span class="pos-served-progress-fill" style="width: <?= esc((string) max(0, min(100, $servedPercent))) ?>%;"></span>
+                                        </div>
+                                        <div class="pos-served-progress-meta">
+                                            <span><?= esc($servedProgressText) ?></span>
+                                            <span><?= esc($tr('app.total_items_short', 'รวม {count}', 'Total {count}', ['count' => max(0, $servedTotalCount)])) ?></span>
+                                        </div>
+                                        <?php if ($servedProgressNote !== ''): ?>
+                                            <span class="<?= esc($servedProgressNoteClass) ?>"><?= esc($servedProgressNote) ?></span>
+                                        <?php endif; ?>
+                                        <span class="pos-served-progress-mobile-summary"><?= esc($tr('app.served_compact_summary', 'เสิร์ฟ {served}/{total}', 'Served {served}/{total}', ['served' => $servedCount, 'total' => max(0, $servedTotalCount)])) ?></span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
 
                         <?php if (! empty($signalItems)): ?>
                             <div class="pos-table-signals">

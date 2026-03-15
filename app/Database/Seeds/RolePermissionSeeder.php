@@ -74,6 +74,8 @@ class RolePermissionSeeder extends Seeder
 
                 'kitchen.view',
                 'kitchen.update_status',
+                'kitchen.serve_item',
+                'kitchen.serve_item',
 
                 'reports.view',
                 'reports.sales',
@@ -175,6 +177,7 @@ class RolePermissionSeeder extends Seeder
 
                 'kitchen.view',
                 'kitchen.update_status',
+                'kitchen.serve_item',
 
                 'reservations.view',
                 'reservations.create',
@@ -183,6 +186,28 @@ class RolePermissionSeeder extends Seeder
                 'reservations.seat',
                 'reservations.cancel',
                 'reservations.no_show',
+            ],
+
+            'kitchen' => [
+                'dashboard.view',
+                'tables.view',
+                'categories.view',
+                'products.view',
+                'orders.view',
+                'kitchen.view',
+                'kitchen.update_status',
+                'kitchen.serve_item',
+            ],
+
+            'ครัว' => [
+                'dashboard.view',
+                'tables.view',
+                'categories.view',
+                'products.view',
+                'orders.view',
+                'kitchen.view',
+                'kitchen.update_status',
+                'kitchen.serve_item',
             ],
         ];
 

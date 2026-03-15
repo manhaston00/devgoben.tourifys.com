@@ -186,6 +186,14 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
         'filter' => 'permission:cashier.view,feature_gate:pos.access'
     ]);
 
+    $routes->get('cashier-order/(:num)/split-group', 'POSController::cashierOrderSplitGroup/$1', [
+        'filter' => 'permission:cashier.split_bill_view,cashier.split_bill,feature_gate:pos.access'
+    ]);
+
+    $routes->get('cashier-order/(:num)/split-history', 'POSController::cashierOrderSplitHistory/$1', [
+        'filter' => 'permission:cashier.split_bill_view,cashier.split_bill,feature_gate:pos.access'
+    ]);
+
     $routes->get('current-order/(:num)', 'POSController::currentOrder/$1', [
         'filter' => 'permission:pos.view,feature_gate:pos.access'
     ]);
@@ -254,8 +262,16 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
         'filter' => 'permission:pos.open_table,feature_gate:pos.sell'
     ]);
 
+    $routes->post('split-bill/preview', 'POSController::splitBillPreview', [
+        'filter' => 'permission:cashier.split_bill,cashier.manager_override,feature_gate:pos.sell'
+    ]);
+
+    $routes->post('split-bill/confirm', 'POSController::splitBillConfirm', [
+        'filter' => 'permission:cashier.split_bill,cashier.manager_override,feature_gate:pos.sell'
+    ]);
+
     $routes->post('update-item-status', 'POSController::updateItemStatus', [
-        'filter' => 'permission:kitchen.update_status,feature_gate:pos.access'
+        'filter' => 'permission:kitchen.update_status,kitchen.serve_item,feature_gate:pos.access'
     ]);
 
     $routes->post('request-bill', 'POSController::requestBill', [
@@ -384,7 +400,7 @@ $routes->group('kitchen-monitor', ['filter' => 'auth_subscription'], static func
     ]);
 
     $routes->post('update-status', 'KitchenMonitorController::updateStatus', [
-        'filter' => 'permission:kitchen.update_status,feature_gate:pos.access'
+        'filter' => 'permission:kitchen.update_status,kitchen.serve_item,feature_gate:pos.access'
     ]);
 });
 

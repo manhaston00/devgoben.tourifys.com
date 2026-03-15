@@ -205,6 +205,7 @@ if (! function_exists('runtime_setting_plan_feature_key')) {
             'feature.quick_notes.enabled'          => 'pos.access',
             'feature.product_quick_options.enabled'=> 'pos.access',
             'feature.tv_mode.enabled'              => 'pos.access',
+            'feature.serve_item.enabled'           => 'pos.access',
             'feature.served_history.enabled'       => 'pos.access',
             'feature.cancel_request_flow.enabled'  => 'pos.access',
             'feature.split_bill.enabled'           => 'pos.sell',
