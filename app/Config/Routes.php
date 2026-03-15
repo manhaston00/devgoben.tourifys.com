@@ -190,6 +190,10 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
         'filter' => 'permission:pos.view,feature_gate:pos.access'
     ]);
 
+    $routes->get('table-timeline/(:num)', 'POSController::tableTimeline/$1', [
+        'filter' => 'permission:pos.view,feature_gate:pos.access'
+    ]);
+
     $routes->get('product-quick-options/(:num)', 'POSController::getProductQuickOptions/$1', [
         'filter' => 'permission:pos.view,feature_gate:pos.access'
     ]);
@@ -199,6 +203,14 @@ $routes->group('pos', ['filter' => 'auth_subscription'], static function ($route
     ]);
 
     $routes->get('merge-targets/(:num)', 'POSController::availableMergeTargets/$1', [
+        'filter' => 'permission:pos.view,feature_gate:pos.access'
+    ]);
+
+    $routes->get('overview-grid-partial', 'POSController::overviewGridPartial', [
+        'filter' => 'permission:pos.view,feature_gate:pos.access'
+    ]);
+
+    $routes->get('overview-changes', 'POSController::overviewChanges', [
         'filter' => 'permission:pos.view,feature_gate:pos.access'
     ]);
 

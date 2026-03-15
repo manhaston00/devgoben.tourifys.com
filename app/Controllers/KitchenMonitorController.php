@@ -9,6 +9,7 @@ use App\Models\OrderItemModel;
 use App\Models\OrderMergeModel;
 use App\Models\TableModel;
 use App\Models\OrderModel;
+use App\Models\AuditLogModel;
 
 class KitchenMonitorController extends BaseController
 {
@@ -19,6 +20,7 @@ class KitchenMonitorController extends BaseController
     protected $orderMergeModel;
     protected $tableModel;
     protected $orderModel;
+    protected $auditLogModel;
     protected $db;
 
     public function __construct()
@@ -30,6 +32,7 @@ class KitchenMonitorController extends BaseController
         $this->orderMergeModel     = new OrderMergeModel();
         $this->tableModel          = new TableModel();
         $this->orderModel          = new OrderModel();
+        $this->auditLogModel       = new AuditLogModel();
         $this->db                  = \Config\Database::connect();
     }
 
@@ -55,6 +58,39 @@ class KitchenMonitorController extends BaseController
     {
         return (string) (service('request')->getLocale() ?: 'th');
     }
+
+    protected function writeAuditLog(array $payload, ?string $dedupeKey = null, int $dedupeSeconds = 0): void
+    {
+        try {
+            if (! isset($this->auditLogModel) || ! $this->auditLogModel) {
+                return;
+            }
+
+            if ($dedupeKey !== null && $dedupeSeconds > 0 && ! $this->shouldWriteAuditLog($dedupeKey, $dedupeSeconds)) {
+                return;
+            }
+
+            $this->auditLogModel->add($payload);
+        } catch (\Throwable $e) {
+            log_message('error', 'Kitchen writeAuditLog error: ' . $e->getMessage());
+        }
+    }
+
+    protected function shouldWriteAuditLog(string $key, int $seconds = 5): bool
+    {
+        $sessionKey = '_audit_dedupe.' . md5($key);
+        $lastAt     = (int) (session($sessionKey) ?? 0);
+        $now        = time();
+
+        if ($lastAt > 0 && ($now - $lastAt) < $seconds) {
+            return false;
+        }
+
+        session()->set($sessionKey, $now);
+
+        return true;
+    }
+
 
     protected function normalizeRequestedStatus(string $status): string
     {
@@ -799,6 +835,29 @@ class KitchenMonitorController extends BaseController
         $ticketId = (int) ($item['kitchen_ticket_id'] ?? 0);
         if ($ticketId > 0) {
             $this->kitchenTicketModel->refreshStatusByTicketId($this->currentTenantId(), $ticketId);
+        }
+
+        $orderId = (int) ($item['order_id'] ?? 0);
+        if ($status === 'served' && $orderId > 0) {
+            $order = $this->orderModel->find($orderId);
+            $this->writeAuditLog([
+                'target_type'  => 'order_item',
+                'target_id'    => $itemId,
+                'order_id'     => $orderId,
+                'table_id'     => isset($order['table_id']) ? (int) ($order['table_id'] ?? 0) : null,
+                'action_key'   => 'pos.item_served',
+                'action_label' => lang('app.audit_log_item_served'),
+                'ref_code'     => $order['order_number'] ?? null,
+                'meta_json'    => [
+                    'item_id'       => $itemId,
+                    'product_name'  => (string) ($item['product_name'] ?? ''),
+                    'qty'           => (int) ($item['qty'] ?? 0),
+                    'from_status'   => $fromStatus,
+                    'to_status'     => 'served',
+                    'served_at'     => $data['served_at'] ?? $now,
+                    'action_source' => 'kitchen.monitor',
+                ],
+            ], 'kitchen.item_served.' . $itemId . '.' . ($data['served_at'] ?? $now), 3);
         }
 
         $orderId = (int) ($item['order_id'] ?? 0);

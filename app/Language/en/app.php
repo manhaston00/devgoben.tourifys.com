@@ -400,6 +400,16 @@ return [
 
     'remove_item_success' => 'Item removed successfully',
     'remove_item_failed' => 'Failed to remove item',
+    'void_item' => 'Cancel Item',
+    'void_item_modal_title' => 'Cancel Item',
+    'void_item_reason' => 'Cancellation note',
+    'void_item_reason_placeholder' => 'Enter an optional note',
+    'void_item_reason_required' => 'Please enter a reason for voiding this item',
+    'void_item_confirm' => 'This pending item will be cancelled immediately and removed from billable total.',
+    'void_item_success' => 'Item cancelled successfully',
+    'void_item_failed' => 'Failed to cancel item',
+    'audit_log_void_item' => 'Cancelled item',
+    'manager_override_action_void_item' => 'Approve item cancellation',
     'remove_item_error' => 'An error occurred while removing item',
 
     'save_failed' => 'Failed to save data',
@@ -1056,6 +1066,12 @@ return [
 'compact_exit' => 'Back to normal view',
 'served_history' => 'Served history',
 'served_history_empty' => 'No served history yet',
+'served_items_section' => 'Served items',
+'served_items_hint' => 'Already served. No further action on this page.',
+'served_partial_signal' => 'Served {served} / Remaining {remaining}',
+'served_complete_signal' => 'Served all {count}',
+'audit_log_item_served' => 'Served item',
+
 'served_count' => 'History items',
 'last_updated' => 'Last updated',
 'time_range_today' => 'Today',
@@ -1198,4 +1214,15 @@ return [
 'audit_log_undo_payment' => 'Undid payment',
 'manager_override_action_undo_payment' => 'Approve undo payment',
 
+
+    'timeline_loading' => 'Loading timeline...',
+    'timeline_empty' => 'No timeline data found yet',
+    'actor' => 'Actor',
+    'payment_history' => 'Payment History',
+    'view_payment_history' => 'View Payment History',
+    'payment_history_loading' => 'Loading payment history...',
+    'payment_history_empty' => 'No payment history found yet',
+    'received_by' => 'Received By',
+    'paid_at' => 'Paid At',
+    'remark' => 'Remark',
 ];

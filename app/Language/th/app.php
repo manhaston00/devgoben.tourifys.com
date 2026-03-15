@@ -399,6 +399,16 @@ return [
 
     'remove_item_success' => 'ลบรายการสำเร็จ',
     'remove_item_failed' => 'ลบรายการไม่สำเร็จ',
+    'void_item' => 'ยกเลิกรายการ',
+    'void_item_modal_title' => 'ยกเลิกรายการ',
+    'void_item_reason' => 'หมายเหตุการยกเลิกรายการ',
+    'void_item_reason_placeholder' => 'ใส่หมายเหตุเพิ่มเติม (ถ้ามี)',
+    'void_item_reason_required' => 'กรุณากรอกเหตุผล',
+    'void_item_confirm' => 'รายการที่ยังไม่ส่งครัวจะถูกยกเลิกทันที และไม่คิดเงินในบิล',
+    'void_item_success' => 'ยกเลิกรายการสำเร็จ',
+    'void_item_failed' => 'ยกเลิกรายการไม่สำเร็จ',
+    'audit_log_void_item' => 'ยกเลิกรายการ',
+    'manager_override_action_void_item' => 'อนุมัติยกเลิกรายการ',
     'remove_item_error' => 'เกิดข้อผิดพลาดระหว่างลบข้อมูล',
 
     'save_failed' => 'บันทึกข้อมูลไม่สำเร็จ',
@@ -1053,6 +1063,12 @@ return [
 'compact_exit' => 'กลับสู่โหมดปกติ',
 'served_history' => 'ย้อนหลังที่เสิร์ฟแล้ว',
 'served_history_empty' => 'ยังไม่มีข้อมูลย้อนหลังที่เสิร์ฟแล้ว',
+'served_items_section' => 'รายการที่เสิร์ฟแล้ว',
+'served_items_hint' => 'เสิร์ฟเสร็จแล้ว ไม่มี action เพิ่มในหน้านี้',
+'served_partial_signal' => 'เสิร์ฟแล้ว {served} / คงเหลือ {remaining}',
+'served_complete_signal' => 'เสิร์ฟครบแล้ว {count}',
+'audit_log_item_served' => 'เสิร์ฟรายการแล้ว',
+
 'served_count' => 'จำนวนรายการย้อนหลัง',
 'last_updated' => 'อัปเดตล่าสุด',
 'time_range_today' => 'วันนี้',
@@ -1180,4 +1196,15 @@ return [
 'audit_log_undo_payment' => 'Undo Payment',
 'manager_override_action_undo_payment' => 'อนุมัติ Undo Payment',
 
+
+    'timeline_loading' => 'กำลังโหลดไทม์ไลน์...',
+    'timeline_empty' => 'ยังไม่มีข้อมูลไทม์ไลน์',
+    'actor' => 'ผู้ทำรายการ',
+    'payment_history' => 'ประวัติการชำระเงิน',
+    'view_payment_history' => 'ดูประวัติการชำระเงิน',
+    'payment_history_loading' => 'กำลังโหลดประวัติการชำระเงิน...',
+    'payment_history_empty' => 'ยังไม่มีประวัติการชำระเงิน',
+    'received_by' => 'ผู้รับเงิน',
+    'paid_at' => 'เวลาชำระเงิน',
+    'remark' => 'หมายเหตุ',
 ];

@@ -91,6 +91,7 @@ class RolePermissionSeeder extends Seeder
 
                 'cashier.reopen_bill',
                 'cashier.undo_payment',
+                'cashier.void_item',
             ],
 
             'manager' => [
@@ -151,6 +152,7 @@ class RolePermissionSeeder extends Seeder
 
                 'cashier.reopen_bill',
                 'cashier.undo_payment',
+                'cashier.void_item',
             ],
 
             'staff' => [

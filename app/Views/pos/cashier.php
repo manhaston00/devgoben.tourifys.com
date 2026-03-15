@@ -660,6 +660,14 @@
         managerOverrideActionReopenBill: <?= json_encode(lang('app.manager_override_action_reopen_bill'), JSON_UNESCAPED_UNICODE) ?>,
         managerOverrideActionUndoPayment: <?= json_encode(lang('app.manager_override_action_undo_payment'), JSON_UNESCAPED_UNICODE) ?>,
         by: <?= json_encode(lang('app.by'), JSON_UNESCAPED_UNICODE) ?>,
+        paymentHistory: <?= json_encode(lang('app.payment_history'), JSON_UNESCAPED_UNICODE) ?>,
+        viewPaymentHistory: <?= json_encode(lang('app.view_payment_history'), JSON_UNESCAPED_UNICODE) ?>,
+        paymentHistoryLoading: <?= json_encode(lang('app.payment_history_loading'), JSON_UNESCAPED_UNICODE) ?>,
+        paymentHistoryEmpty: <?= json_encode(lang('app.payment_history_empty'), JSON_UNESCAPED_UNICODE) ?>,
+        receivedBy: <?= json_encode(lang('app.received_by'), JSON_UNESCAPED_UNICODE) ?>,
+        paidAt: <?= json_encode(lang('app.paid_at'), JSON_UNESCAPED_UNICODE) ?>,
+        remark: <?= json_encode(lang('app.remark'), JSON_UNESCAPED_UNICODE) ?>,
+        close: <?= json_encode(lang('app.close'), JSON_UNESCAPED_UNICODE) ?>,
     };
 
     const cashierPermissions = <?= json_encode([
@@ -676,6 +684,8 @@
 
     const managerOverrideModalEl = document.getElementById('managerOverrideModal');
     const managerOverrideModal = managerOverrideModalEl ? new bootstrap.Modal(managerOverrideModalEl) : null;
+    const paymentHistoryModalEl = document.getElementById('paymentHistoryModal');
+    const paymentHistoryModal = paymentHistoryModalEl ? new bootstrap.Modal(paymentHistoryModalEl) : null;
     let managerOverrideResolver = null;
 
     const state = {
@@ -1068,6 +1078,9 @@
                                     ${escapeHtml(lang.reopenBill)}
                                 </button>
                             ` : ''}
+                            <button type="button" class="btn btn-outline-dark" id="cashierPaymentHistoryBtn">
+                                ${escapeHtml(lang.viewPaymentHistory)}
+                            </button>
                             ${canPay ? `
                                 <button type="button" class="btn btn-success" id="cashierPayBtn">
                                     ${escapeHtml(lang.closeBillPay)}
@@ -1094,6 +1107,83 @@
         const amount = Number(amountInput.value || 0);
         const change = amount - Number(total || 0);
         changePreview.textContent = formatMoney(change > 0 ? change : 0);
+    }
+
+
+    function getPaymentStatusLabel(status) {
+        const normalized = String(status || 'paid').toLowerCase();
+        if (normalized === 'voided') {
+            return lang.undoPayment;
+        }
+        if (normalized === 'refunded') {
+            return normalized;
+        }
+        return getOrderStatusLabel('paid');
+    }
+
+    function getPaymentMethodLabel(method) {
+        const normalized = String(method || '').toLowerCase();
+        if (normalized === 'transfer') {
+            return lang.transfer;
+        }
+        if (normalized === 'card') {
+            return lang.card;
+        }
+        return lang.cash;
+    }
+
+    function renderPaymentHistoryRows(payments) {
+        if (!Array.isArray(payments) || !payments.length) {
+            return `<div class="cashier-empty">${escapeHtml(lang.paymentHistoryEmpty)}</div>`;
+        }
+
+        return payments.map((payment) => {
+            const isVoided = String(payment.payment_status || '').toLowerCase() === 'voided';
+            return `
+                <div class="cashier-item-row">
+                    <div class="cashier-item-top">
+                        <div>
+                            <div class="cashier-item-name">${escapeHtml(getPaymentMethodLabel(payment.payment_method))} • ${escapeHtml(formatMoney(payment.amount || 0))}</div>
+                            <div class="cashier-item-extra">${escapeHtml(lang.paidAt)}: ${escapeHtml(formatDateTime(payment.paid_at || ''))}</div>
+                            <div class="cashier-item-extra">${escapeHtml(lang.receivedBy)}: ${escapeHtml(payment.received_by || '-')}</div>
+                            ${payment.remark ? `<div class="cashier-item-note">${escapeHtml(lang.remark)}: ${escapeHtml(payment.remark)}</div>` : ''}
+                            ${isVoided && payment.void_reason ? `<div class="cashier-item-note text-danger">${escapeHtml(lang.undoPaymentReason)}: ${escapeHtml(payment.void_reason)}</div>` : ''}
+                        </div>
+                        <div class="cashier-item-price">
+                            <div class="qty">${escapeHtml(getPaymentStatusLabel(payment.payment_status))}</div>
+                            <div class="total">${escapeHtml(formatMoney(payment.change_amount || 0))}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function openPaymentHistory(orderId) {
+        const body = document.getElementById('paymentHistoryBody');
+        const meta = document.getElementById('paymentHistoryMeta');
+        if (!body || !meta || !paymentHistoryModal || !orderId) {
+            return;
+        }
+
+        body.innerHTML = `<div class="text-muted">${escapeHtml(lang.paymentHistoryLoading)}</div>`;
+        meta.textContent = '';
+        paymentHistoryModal.show();
+
+        try {
+            const response = await fetch(`<?= site_url('pos/payment-history') ?>/${Number(orderId)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            const json = await response.json();
+            if (!response.ok || json.status !== 'success') {
+                throw new Error(json.message || lang.orderNotFound);
+            }
+            const payload = json.data || {};
+            meta.textContent = [((payload.table || {}).table_name || ''), ((payload.order || {}).order_number || '')].filter(Boolean).join(' • ');
+            body.innerHTML = renderPaymentHistoryRows(payload.payments || []);
+        } catch (error) {
+            body.innerHTML = `<div class="text-danger">${escapeHtml(error.message || lang.orderNotFound)}</div>`;
+        }
     }
 
     function bindDetailActions(total, order) {
@@ -1215,6 +1305,10 @@
                 }
             });
         }
+
+        document.getElementById('cashierPaymentHistoryBtn')?.addEventListener('click', () => {
+            openPaymentHistory(Number(order.id || 0));
+        });
 
         const payBtn = document.getElementById('cashierPayBtn');
         if (payBtn) {
@@ -1440,6 +1534,27 @@
 })();
 </script>
 
+
+
+<div class="modal fade" id="paymentHistoryModal" tabindex="-1" aria-labelledby="paymentHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentHistoryModalLabel"><?= esc(lang('app.payment_history')) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= esc(lang('app.close')) ?>"></button>
+            </div>
+            <div class="modal-body">
+                <div class="small text-muted mb-3" id="paymentHistoryMeta"></div>
+                <div class="d-grid gap-3" id="paymentHistoryBody">
+                    <div class="text-muted"><?= esc(lang('app.loading')) ?></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?= esc(lang('app.close')) ?></button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="managerOverrideModal" tabindex="-1" aria-labelledby="managerOverrideModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

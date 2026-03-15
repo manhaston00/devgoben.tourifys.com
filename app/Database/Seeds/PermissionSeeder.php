@@ -82,6 +82,7 @@ class PermissionSeeder extends Seeder
 
             ['module_key' => 'cashier', 'action_key' => 'reopen_bill', 'permission_key' => 'cashier.reopen_bill', 'label' => 'Reopen Bill'],
             ['module_key' => 'cashier', 'action_key' => 'undo_payment', 'permission_key' => 'cashier.undo_payment', 'label' => 'Undo Payment / Void Payment'],
+            ['module_key' => 'cashier', 'action_key' => 'void_item', 'permission_key' => 'cashier.void_item', 'label' => 'Void Item'],
         ];
 
         foreach ($permissions as $row) {
@@ -123,6 +124,7 @@ class PermissionSeeder extends Seeder
             'branches.view', 'branches.create', 'branches.edit', 'branches.delete',
             'cashier.reopen_bill',
             'cashier.undo_payment',
+            'cashier.void_item',
         ];
 
         $adminRole = $this->db->table('roles')->where('role_name', 'admin')->get()->getRowArray();

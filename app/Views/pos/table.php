@@ -378,6 +378,40 @@
     display: none;
 }
 
+.recent-items-modal-list {
+    display: grid;
+    gap: .75rem;
+}
+
+.recent-items-modal-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    width: 100%;
+    text-align: left;
+    padding: 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.recent-items-modal-card:hover,
+.recent-items-modal-card:focus {
+    border-color: rgba(59, 130, 246, 0.45);
+    box-shadow: 0 14px 24px rgba(59, 130, 246, 0.10);
+}
+
+.recent-items-modal-card-title {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.recent-items-modal-card-meta {
+    font-size: .85rem;
+    color: #64748b;
+}
+
 @media (max-width: 1399.98px) {
     .pos-touch-shell {
         height: calc(100vh - 138px);
@@ -438,7 +472,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        z-index: 1060;
+        z-index: 1035;
         padding: 0 10px 10px;
         transform: translateY(calc(100% + 24px));
         transition: transform .22s ease;
@@ -465,7 +499,7 @@
         left: 12px;
         right: 12px;
         bottom: 12px;
-        z-index: 1055;
+        z-index: 1030;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -486,12 +520,20 @@
     .pos-mobile-bill-backdrop {
         position: fixed;
         inset: 0;
-        z-index: 1050;
+        z-index: 1025;
         background: rgba(15, 23, 42, 0.35);
         opacity: 0;
         visibility: hidden;
         transition: opacity .2s ease, visibility .2s ease;
         display: block;
+    }
+
+    .modal-backdrop {
+        z-index: 1080 !important;
+    }
+
+    .modal {
+        z-index: 1085 !important;
     }
 
     body.pos-bill-drawer-open .pos-bill-pane {
@@ -555,7 +597,7 @@
     }
 
     .pos-action-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     #productGrid {
@@ -628,6 +670,201 @@
         font-size: 1.4rem;
     }
 }
+
+.pos-bill-header-actions {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+#btnBillTimelineQuick {
+    min-height: 42px;
+    border-radius: 14px;
+    padding: .55rem .85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+.pos-bill-pane-close {
+    min-height: 42px;
+    min-width: 42px;
+    border-radius: 14px;
+}
+
+.pos-bill-timeline-dialog.modal-dialog {
+    max-width: 720px;
+}
+
+.pos-timeline-list {
+    display: grid;
+    gap: .75rem;
+}
+
+.pos-timeline-card {
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 18px;
+    background: #fff;
+    padding: .9rem 1rem;
+}
+
+.pos-timeline-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: .45rem;
+}
+
+.pos-timeline-card-title-wrap {
+    min-width: 0;
+}
+
+.pos-timeline-card-title {
+    font-size: .98rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #0f172a;
+}
+
+.pos-timeline-card-time {
+    font-size: .82rem;
+    color: #64748b;
+    margin-top: .18rem;
+}
+
+.pos-timeline-card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .35rem;
+}
+
+.pos-timeline-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: .22rem .55rem;
+    border-radius: 999px;
+    font-size: .74rem;
+    font-weight: 600;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    color: #475569;
+    background: #f8fafc;
+}
+
+.pos-timeline-badge.actor {
+    background: #f1f5f9;
+}
+
+.pos-timeline-badge.type-kitchen {
+    background: #fff7ed;
+    color: #c2410c;
+    border-color: rgba(251, 146, 60, .28);
+}
+
+.pos-timeline-badge.type-billing {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: rgba(59, 130, 246, .25);
+}
+
+.pos-timeline-badge.type-payment {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: rgba(16, 185, 129, .28);
+}
+
+.pos-timeline-badge.type-table {
+    background: #faf5ff;
+    color: #7c3aed;
+    border-color: rgba(168, 85, 247, .24);
+}
+
+.pos-timeline-badge.type-warning {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: rgba(248, 113, 113, .28);
+}
+
+.pos-timeline-badge.type-general {
+    background: #f8fafc;
+    color: #475569;
+}
+
+.pos-timeline-card-body {
+    display: grid;
+    gap: .45rem;
+}
+
+.pos-timeline-row {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: .5rem;
+    align-items: start;
+    font-size: .9rem;
+}
+
+.pos-timeline-row-label {
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+    font-size: .72rem;
+}
+
+.pos-timeline-row-value {
+    color: #0f172a;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.pos-timeline-empty {
+    border: 1px dashed rgba(148,163,184,.35);
+    border-radius: 18px;
+    padding: 1rem;
+    text-align: center;
+    color: #64748b;
+    background: #f8fafc;
+}
+
+@media (max-width: 767.98px) {
+    .pos-bill-header-actions {
+        width: auto;
+        margin-left: auto;
+    }
+
+    #btnBillTimelineQuick {
+        min-height: 38px;
+        padding: .45rem .7rem;
+        font-size: .85rem;
+    }
+
+    .pos-bill-timeline-dialog.modal-dialog {
+        margin: .65rem;
+    }
+
+    .pos-timeline-card {
+        padding: .8rem .85rem;
+        border-radius: 16px;
+    }
+
+    .pos-timeline-card-head {
+        flex-direction: column;
+        gap: .45rem;
+    }
+
+    .pos-timeline-card-badges {
+        justify-content: flex-start;
+    }
+
+    .pos-timeline-row {
+        grid-template-columns: 92px minmax(0, 1fr);
+        gap: .45rem;
+        font-size: .84rem;
+    }
+}
+
 </style>
 <?php
     $tableIsActive = (int) ($table['is_active'] ?? 0) === 1;
@@ -636,6 +873,16 @@
     $recentItemsLabel = lang('app.recent_items');
     if ($recentItemsLabel === 'app.recent_items') {
         $recentItemsLabel = service('request')->getLocale() === 'th' ? 'เมนูล่าสุด' : 'Recent items';
+    }
+
+    $viewAllLabel = lang('app.view_all');
+    if ($viewAllLabel === 'app.view_all') {
+        $viewAllLabel = service('request')->getLocale() === 'th' ? 'ดูทั้งหมด' : 'View all';
+    }
+
+    $addToBillLabel = lang('app.add_to_bill');
+    if ($addToBillLabel === 'app.add_to_bill') {
+        $addToBillLabel = service('request')->getLocale() === 'th' ? 'เพิ่มลงบิล' : 'Add to bill';
     }
 ?>
 <div class="pos-touch-shell mobile-bottom-space">
@@ -816,7 +1063,18 @@
                             <div class="pos-section-title"><?= esc(lang('app.current_bill')) ?></div>
                             <div class="pos-section-note" id="orderNoLabel">-</div>
                         </div>
-                        <button type="button" class="btn btn-outline-secondary pos-bill-pane-close" id="btnCloseBillDrawer">×</button>
+                        <div class="pos-bill-header-actions">
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary btn-sm"
+                                id="btnBillTimelineQuick"
+                                disabled
+                            >
+                                <span>🕘</span>
+                                <span><?= esc(lang('app.timeline')) ?></span>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary pos-bill-pane-close" id="btnCloseBillDrawer">×</button>
+                        </div>
                     </div>
 
                     <div class="pos-bill-scroll">
@@ -893,6 +1151,25 @@
     </div>
 </div>
 <div class="pos-mobile-bill-backdrop" id="mobileBillBackdrop"></div>
+
+<div class="modal fade" id="billTimelineModal" tabindex="-1" aria-labelledby="billTimelineModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable pos-bill-timeline-dialog">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="billTimelineModalLabel"><?= esc(lang('app.bill_timeline')) ?></h5>
+                    <div class="small text-muted" id="billTimelineMeta">-</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="billTimelineBody" class="pos-timeline-list">
+                    <div class="pos-timeline-empty"><?= esc(lang('app.no_data')) ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="productOptionModal" tabindex="-1" aria-labelledby="productOptionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -1080,6 +1357,22 @@
 </div>
 
 
+<div class="modal fade" id="recentItemsModal" tabindex="-1" aria-labelledby="recentItemsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recentItemsModalLabel"><?= esc($recentItemsLabel) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= esc(lang('app.close')) ?>"></button>
+            </div>
+            <div class="modal-body">
+                <div class="recent-items-modal-list" id="recentItemsModalBody">
+                    <div class="text-muted"><?= esc(lang('app.no_data')) ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="pos-toast-container" id="posToastContainer" aria-live="polite" aria-atomic="true"></div>
 
 <div class="modal fade" id="managerOverrideModal" tabindex="-1" aria-labelledby="managerOverrideModalLabel" aria-hidden="true">
@@ -1154,6 +1447,7 @@ $(function () {
     let SELECTED_PRODUCT_NAME = '';
     let SELECTED_PRODUCT_PRICE = 0;
     let AUTO_REFRESH_TIMER = null;
+    let RECENT_PRODUCT_ITEMS = [];
 
     const moveTableModalEl = document.getElementById('moveTableModal');
     const moveTableModal = moveTableModalEl ? new bootstrap.Modal(moveTableModalEl) : null;
@@ -1195,6 +1489,14 @@ $(function () {
         noteLabel: <?= json_encode(lang('app.note'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         edit: <?= json_encode(lang('app.edit'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         remove: <?= json_encode(lang('app.remove'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        voidItem: <?= json_encode(lang('app.void_item'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        voidItemTitle: <?= json_encode(lang('app.void_item_modal_title'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        voidItemReason: <?= json_encode(lang('app.void_item_reason'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        voidItemReasonPlaceholder: <?= json_encode(lang('app.void_item_reason_placeholder'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        voidItemReasonRequired: <?= json_encode(lang('app.void_item_reason_required'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        voidItemConfirm: <?= json_encode(lang('app.void_item_confirm'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        voidItemSuccess: <?= json_encode(lang('app.void_item_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        voidItemFailed: <?= json_encode(lang('app.void_item_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         loadBillFailed: <?= json_encode(lang('app.load_bill_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         openBillFirst: <?= json_encode(lang('app.please_open_bill_first'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         billCannotAddItems: <?= json_encode(lang('app.bill_status_cannot_add_items'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -1220,6 +1522,7 @@ $(function () {
         managerOverrideApproved: <?= json_encode(lang('app.manager_override_approved'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         managerOverrideFailed: <?= json_encode(lang('app.manager_override_failed'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         managerOverrideActionPay: <?= json_encode(lang('app.manager_override_action_pay'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        managerOverrideActionVoidItem: <?= json_encode(lang('app.manager_override_action_void_item'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         closeBillSuccess: <?= json_encode(lang('app.close_bill_success'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         changeLabel: <?= json_encode(lang('app.change'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         allProductsDisabled: <?= json_encode(lang('app.table_disabled'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
@@ -1266,7 +1569,28 @@ $(function () {
         canceledItemsNoCharge: <?= json_encode(service('request')->getLocale() === 'th' ? 'รายการนี้ไม่คิดเงินแล้ว' : 'This item is no longer billable', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         noData: <?= json_encode(lang('app.no_data'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         recentItems: <?= json_encode($recentItemsLabel, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
-        more: <?= json_encode(service('request')->getLocale() === 'th' ? 'เพิ่มเติม' : 'More', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+        viewAll: <?= json_encode($viewAllLabel, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        addToBillAction: <?= json_encode($addToBillLabel, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        timeline: <?= json_encode(lang('app.timeline'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        viewTimeline: <?= json_encode(lang('app.view_timeline'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        billTimeline: <?= json_encode(lang('app.bill_timeline'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        timelineEmpty: <?= json_encode(lang('app.no_data'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        loadTimelineFailed: <?= json_encode(service('request')->getLocale() === 'th' ? 'โหลดไทม์ไลน์ไม่สำเร็จ' : 'Unable to load timeline', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        sentToKitchenTimeline: <?= json_encode(service('request')->getLocale() === 'th' ? 'ส่งรายการเข้าครัว' : 'Sent items to kitchen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        viewedCashierTimeline: <?= json_encode(service('request')->getLocale() === 'th' ? 'เปิดหน้าชำระเงิน' : 'Opened cashier screen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        paymentTimeline: <?= json_encode(service('request')->getLocale() === 'th' ? 'ชำระเงินแล้ว' : 'Payment completed', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        moveTimeline: <?= json_encode(service('request')->getLocale() === 'th' ? 'ย้ายโต๊ะ' : 'Moved table', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        mergeTimeline: <?= json_encode(service('request')->getLocale() === 'th' ? 'รวมบิล' : 'Merged bill', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        reopenTimeline: <?= json_encode(service('request')->getLocale() === 'th' ? 'เปิดบิลกลับมาอีกครั้ง' : 'Reopened bill', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        undoPaymentTimeline: <?= json_encode(service('request')->getLocale() === 'th' ? 'ยกเลิกการชำระเงิน' : 'Undid payment', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        voidItemTimeline: <?= json_encode(lang('app.audit_log_void_item'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        actorLabel: <?= json_encode(service('request')->getLocale() === 'th' ? 'ผู้ทำรายการ' : 'Staff', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        kitchenType: <?= json_encode(service('request')->getLocale() === 'th' ? 'ครัว' : 'Kitchen', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        billingType: <?= json_encode(service('request')->getLocale() === 'th' ? 'บิล' : 'Billing', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        paymentType: <?= json_encode(service('request')->getLocale() === 'th' ? 'ชำระเงิน' : 'Payment', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        tableType: <?= json_encode(service('request')->getLocale() === 'th' ? 'โต๊ะ' : 'Table', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        generalType: <?= json_encode(service('request')->getLocale() === 'th' ? 'ทั่วไป' : 'General', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        reasonLabel: <?= json_encode(lang('app.note'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
     };
 
     const productOptionModalEl = document.getElementById('productOptionModal');
@@ -1274,13 +1598,24 @@ $(function () {
 
     const paymentModalEl = document.getElementById('paymentModal');
     const paymentModal = paymentModalEl ? new bootstrap.Modal(paymentModalEl) : null;
+    const recentItemsModalEl = document.getElementById('recentItemsModal');
+    const recentItemsModal = recentItemsModalEl ? new bootstrap.Modal(recentItemsModalEl) : null;
     const mergeAuditModalEl = document.getElementById('mergeAuditModal');
     const mergeAuditModal = mergeAuditModalEl ? new bootstrap.Modal(mergeAuditModalEl) : null;
     const moveAuditModalEl = document.getElementById('moveAuditModal');
     const moveAuditModal = moveAuditModalEl ? new bootstrap.Modal(moveAuditModalEl) : null;
     const managerOverrideModalEl = document.getElementById('managerOverrideModal');
     const managerOverrideModal = managerOverrideModalEl ? new bootstrap.Modal(managerOverrideModalEl) : null;
+    const billTimelineModalEl = document.getElementById('billTimelineModal');
+    const billTimelineModal = billTimelineModalEl ? new bootstrap.Modal(billTimelineModalEl) : null;
     let managerOverrideResolver = null;
+
+    const TABLE_PERMISSIONS = {
+        voidItem: <?= json_encode((bool) ($tablePermissions['void_item'] ?? false), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+    };
+
+    const voidItemModalEl = document.getElementById('voidItemModal');
+    const voidItemModal = voidItemModalEl ? new bootstrap.Modal(voidItemModalEl) : null;
 
     function money(num) {
         return '฿' + parseFloat(num || 0).toFixed(2);
@@ -1288,6 +1623,213 @@ $(function () {
 
     function escapeHtml(text) {
         return $('<div>').text(text ?? '').html();
+    }
+
+
+
+    function formatDateTime(value, options = {}) {
+        if (!value) {
+            return '-';
+        }
+
+        const date = new Date(String(value).replace(' ', 'T'));
+        if (Number.isNaN(date.getTime())) {
+            return escapeHtml(String(value));
+        }
+
+        const locale = <?= json_encode(service('request')->getLocale() === 'th' ? 'th-TH' : 'en-US') ?>;
+        const mode = options.mode || 'full';
+
+        if (mode === 'time') {
+            return date.toLocaleTimeString(locale, {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        if (mode === 'compact') {
+            return date.toLocaleString(locale, {
+                day: '2-digit',
+                month: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        return date.toLocaleString(locale, {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function timelineActionMeta(actionKey, actionLabel) {
+        const key = String(actionKey || '').toLowerCase();
+        const rawLabel = String(actionLabel || '').trim();
+
+        const map = {
+            'pos.send_kitchen': { title: TXT.sentToKitchenTimeline, type: 'kitchen' },
+            'cashier.view': { title: TXT.viewedCashierTimeline, type: 'billing' },
+            'cashier.pay': { title: TXT.paymentTimeline, type: 'payment' },
+            'cashier.undo_payment': { title: TXT.undoPaymentTimeline, type: 'payment' },
+            'cashier.reopen_bill': { title: TXT.reopenTimeline, type: 'billing' },
+            'pos.void_item': { title: TXT.voidItemTimeline, type: 'general' },
+            'pos.move_table': { title: TXT.moveTimeline, type: 'table' },
+            'pos.merge_bill': { title: TXT.mergeTimeline, type: 'table' },
+            'audit_logs.view': { title: TXT.viewTimeline, type: 'general' },
+            'pos.item_served': { title: TXT.servedTimeline, type: 'kitchen' }
+        };
+
+        if (map[key]) {
+            return map[key];
+        }
+
+        if (rawLabel !== '') {
+            return { title: rawLabel, type: 'general' };
+        }
+
+        return { title: key || TXT.timeline, type: 'general' };
+    }
+
+    function timelineTypeLabel(type) {
+        if (type === 'kitchen') return TXT.kitchenType;
+        if (type === 'billing') return TXT.billingType;
+        if (type === 'payment') return TXT.paymentType;
+        if (type === 'table') return TXT.tableType;
+        return TXT.generalType;
+    }
+
+    function beautifyTimelineMetaLabel(key) {
+        const map = {
+            ticket_no: <?= json_encode(service('request')->getLocale() === 'th' ? 'เลขตั๋วครัว' : 'Kitchen ticket') ?>,
+            batch_no: <?= json_encode(service('request')->getLocale() === 'th' ? 'รอบส่งครัว' : 'Kitchen batch') ?>,
+            item_count: <?= json_encode(service('request')->getLocale() === 'th' ? 'จำนวนรายการ' : 'Items') ?>,
+            payment_method: <?= json_encode(service('request')->getLocale() === 'th' ? 'วิธีชำระเงิน' : 'Payment method') ?>,
+            amount: <?= json_encode(service('request')->getLocale() === 'th' ? 'ยอดเงิน' : 'Amount') ?>,
+            received_amount: <?= json_encode(service('request')->getLocale() === 'th' ? 'รับเงินมา' : 'Received') ?>,
+            change_amount: <?= json_encode(service('request')->getLocale() === 'th' ? 'เงินทอน' : 'Change') ?>,
+            reason: <?= json_encode(service('request')->getLocale() === 'th' ? 'เหตุผล' : 'Reason') ?>,
+            from_table_name: <?= json_encode(service('request')->getLocale() === 'th' ? 'จากโต๊ะ' : 'From table') ?>,
+            to_table_name: <?= json_encode(service('request')->getLocale() === 'th' ? 'ไปโต๊ะ' : 'To table') ?>,
+            source_order_number: <?= json_encode(service('request')->getLocale() === 'th' ? 'บิลต้นทาง' : 'Source bill') ?>,
+            target_order_number: <?= json_encode(service('request')->getLocale() === 'th' ? 'บิลปลายทาง' : 'Target bill') ?>,
+            served_at: <?= json_encode(service('request')->getLocale() === 'th' ? 'เวลาเสิร์ฟ' : 'Served at') ?>,
+            from_status: <?= json_encode(service('request')->getLocale() === 'th' ? 'จากสถานะ' : 'From status') ?>,
+            to_status: <?= json_encode(service('request')->getLocale() === 'th' ? 'เป็นสถานะ' : 'To status') ?>
+        };
+
+        return map[key] || key.replace(/_/g, ' ');
+    }
+
+    function timelineVisibleMeta(meta) {
+        const allowed = [
+            'ticket_no',
+            'batch_no',
+            'item_count',
+            'payment_method',
+            'amount',
+            'received_amount',
+            'change_amount',
+            'product_name',
+            'qty',
+            'reason',
+            'from_table_name',
+            'to_table_name',
+            'source_order_number',
+            'target_order_number',
+            'served_at',
+            'from_status',
+            'to_status'
+        ];
+
+        const rows = [];
+        const source = meta && typeof meta === 'object' ? meta : {};
+        allowed.forEach(function (key) {
+            const value = source[key];
+            if (value === null || value === undefined || value === '') {
+                return;
+            }
+            rows.push({ label: beautifyTimelineMetaLabel(key), value: value });
+        });
+        return rows;
+    }
+
+    function renderTimelineRows(rows) {
+        if (!Array.isArray(rows) || rows.length === 0) {
+            return '<div class="pos-timeline-empty">' + escapeHtml(TXT.timelineEmpty) + '</div>';
+        }
+
+        return rows.map(function (row) {
+            const action = timelineActionMeta(row.action_key, row.action_label);
+            const metaRows = timelineVisibleMeta(row.meta || {});
+            const actorName = row.actor_name || row.username || row.full_name || '-';
+
+            const bodyHtml = metaRows.length
+                ? metaRows.map(function (metaRow) {
+                    const metaValue = (metaRow.label === beautifyTimelineMetaLabel('served_at'))
+                        ? formatDateTime(metaRow.value, { mode: 'compact' })
+                        : escapeHtml(String(metaRow.value));
+                    return '<div class="pos-timeline-row">'
+                        + '<div class="pos-timeline-row-label">' + escapeHtml(metaRow.label) + '</div>'
+                        + '<div class="pos-timeline-row-value">' + metaValue + '</div>'
+                        + '</div>';
+                }).join('')
+                : '<div class="pos-timeline-row">'
+                    + '<div class="pos-timeline-row-label">' + escapeHtml(TXT.noteLabel) + '</div>'
+                    + '<div class="pos-timeline-row-value">-</div>'
+                    + '</div>';
+
+            return '<div class="pos-timeline-card">'
+                + '<div class="pos-timeline-card-head">'
+                + '  <div class="pos-timeline-card-title-wrap">'
+                + '      <div class="pos-timeline-card-title">' + escapeHtml(action.title) + '</div>'
+                + '      <div class="pos-timeline-card-time">' + escapeHtml(formatDateTime(row.created_at || '', { mode: 'compact' })) + '</div>'
+                + '  </div>'
+                + '  <div class="pos-timeline-card-badges">'
+                + '      <span class="pos-timeline-badge actor">' + escapeHtml(actorName) + '</span>'
+                + '      <span class="pos-timeline-badge type-' + escapeHtml(action.type) + '">' + escapeHtml(timelineTypeLabel(action.type)) + '</span>'
+                + '  </div>'
+                + '</div>'
+                + '<div class="pos-timeline-card-body">' + bodyHtml + '</div>'
+                + '</div>';
+        }).join('');
+    }
+
+    function openBillTimeline() {
+        if (!CURRENT_ORDER_ID) {
+            notify(TXT.noBillYet, 'warning');
+            return;
+        }
+
+        const body = document.getElementById('billTimelineBody');
+        const meta = document.getElementById('billTimelineMeta');
+        if (!body || !meta || !billTimelineModal) {
+            return;
+        }
+
+        meta.textContent = ($('#tableName').text() || '').trim() + ' • ' + ($('#orderNoLabel').text() || '-').trim();
+        body.innerHTML = '<div class="pos-timeline-empty">Loading...</div>';
+        billTimelineModal.show();
+
+        $.get(<?= json_encode(site_url('pos/table-timeline')) ?> + '/' + TABLE_ID)
+            .done(function (res) {
+                if (!res || res.status !== 'success') {
+                    body.innerHTML = '<div class="pos-timeline-empty">' + escapeHtml((res && res.message) ? res.message : TXT.loadTimelineFailed) + '</div>';
+                    return;
+                }
+
+                if (res.order && res.order.order_number) {
+                    meta.textContent = ($('#tableName').text() || '').trim() + ' • ' + res.order.order_number;
+                }
+
+                body.innerHTML = renderTimelineRows(res.rows || []);
+            })
+            .fail(function (xhr) {
+                console.error('timeline error:', xhr.responseText);
+                body.innerHTML = '<div class="pos-timeline-empty">' + escapeHtml(TXT.loadTimelineFailed) + '</div>';
+            });
     }
 
     function notify(message, type) {
@@ -1356,6 +1898,9 @@ $(function () {
         if (actionKey === 'pay') {
             return TXT.managerOverrideActionPay || TXT.managerOverrideRequired;
         }
+        if (actionKey === 'void_item') {
+            return TXT.managerOverrideActionVoidItem || TXT.voidItem || TXT.managerOverrideRequired;
+        }
         return TXT.managerOverrideRequired;
     }
 
@@ -1368,12 +1913,15 @@ $(function () {
         $('body').toggleClass('pos-bill-drawer-open', !!isOpen);
     }
 
-    function updateMobileBillSummary(itemCount, totalAmount) {
-        $('#mobileBillSummaryMeta').text((itemCount || 0) + ' · ' + ($('#orderNoLabel').text().trim() || '-'));
+    function updateMobileBillSummary(itemCount, totalAmount, orderNumber) {
+        const safeOrderNumber = $.trim(String(orderNumber || $('#orderNoLabel').text() || '-'));
+        const metaText = safeOrderNumber && safeOrderNumber !== '-' ? safeOrderNumber : TXT.noBillYet;
+
+        $('#mobileBillSummaryMeta').text(metaText);
         $('#mobileBillSummaryTotal').text(money(totalAmount || 0));
     }
 
-    function renderRecentProductToolbar(items) {
+    function buildRecentProductItems(items) {
         const list = Array.isArray(items) ? items : [];
         const seen = new Set();
         const recent = [];
@@ -1395,8 +1943,45 @@ $(function () {
             });
         });
 
-        const visible = recent.slice(0, 2);
-        const extraCount = Math.max(recent.length - visible.length, 0);
+        return recent;
+    }
+
+    function renderRecentItemsModal() {
+        if (!recentItemsModalEl) {
+            return;
+        }
+
+        if (!RECENT_PRODUCT_ITEMS.length) {
+            $('#recentItemsModalBody').html('<div class="text-muted">' + escapeHtml(TXT.noData) + '</div>');
+            return;
+        }
+
+        const html = RECENT_PRODUCT_ITEMS.map(function (item) {
+            return `
+                <button
+                    type="button"
+                    class="recent-items-modal-card btn-open-recent-modal-item"
+                    data-id="${item.product_id}"
+                    data-name="${escapeHtml(item.product_name)}"
+                    data-price="${item.price}"
+                >
+                    <div>
+                        <div class="recent-items-modal-card-title">${escapeHtml(item.product_name)}</div>
+                        <div class="recent-items-modal-card-meta">${money(item.price || 0)}</div>
+                    </div>
+                    <span class="btn btn-outline-primary btn-sm rounded-pill">${escapeHtml(TXT.addToBillAction)}</span>
+                </button>
+            `;
+        }).join('');
+
+        $('#recentItemsModalBody').html(html);
+    }
+
+    function renderRecentProductToolbar(items) {
+        RECENT_PRODUCT_ITEMS = buildRecentProductItems(items);
+
+        const visible = RECENT_PRODUCT_ITEMS.slice(0, 2);
+        const extraCount = Math.max(RECENT_PRODUCT_ITEMS.length - visible.length, 0);
         let html = '';
 
         visible.forEach(function (item) {
@@ -1404,11 +1989,12 @@ $(function () {
         });
 
         if (extraCount > 0) {
-            html += '<button type="button" class="btn pos-inline-chip pos-inline-chip-more" id="btnRecentItemsMore">+' + extraCount + '</button>';
+            html += '<button type="button" class="btn pos-inline-chip pos-inline-chip-more" id="btnRecentItemsMore">' + escapeHtml(TXT.viewAll) + ' (' + extraCount + ')</button>';
         }
 
         $('#recentProductChips').html(html);
-        $('#recentProductToolbar').toggleClass('show', recent.length > 0);
+        $('#recentProductToolbar').toggleClass('show', RECENT_PRODUCT_ITEMS.length > 0);
+        renderRecentItemsModal();
     }
 
     function applyProductFilters() {
@@ -1959,6 +2545,7 @@ $(function () {
 			$('#btnPay').prop('disabled', true);
 			$('#btnMoveTable').prop('disabled', true);
 			$('#btnMergeBill').prop('disabled', true);
+			$('#btnBillTimelineQuick').prop('disabled', true);
 			$('.product-btn').prop('disabled', true);
 		} else {
 			if (CURRENT_ORDER_ID && (CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing')) {
@@ -1971,6 +2558,7 @@ $(function () {
 			$('#btnPay').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
 			$('#btnMoveTable').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
 			$('#btnMergeBill').prop('disabled', !(CURRENT_ORDER_STATUS === 'open' || CURRENT_ORDER_STATUS === 'billing'));
+			$('#btnBillTimelineQuick').prop('disabled', !CURRENT_ORDER_ID);
 			$('.product-btn').prop('disabled', false);
 		}
 
@@ -2065,8 +2653,22 @@ $(function () {
         $('#billRequestAlertBox').html(html);
     }
 
+    function shouldHideCanceledItemFromVisibleHistory(item) {
+        const normalizedStatus = normalizeItemStatus(item && item.status ? item.status : 'pending');
+        const requestState = getRequestStateMeta(item);
+        const isCanceled = normalizedStatus === 'cancel' || normalizedStatus === 'cancelled' || normalizedStatus === 'canceled' || (requestState && requestState.key === 'approved');
+
+        if (!isCanceled) {
+            return false;
+        }
+
+        const previousStatus = normalizeItemStatus((item && item.cancel_request_prev_status) ? item.cancel_request_prev_status : '');
+        return previousStatus === 'pending' || previousStatus === 'open' || previousStatus === 'new';
+    }
+
     function renderItems(order, items) {
         let activeHtml = '';
+        let servedHtml = '';
         let canceledHtml = '';
 
         if (!items || items.length === 0) {
@@ -2080,7 +2682,8 @@ $(function () {
                 const requestState = getRequestStateMeta(item);
                 const displayStatus = getDisplayStatusMeta(item);
                 const isCanceled = normalizedStatus === 'cancel' || normalizedStatus === 'cancelled' || normalizedStatus === 'canceled' || (requestState && requestState.key === 'approved');
-                const canRequestCancel = !editable && !isCanceled && (!requestState || requestState.key === 'rejected');
+                const isServed = normalizedStatus === 'served';
+                const canRequestCancel = !editable && !isCanceled && !isServed && (!requestState || requestState.key === 'rejected');
 
                 let requestHtml = '';
                 let actionButtons = '';
@@ -2122,7 +2725,7 @@ $(function () {
                                 data-note="${escapeHtml(item.note ?? '')}"
                                 data-status="${escapeHtml(item.status ?? '')}"
                             >${TXT.edit}</button>
-                            <button type="button" class="btn btn-outline-danger btn-cancel-direct" data-id="${item.id}">${TXT.remove}</button>
+                            <button type="button" class="btn btn-outline-danger btn-void-item" data-id="${item.id}" data-product-name="${escapeHtml(item.product_name ?? '')}">${TXT.voidItem}</button>
                         </div>
                     `;
                 } else if (canRequestCancel) {
@@ -2131,8 +2734,12 @@ $(function () {
                     `;
                 }
 
+                const servedAt = item.served_at ? `
+                    <div class="small text-success mt-2">✓ ${escapeHtml(formatDateTime(String(item.served_at || ''), { mode: 'compact' }))}</div>
+                ` : '';
+
                 const cardHtml = `
-                    <div class="border rounded-4 p-2 mb-2 ${isCanceled ? 'bg-light' : ''}" data-item-status="${escapeHtml(item.status ?? 'pending')}" data-cancel-request-status="${escapeHtml(getCancelRequestStatus(item))}">
+                    <div class="border rounded-4 p-2 mb-2 ${isCanceled ? 'bg-light' : isServed ? 'bg-success bg-opacity-10 border-success-subtle' : ''}" data-item-status="${escapeHtml(item.status ?? 'pending')}" data-cancel-request-status="${escapeHtml(getCancelRequestStatus(item))}">
                         <div class="d-flex justify-content-between align-items-start mb-1 gap-2">
                             <div class="fw-bold">${escapeHtml(item.product_name ?? '')}</div>
                             <span class="badge bg-${displayStatus.badgeClass}">${escapeHtml(displayStatus.text)}</span>
@@ -2142,6 +2749,7 @@ $(function () {
                         ${item.option_summary ? `<div class="small text-primary">${TXT.optionLabel}: ${escapeHtml(item.option_summary)}</div>` : ''}
                         ${item.note ? `<div class="small text-muted mb-2">${TXT.noteLabel}: ${escapeHtml(item.note)}</div>` : ''}
                         ${requestHtml}
+                        ${servedAt}
 
                         <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
                             <div>${money(item.price)} x ${item.qty}</div>
@@ -2151,12 +2759,17 @@ $(function () {
                         </div>
 
                         ${isCanceled ? `<div class="small text-danger mt-2 fw-semibold">${escapeHtml(TXT.canceledItemsNoCharge)}</div>` : ''}
+                        ${isServed ? `<div class="small text-success mt-2 fw-semibold">${escapeHtml(TXT.servedItemsHint)}</div>` : ''}
                         ${secondaryButtons}
                     </div>
                 `;
 
                 if (isCanceled) {
-                    canceledHtml += cardHtml;
+                    if (!shouldHideCanceledItemFromVisibleHistory(item)) {
+                        canceledHtml += cardHtml;
+                    }
+                } else if (isServed) {
+                    servedHtml += cardHtml;
                 } else {
                     activeHtml += cardHtml;
                 }
@@ -2167,6 +2780,15 @@ $(function () {
 
         if (!activeHtml) {
             activeHtml = '<div class="text-muted">' + TXT.noItemsYet + '</div>';
+        }
+
+        if (servedHtml) {
+            activeHtml += `
+                <div class="mt-3 pt-3 border-top">
+                    <div class="fw-bold mb-2 text-success">${escapeHtml(TXT.servedItemsSection)}</div>
+                    ${servedHtml}
+                </div>
+            `;
         }
 
         if (canceledHtml) {
@@ -2187,7 +2809,7 @@ $(function () {
         $('#orderBox').html(activeHtml);
         $('#canceledItemsBox').html(canceledHtml);
         $('#billTotal').text(money(order.total_price || 0));
-        updateMobileBillSummary(activeItemCount, order.total_price || 0);
+        updateMobileBillSummary(activeItemCount, order.total_price || 0, order.order_number || '');
         renderRecentProductToolbar(items || []);
     }
 
@@ -2195,7 +2817,12 @@ $(function () {
         return $('#productOptionModal').hasClass('show')
             || $('#paymentModal').hasClass('show')
             || $('#moveTableModal').hasClass('show')
-            || $('#mergeBillModal').hasClass('show');
+            || $('#mergeBillModal').hasClass('show')
+            || $('#mergeAuditModal').hasClass('show')
+            || $('#moveAuditModal').hasClass('show')
+            || $('#managerOverrideModal').hasClass('show')
+            || $('#recentItemsModal').hasClass('show')
+            || $('#billTimelineModal').hasClass('show');
     }
 
     function loadOrder() {
@@ -2390,7 +3017,35 @@ $(function () {
     });
 
     $(document).on('click', '#btnRecentItemsMore', function () {
-        $('#orderBox .pos-bill-item, #orderBox .border.rounded-4').first().get(0)?.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        renderRecentItemsModal();
+
+        if (recentItemsModal) {
+            recentItemsModal.show();
+        }
+    });
+
+    $(document).on('click', '.btn-open-recent-modal-item', function () {
+        if (!CURRENT_ORDER_ID) {
+            notify(TXT.openBillFirst);
+            return;
+        }
+
+        const productId = Number($(this).data('id') || 0);
+        const productName = $(this).data('name') || '';
+        const productPrice = parseFloat($(this).data('price') || 0);
+
+        if (!productId || !productName) {
+            return;
+        }
+
+        if (recentItemsModal) {
+            recentItemsModal.hide();
+        }
+
+        window.setTimeout(function () {
+            openProductModal(productId, productName, productPrice);
+            loadProductQuickOptions(productId);
+        }, 180);
     });
 
     $(document).on('click', '.btn-edit-item', function () {
@@ -2534,22 +3189,101 @@ $(function () {
         });
     });
 
-    $(document).on('click', '.btn-cancel-direct', function () {
-        $.post("<?= site_url('pos/remove-item') ?>", {
-            item_id: $(this).data('id')
-        })
-        .done(function (res) {
-            if (res && res.status === 'error') {
-                notify(res.message || TXT.removeItemFailed);
+    
+$(document).on('click', '.btn-void-item', async function () {
+    const itemId = parseInt($(this).data('id') || 0, 10);
+    const $btn = $(this);
+
+    if (!itemId) {
+        notify(TXT.selectedItemNotFound);
+        return;
+    }
+
+    $btn.prop('disabled', true);
+
+    const submitVoid = function () {
+        return $.post("<?= site_url('pos/remove-item') ?>", {
+            item_id: itemId,
+            reason: ''
+        });
+    };
+
+    try {
+        let res = await submitVoid();
+
+        if (res && res.status === 'manager_override_required') {
+            const approved = await requestManagerOverride('void_item', CURRENT_ORDER_ID);
+            if (!approved) {
                 return;
             }
-            loadOrder();
-        })
-        .fail(function (xhr) {
-            console.error('cancelDirect error:', xhr.responseText);
-            notify(TXT.removeItemFailed);
+            res = await submitVoid();
+        }
+
+        if (!res || res.status !== 'success') {
+            notify((res && res.message) ? res.message : TXT.voidItemFailed);
+            return;
+        }
+
+        if (voidItemModal) {
+            voidItemModal.hide();
+        }
+        loadOrder();
+    } catch (xhr) {
+        console.error('voidItem error:', xhr && xhr.responseText ? xhr.responseText : xhr);
+        notify(TXT.voidItemFailed);
+    } finally {
+        $btn.prop('disabled', false);
+    }
+});
+
+
+$(document).on('click', '#btnConfirmVoidItem', async function () {
+    const itemId = parseInt($('#voidItemId').val() || 0, 10);
+    const reason = $.trim($('#voidItemReason').val() || '');
+    const $btn = $(this);
+
+    if (!itemId) {
+        notify(TXT.selectedItemNotFound);
+        return;
+    }
+
+    $btn.prop('disabled', true);
+
+    const submitVoid = function () {
+        return $.post("<?= site_url('pos/remove-item') ?>", {
+            item_id: itemId,
+            reason: reason
         });
-    });
+    };
+
+    try {
+        let res = await submitVoid();
+
+        if (res && res.status === 'manager_override_required') {
+            const approved = await requestManagerOverride('void_item', CURRENT_ORDER_ID);
+            if (!approved) {
+                return;
+            }
+            res = await submitVoid();
+        }
+
+        if (!res || res.status !== 'success') {
+            notify((res && res.message) ? res.message : TXT.voidItemFailed);
+            return;
+        }
+
+        if (voidItemModal) {
+            voidItemModal.hide();
+        }
+        notify(res.message || TXT.voidItemSuccess);
+        loadOrder();
+    } catch (xhr) {
+        console.error('voidItem error:', xhr && xhr.responseText ? xhr.responseText : xhr);
+        notify(TXT.voidItemFailed);
+    } finally {
+        $btn.prop('disabled', false);
+    }
+});
 
     $(document).on('click', '.btn-request-cancel', function () {
         $.post("<?= site_url('pos/update-item-status') ?>", {
@@ -3054,9 +3788,23 @@ $(function () {
         });
     }
 
+    if (recentItemsModalEl) {
+        recentItemsModalEl.addEventListener('hidden.bs.modal', function () {
+            const activeTrigger = document.activeElement;
+            if (activeTrigger && typeof activeTrigger.blur === 'function') {
+                activeTrigger.blur();
+            }
+        });
+    }
+
+    $(document).on('click', '#btnBillTimelineQuick', function () {
+        openBillTimeline();
+    });
+
     updateOrderHeader();
     applyProductFilters();
     renderRecentProductToolbar([]);
+    updateMobileBillSummary(0, 0, '');
     loadOrder();
     startAutoRefresh();
 });

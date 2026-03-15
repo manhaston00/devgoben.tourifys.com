@@ -250,6 +250,7 @@ class POSController extends BaseController
             'close_bill'   => 'cashier.close_bill',
             'reopen_bill'  => 'cashier.reopen_bill',
             'undo_payment' => 'cashier.undo_payment',
+            'void_item'    => 'cashier.void_item',
             'pay'          => 'cashier.pay',
         ];
     }
@@ -766,14 +767,11 @@ class POSController extends BaseController
         return (float) ($freshOrder['total_price'] ?? 0);
     }
 
-    public function index()
+    protected function getOverviewTables(): array
     {
-        if ($response = $this->denyIfFeatureNotEnabled('pos.access', lang('app.plan_cannot_access_pos'))) {
-            return $response;
-        }
-
         $branchId = $this->getCurrentBranchId();
         $tables   = $this->tableModel->getTablesFull($branchId);
+        $orderIds = [];
 
         foreach ($tables as &$table) {
             $tableId  = (int) ($table['id'] ?? 0);
@@ -805,17 +803,473 @@ class POSController extends BaseController
                 }
             }
 
-            $table['has_open_order']       = $hasOpenOrder ? 1 : 0;
-            $table['current_order_id']     = ! empty($currentOrder['id']) ? (int) $currentOrder['id'] : null;
-            $table['current_order_status'] = $currentOrder['status'] ?? null;
-            $table['reservation_locked']   = $lockInfo['locked'];
-            $table['reservation_message']  = $lockInfo['message'];
-            $table['reservation_data']     = $lockInfo['reservation'];
+            $table['has_open_order']         = $hasOpenOrder ? 1 : 0;
+            $table['current_order_id']       = ! empty($currentOrder['id']) ? (int) $currentOrder['id'] : null;
+            $table['current_order_status']   = $currentOrder['status'] ?? null;
+            $table['reservation_locked']     = $lockInfo['locked'];
+            $table['reservation_message']    = $lockInfo['message'];
+            $table['reservation_data']       = $lockInfo['reservation'];
+            $table['kitchen_pending_count']        = 0;
+            $table['kitchen_preparing_count']      = 0;
+            $table['kitchen_ready_count']          = 0;
+            $table['kitchen_served_count']         = 0;
+            $table['kitchen_remaining_count']      = 0;
+            $table['kitchen_served_partial']       = 0;
+            $table['kitchen_served_all']           = 0;
+            $table['cancel_request_count']         = 0;
+            $table['kitchen_cancel_request_count'] = 0;
+            $table['merge_in_count']               = 0;
+            $table['was_moved']                    = 0;
+            $table['move_in_count']                = 0;
+            $table['was_reopened']                 = 0;
+            $table['payment_partial_count']        = 0;
+            $table['payment_partial']              = 0;
+
+            if (! empty($currentOrder['id'])) {
+                $orderIds[] = (int) $currentOrder['id'];
+            }
         }
         unset($table);
 
+        $signalMap = $this->buildOverviewOrderSignalMap($orderIds);
+
+        foreach ($tables as &$table) {
+            $orderId = (int) ($table['current_order_id'] ?? 0);
+            if ($orderId > 0 && isset($signalMap[$orderId])) {
+                $table = array_merge($table, $signalMap[$orderId]);
+            }
+        }
+        unset($table);
+
+        return $tables;
+    }
+
+    protected function buildOverviewOrderSignalMap(array $orderIds): array
+    {
+        $tenantId = $this->currentTenantId();
+        $branchId = $this->getCurrentBranchId();
+        $orderIds = array_values(array_unique(array_map('intval', $orderIds)));
+        $map      = [];
+
+        foreach ($orderIds as $orderId) {
+            if ($orderId > 0) {
+                $map[$orderId] = [
+                    'kitchen_pending_count'        => 0,
+                    'kitchen_sent_count'           => 0,
+                    'kitchen_preparing_count'      => 0,
+                    'kitchen_ready_count'          => 0,
+                    'kitchen_served_count'         => 0,
+                    'kitchen_remaining_count'      => 0,
+                    'kitchen_served_partial'       => 0,
+                    'kitchen_served_all'           => 0,
+                    'cancel_request_count'         => 0,
+                    'kitchen_cancel_request_count' => 0,
+                    'merge_in_count'               => 0,
+                    'was_moved'                    => 0,
+                    'move_in_count'                => 0,
+                    'was_reopened'                 => 0,
+                    'payment_partial_count'        => 0,
+                    'payment_partial'              => 0,
+                ];
+            }
+        }
+
+        if (empty($map)) {
+            return $map;
+        }
+
+        $inOrderIds = array_keys($map);
+
+        $itemBuilder = $this->db->table('order_items');
+        $itemBuilder->select('order_id, status');
+        if ($this->db->fieldExists('served_at', 'order_items')) {
+            $itemBuilder->select('served_at');
+        }
+        if ($this->db->fieldExists('cancel_request_status', 'order_items')) {
+            $itemBuilder->select('cancel_request_status');
+        }
+        if ($this->db->fieldExists('tenant_id', 'order_items')) {
+            $itemBuilder->where('tenant_id', $tenantId);
+        }
+        $itemBuilder->whereIn('order_id', $inOrderIds);
+
+        foreach ($itemBuilder->get()->getResultArray() as $row) {
+            $orderId = (int) ($row['order_id'] ?? 0);
+            if (! isset($map[$orderId])) {
+                continue;
+            }
+
+            $status = $this->normalizeOrderItemStatus($row['status'] ?? 'pending');
+            $servedAt = trim((string) ($row['served_at'] ?? ''));
+            if ($servedAt !== '' && $status === 'pending') {
+                $status = 'served';
+            }
+            $cancelRequestStatus = strtolower(trim((string) ($row['cancel_request_status'] ?? '')));
+
+            if (in_array($cancelRequestStatus, ['pending', 'requested', 'waiting'], true)) {
+                $map[$orderId]['cancel_request_count']++;
+                $map[$orderId]['kitchen_cancel_request_count']++;
+            }
+
+            if ($status === 'ready') {
+                $map[$orderId]['kitchen_ready_count']++;
+            } elseif ($status === 'served') {
+                $map[$orderId]['kitchen_served_count']++;
+            } elseif (in_array($status, ['preparing', 'cooking', 'processing'], true)) {
+                $map[$orderId]['kitchen_preparing_count']++;
+            } elseif (in_array($status, ['sent', 'submitted', 'sent_to_kitchen'], true)) {
+                $map[$orderId]['kitchen_sent_count']++;
+            } elseif (in_array($status, ['pending', 'new', 'open'], true)) {
+                $map[$orderId]['kitchen_pending_count']++;
+            }
+        }
+
+        foreach ($map as $orderId => &$signalRow) {
+            $remainingCount = (int) ($signalRow['kitchen_pending_count'] ?? 0)
+                + (int) ($signalRow['kitchen_sent_count'] ?? 0)
+                + (int) ($signalRow['kitchen_preparing_count'] ?? 0)
+                + (int) ($signalRow['kitchen_ready_count'] ?? 0);
+            $servedCount = (int) ($signalRow['kitchen_served_count'] ?? 0);
+
+            if ($servedCount <= 0) {
+                $servedFallbackBuilder = $this->db->table('order_items');
+                $servedFallbackBuilder->select('COUNT(*) AS served_count', false);
+                $servedFallbackBuilder->where('order_id', $orderId);
+
+                if ($this->db->fieldExists('tenant_id', 'order_items')) {
+                    $servedFallbackBuilder->where('tenant_id', $tenantId);
+                }
+
+                $servedFallbackBuilder->groupStart()
+                    ->where('status', 'served');
+
+                if ($this->db->fieldExists('served_at', 'order_items')) {
+                    $servedFallbackBuilder->orWhere('served_at IS NOT NULL', null, false);
+                }
+
+                $servedFallbackBuilder->groupEnd();
+
+                $servedFallbackRow = $servedFallbackBuilder->get()->getRowArray();
+                $servedCount = (int) ($servedFallbackRow['served_count'] ?? 0);
+                $signalRow['kitchen_served_count'] = $servedCount;
+            }
+
+            $signalRow['kitchen_remaining_count'] = $remainingCount;
+            $signalRow['kitchen_served_partial'] = ($servedCount > 0 && $remainingCount > 0) ? 1 : 0;
+            $signalRow['kitchen_served_all'] = ($servedCount > 0 && $remainingCount === 0) ? 1 : 0;
+        }
+        unset($signalRow);
+
+        if ($this->db->tableExists('payments')) {
+            $paymentBuilder = $this->db->table('payments');
+            $paymentBuilder->select('order_id, COUNT(*) AS total_count', false);
+            if ($this->db->fieldExists('tenant_id', 'payments')) {
+                $paymentBuilder->where('tenant_id', $tenantId);
+            }
+            $paymentBuilder->whereIn('order_id', $inOrderIds);
+            if ($this->db->fieldExists('status', 'payments')) {
+                $paymentBuilder->whereNotIn('status', ['void', 'voided', 'refund', 'refunded']);
+            }
+            $paymentBuilder->groupBy('order_id');
+
+            foreach ($paymentBuilder->get()->getResultArray() as $row) {
+                $orderId = (int) ($row['order_id'] ?? 0);
+                if (isset($map[$orderId])) {
+                    $map[$orderId]['payment_partial_count'] = max(0, ((int) ($row['total_count'] ?? 0)) - 1);
+                    $map[$orderId]['payment_partial'] = $map[$orderId]['payment_partial_count'] > 0 ? 1 : 0;
+                }
+            }
+        }
+
+        if ($this->db->tableExists('order_merges')) {
+            $mergeBuilder = $this->db->table('order_merges');
+            $mergeBuilder->select('target_order_id AS order_id, COUNT(*) AS total_count', false);
+            $mergeBuilder->where('tenant_id', $tenantId);
+            if ($this->db->fieldExists('deleted_at', 'order_merges')) {
+                $mergeBuilder->where('deleted_at', null);
+            }
+            if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_merges')) {
+                $mergeBuilder->where('branch_id', $branchId);
+            }
+            $mergeBuilder->whereIn('target_order_id', $inOrderIds);
+            $mergeBuilder->groupBy('target_order_id');
+
+            foreach ($mergeBuilder->get()->getResultArray() as $row) {
+                $orderId = (int) ($row['order_id'] ?? 0);
+                if (isset($map[$orderId])) {
+                    $map[$orderId]['merge_in_count'] = (int) ($row['total_count'] ?? 0);
+                }
+            }
+        }
+
+        if ($this->db->tableExists('order_table_moves')) {
+            $moveBuilder = $this->db->table('order_table_moves');
+            $moveBuilder->select('order_id');
+            $moveBuilder->where('tenant_id', $tenantId);
+            if ($branchId > 0 && $this->db->fieldExists('branch_id', 'order_table_moves')) {
+                $moveBuilder->where('branch_id', $branchId);
+            }
+            $moveBuilder->whereIn('order_id', $inOrderIds);
+            $moveBuilder->groupBy('order_id');
+
+            foreach ($moveBuilder->get()->getResultArray() as $row) {
+                $orderId = (int) ($row['order_id'] ?? 0);
+                if (isset($map[$orderId])) {
+                    $map[$orderId]['was_moved'] = 1;
+                    $map[$orderId]['move_in_count'] = 1;
+                }
+            }
+        }
+
+        if ($this->db->tableExists('audit_logs')) {
+            $auditBuilder = $this->db->table('audit_logs');
+            $auditBuilder->select('order_id');
+            $auditBuilder->where('tenant_id', $tenantId);
+            if ($branchId > 0 && $this->db->fieldExists('branch_id', 'audit_logs')) {
+                $auditBuilder->where('branch_id', $branchId);
+            }
+            $auditBuilder->whereIn('order_id', $inOrderIds);
+            $auditBuilder->whereIn('action_key', ['cashier.reopen_bill', 'pos.reopen_bill', 'reopen_bill']);
+            $auditBuilder->groupBy('order_id');
+
+            foreach ($auditBuilder->get()->getResultArray() as $row) {
+                $orderId = (int) ($row['order_id'] ?? 0);
+                if (isset($map[$orderId])) {
+                    $map[$orderId]['was_reopened'] = 1;
+                }
+            }
+        }
+
+        return $map;
+    }
+
+    protected function getPosOverviewRealtimeSnapshot(): array
+    {
+        $tenantId = $this->currentTenantId();
+        $branchId = $this->getCurrentBranchId();
+        $latest   = '1970-01-01 00:00:00';
+        $parts    = [];
+
+        $advanceLatest = static function (?string $value) use (&$latest): void {
+            $value = trim((string) $value);
+            if ($value !== '' && strtotime($value) > strtotime($latest)) {
+                $latest = $value;
+            }
+        };
+
+        $tableBuilder = $this->db->table('restaurant_tables');
+        $tableBuilder->select('MAX(updated_at) AS latest_at, COUNT(*) AS total_count');
+        $tableBuilder->where('tenant_id', $tenantId);
+        $tableBuilder->where('deleted_at', null);
+        if ($branchId > 0) {
+            $tableBuilder->where('branch_id', $branchId);
+        }
+        $tableMeta = (array) ($tableBuilder->get()->getRowArray() ?? []);
+        $advanceLatest($tableMeta['latest_at'] ?? '');
+        $parts['tables'] = [
+            'latest_at' => (string) ($tableMeta['latest_at'] ?? ''),
+            'count'     => (int) ($tableMeta['total_count'] ?? 0),
+        ];
+
+        $orderBuilder = $this->db->table('orders');
+        $orderBuilder->select('MAX(updated_at) AS latest_at, COUNT(*) AS total_count');
+        $orderBuilder->where('tenant_id', $tenantId);
+        if ($branchId > 0) {
+            $orderBuilder->where('branch_id', $branchId);
+        }
+        $orderMeta = (array) ($orderBuilder->get()->getRowArray() ?? []);
+        $advanceLatest($orderMeta['latest_at'] ?? '');
+        $parts['orders'] = [
+            'latest_at' => (string) ($orderMeta['latest_at'] ?? ''),
+            'count'     => (int) ($orderMeta['total_count'] ?? 0),
+        ];
+
+        $reservationBuilder = $this->db->table('reservations');
+        $reservationBuilder->select('MAX(updated_at) AS latest_at, COUNT(*) AS total_count');
+        $reservationBuilder->where('tenant_id', $tenantId);
+        $reservationBuilder->where('deleted_at', null);
+        if ($branchId > 0) {
+            $reservationBuilder->where('branch_id', $branchId);
+        }
+        $reservationMeta = (array) ($reservationBuilder->get()->getRowArray() ?? []);
+        $advanceLatest($reservationMeta['latest_at'] ?? '');
+        $parts['reservations'] = [
+            'latest_at' => (string) ($reservationMeta['latest_at'] ?? ''),
+            'count'     => (int) ($reservationMeta['total_count'] ?? 0),
+        ];
+
+        $reservationTableBuilder = $this->db->table('reservation_tables rt');
+        $reservationTableBuilder->select('MAX(rt.updated_at) AS latest_at, COUNT(*) AS total_count');
+        $reservationTableBuilder->join('reservations r', 'r.id = rt.reservation_id AND r.tenant_id = rt.tenant_id AND r.deleted_at IS NULL', 'inner');
+        $reservationTableBuilder->where('rt.tenant_id', $tenantId);
+        $reservationTableBuilder->where('rt.deleted_at', null);
+        if ($branchId > 0) {
+            $reservationTableBuilder->where('r.branch_id', $branchId);
+        }
+        $reservationTableMeta = (array) ($reservationTableBuilder->get()->getRowArray() ?? []);
+        $advanceLatest($reservationTableMeta['latest_at'] ?? '');
+        $parts['reservation_tables'] = [
+            'latest_at' => (string) ($reservationTableMeta['latest_at'] ?? ''),
+            'count'     => (int) ($reservationTableMeta['total_count'] ?? 0),
+        ];
+
+        $paymentBuilder = $this->db->table('payments p');
+        $paymentBuilder->select('MAX(p.updated_at) AS latest_at, COUNT(*) AS total_count');
+        $paymentBuilder->join('orders o', 'o.id = p.order_id AND o.tenant_id = p.tenant_id', 'inner');
+        $paymentBuilder->where('p.tenant_id', $tenantId);
+        if ($branchId > 0) {
+            $paymentBuilder->where('o.branch_id', $branchId);
+        }
+        $paymentMeta = (array) ($paymentBuilder->get()->getRowArray() ?? []);
+        $advanceLatest($paymentMeta['latest_at'] ?? '');
+        $parts['payments'] = [
+            'latest_at' => (string) ($paymentMeta['latest_at'] ?? ''),
+            'count'     => (int) ($paymentMeta['total_count'] ?? 0),
+        ];
+
+        $moveBuilder = $this->db->table('order_table_moves');
+        $moveBuilder->select('MAX(updated_at) AS latest_at, COUNT(*) AS total_count');
+        $moveBuilder->where('tenant_id', $tenantId);
+        if ($branchId > 0) {
+            $moveBuilder->where('branch_id', $branchId);
+        }
+        $moveMeta = (array) ($moveBuilder->get()->getRowArray() ?? []);
+        $advanceLatest($moveMeta['latest_at'] ?? '');
+        $parts['moves'] = [
+            'latest_at' => (string) ($moveMeta['latest_at'] ?? ''),
+            'count'     => (int) ($moveMeta['total_count'] ?? 0),
+        ];
+
+        $mergeBuilder = $this->db->table('order_merges');
+        $mergeBuilder->select('MAX(updated_at) AS latest_at, COUNT(*) AS total_count');
+        $mergeBuilder->where('tenant_id', $tenantId);
+        $mergeBuilder->where('deleted_at', null);
+        if ($branchId > 0) {
+            $mergeBuilder->where('branch_id', $branchId);
+        }
+        $mergeMeta = (array) ($mergeBuilder->get()->getRowArray() ?? []);
+        $advanceLatest($mergeMeta['latest_at'] ?? '');
+        $parts['merges'] = [
+            'latest_at' => (string) ($mergeMeta['latest_at'] ?? ''),
+            'count'     => (int) ($mergeMeta['total_count'] ?? 0),
+        ];
+
+        return [
+            'version' => sha1(json_encode([
+                'tenant_id' => $tenantId,
+                'branch_id' => $branchId,
+                'latest'    => $latest,
+                'parts'     => $parts,
+            ])),
+            'cursor'  => $latest,
+            'parts'   => $parts,
+        ];
+    }
+
+    protected function getChangedOverviewTableIdsSince(string $cursor): array
+    {
+        $tenantId = $this->currentTenantId();
+        $branchId = $this->getCurrentBranchId();
+        $changed  = [];
+
+        if ($cursor === '' || strtotime($cursor) === false) {
+            return [];
+        }
+
+        $orderBuilder = $this->db->table('orders');
+        $orderBuilder->distinct();
+        $orderBuilder->select('table_id');
+        $orderBuilder->where('tenant_id', $tenantId);
+        $orderBuilder->where('updated_at >', $cursor);
+        if ($branchId > 0) {
+            $orderBuilder->where('branch_id', $branchId);
+        }
+        foreach ($orderBuilder->get()->getResultArray() as $row) {
+            $tableId = (int) ($row['table_id'] ?? 0);
+            if ($tableId > 0) {
+                $changed[$tableId] = $tableId;
+            }
+        }
+
+        $tableBuilder = $this->db->table('restaurant_tables');
+        $tableBuilder->distinct();
+        $tableBuilder->select('id');
+        $tableBuilder->where('tenant_id', $tenantId);
+        $tableBuilder->where('deleted_at', null);
+        $tableBuilder->where('updated_at >', $cursor);
+        if ($branchId > 0) {
+            $tableBuilder->where('branch_id', $branchId);
+        }
+        foreach ($tableBuilder->get()->getResultArray() as $row) {
+            $tableId = (int) ($row['id'] ?? 0);
+            if ($tableId > 0) {
+                $changed[$tableId] = $tableId;
+            }
+        }
+
+        $reservationBuilder = $this->db->table('reservation_tables rt');
+        $reservationBuilder->distinct();
+        $reservationBuilder->select('rt.table_id');
+        $reservationBuilder->join('reservations r', 'r.id = rt.reservation_id AND r.tenant_id = rt.tenant_id AND r.deleted_at IS NULL', 'inner');
+        $reservationBuilder->where('rt.tenant_id', $tenantId);
+        $reservationBuilder->where('rt.deleted_at', null);
+        $reservationBuilder->groupStart()
+            ->where('rt.updated_at >', $cursor)
+            ->orWhere('r.updated_at >', $cursor)
+            ->groupEnd();
+        if ($branchId > 0) {
+            $reservationBuilder->where('r.branch_id', $branchId);
+        }
+        foreach ($reservationBuilder->get()->getResultArray() as $row) {
+            $tableId = (int) ($row['table_id'] ?? 0);
+            if ($tableId > 0) {
+                $changed[$tableId] = $tableId;
+            }
+        }
+
+        return array_values($changed);
+    }
+
+    public function index()
+    {
+        if ($response = $this->denyIfFeatureNotEnabled('pos.access', lang('app.plan_cannot_access_pos'))) {
+            return $response;
+        }
+
         return view('pos/index', [
-            'tables' => $tables,
+            'tables' => $this->getOverviewTables(),
+        ]);
+    }
+
+    public function overviewGridPartial()
+    {
+        if ($response = $this->denyIfFeatureNotEnabled('pos.access', lang('app.plan_cannot_access_pos'))) {
+            return $response;
+        }
+
+        return view('pos/_table_grid', [
+            'tables' => $this->getOverviewTables(),
+        ]);
+    }
+
+    public function overviewChanges()
+    {
+        if ($response = $this->denyIfFeatureNotEnabled('pos.access', lang('app.plan_cannot_access_pos'))) {
+            return $response;
+        }
+
+        $snapshot = $this->getPosOverviewRealtimeSnapshot();
+        $version  = trim((string) $this->request->getGet('version'));
+        $cursor   = trim((string) $this->request->getGet('cursor'));
+
+        $hasChanges = $version === '' || ! hash_equals($snapshot['version'], $version);
+
+        return $this->response->setJSON([
+            'status'            => 'success',
+            'has_changes'       => $hasChanges,
+            'version'           => $snapshot['version'],
+            'cursor'            => $snapshot['cursor'],
+            'changed_table_ids' => $hasChanges ? $this->getChangedOverviewTableIdsSince($cursor) : [],
         ]);
     }
 
@@ -854,6 +1308,10 @@ class POSController extends BaseController
             'products'     => $products,
             'currentOrder' => $currentOrder,
             'quickNotes'   => $quickNotes,
+            'tablePermissions' => [
+                'void_item'        => $this->userHasPermissionKey('cashier.void_item'),
+                'manager_override' => $this->userHasPermissionKey('cashier.manager_override'),
+            ],
         ]);
     }
 
@@ -1523,6 +1981,80 @@ class POSController extends BaseController
         }, $rows);
     }
 
+
+    public function tableTimeline($tableId)
+    {
+        if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
+            return $response;
+        }
+
+        $tableId = (int) $tableId;
+        $table = $this->getScopedTable($tableId);
+        if (! $table) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => lang('app.table_not_found'),
+            ]);
+        }
+
+        $order = $this->findCurrentOrderByTable($tableId);
+        if (! $order) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => lang('app.no_bill_yet'),
+            ]);
+        }
+
+        $orderId = (int) ($order['id'] ?? 0);
+        $rows = $this->auditLogModel->getTimelineByOrderId($orderId);
+
+        $normalized = array_map(function (array $row): array {
+            $meta = [];
+            if (! empty($row['meta_json'])) {
+                $decoded = json_decode((string) $row['meta_json'], true);
+                if (is_array($decoded)) {
+                    $meta = $decoded;
+                }
+            }
+
+            return [
+                'id' => (int) ($row['id'] ?? 0),
+                'action_key' => (string) ($row['action_key'] ?? ''),
+                'action_label' => (string) ($row['action_label'] ?? ''),
+                'actor_name' => (string) ($row['actor_name'] ?? $row['full_name'] ?? $row['username'] ?? ''),
+                'created_at' => (string) ($row['created_at'] ?? ''),
+                'meta' => $meta,
+            ];
+        }, $rows);
+
+        $this->writeAuditLog([
+            'target_type'  => 'order',
+            'target_id'    => $orderId,
+            'order_id'     => $orderId,
+            'table_id'     => $tableId,
+            'action_key'   => 'audit_logs.view',
+            'action_label' => lang('app.view_timeline'),
+            'meta_json'    => [
+                'screen'    => 'pos_table_timeline',
+                'branch_id' => $this->getCurrentBranchId(),
+            ],
+        ], 'pos.timeline.' . $orderId . '.' . $this->getCurrentBranchId(), 3);
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'table' => [
+                'id' => (int) ($table['id'] ?? 0),
+                'table_name' => (string) ($table['table_name'] ?? ''),
+            ],
+            'order' => [
+                'id' => $orderId,
+                'order_number' => (string) ($order['order_number'] ?? ''),
+                'status' => (string) ($order['status'] ?? ''),
+            ],
+            'rows' => $normalized,
+        ]);
+    }
+
     public function currentOrder($tableId)
     {
         if ($response = $this->jsonFeatureDenied('pos.access', 'app.plan_cannot_access_pos')) {
@@ -1743,69 +2275,136 @@ class POSController extends BaseController
         }
     }
 
-    public function removeItem()
-    {
-        if ($response = $this->jsonPosWriteDenied()) {
-            return $response;
-        }
 
-        $itemId = (int) ($this->request->getPost('item_id') ?? 0);
-
-        if ($itemId <= 0) {
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => lang('app.invalid_data'),
-            ]);
-        }
-
-        $check = $this->validateEditableItem($itemId);
-
-        if (! $check['ok']) {
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => $check['message'],
-            ]);
-        }
-
-        $item    = $check['item'];
-        $orderId = (int) $item['order_id'];
-
-        $db = \Config\Database::connect();
-        $db->transBegin();
-
-        try {
-            $this->deleteScopedOrderItemOptions($itemId);
-            $this->orderItemModel->deleteScoped($itemId);
-
-            $this->recalculateOrderTotal($orderId);
-
-            if ($db->transStatus() === false) {
-                $db->transRollback();
-
-                return $this->response->setJSON([
-                    'status'  => 'error',
-                    'message' => lang('app.remove_item_failed'),
-                ]);
-            }
-
-            $db->transCommit();
-
-            return $this->response->setJSON([
-                'status'  => 'success',
-                'message' => lang('app.remove_item_success'),
-            ]);
-        } catch (\Throwable $e) {
-            $db->transRollback();
-            log_message('error', 'removeItem error: ' . $e->getMessage());
-
-            return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => lang('app.remove_item_error'),
-            ]);
-        }
+public function removeItem()
+{
+    if ($response = $this->jsonPosWriteDenied()) {
+        return $response;
     }
 
-    public function sendKitchen()
+    if ($response = $this->jsonFeatureDenied('feature.refund_void.enabled')) {
+        return $response;
+    }
+
+    $itemId = (int) ($this->request->getPost('item_id') ?? 0);
+    $reason = trim((string) ($this->request->getPost('reason') ?? ''));
+
+    if ($itemId <= 0) {
+        return $this->response->setJSON([
+            'status'  => 'error',
+            'message' => lang('app.invalid_data'),
+        ]);
+    }
+
+    $check = $this->validateEditableItem($itemId);
+
+    if (! $check['ok']) {
+        return $this->response->setJSON([
+            'status'  => 'error',
+            'message' => $check['message'],
+        ]);
+    }
+
+    $item    = $check['item'];
+    $order   = $check['order'];
+    $orderId = (int) ($item['order_id'] ?? 0);
+
+    if ($response = $this->ensurePermissionOrManagerOverride('cashier.void_item', 'void_item', $orderId)) {
+        return $response;
+    }
+
+    $db = \Config\Database::connect();
+    $db->transBegin();
+
+    try {
+        $now          = date('Y-m-d H:i:s');
+        $userId       = (int) (session('user_id') ?? 0) ?: null;
+        $overrideData = $this->consumeManagerOverrideApproval('void_item', $orderId);
+
+        $updateData = [
+            'status'       => 'cancel',
+            'cancelled_at' => $now,
+            'cancelled_by' => $userId,
+            'updated_at'   => $now,
+            'line_total'   => 0,
+        ];
+
+        if ($this->orderItemsFieldExists('cancel_request_status')) {
+            $updateData['cancel_request_status'] = 'approved';
+        }
+        if ($this->orderItemsFieldExists('cancel_request_note')) {
+            $updateData['cancel_request_note'] = $reason;
+        }
+        if ($this->orderItemsFieldExists('cancel_request_reason')) {
+            $updateData['cancel_request_reason'] = $reason;
+        }
+        if ($this->orderItemsFieldExists('cancel_request_prev_status')) {
+            $updateData['cancel_request_prev_status'] = 'pending';
+        }
+        if ($this->orderItemsFieldExists('cancel_requested_at')) {
+            $updateData['cancel_requested_at'] = $now;
+        }
+        if ($this->orderItemsFieldExists('cancel_requested_by')) {
+            $updateData['cancel_requested_by'] = $userId;
+        }
+        if ($this->orderItemsFieldExists('cancel_decided_at')) {
+            $updateData['cancel_decided_at'] = $now;
+        }
+        if ($this->orderItemsFieldExists('cancel_decided_by')) {
+            $updateData['cancel_decided_by'] = $userId;
+        }
+
+        $this->orderItemModel->update($itemId, $updateData);
+        $this->recalculateOrderTotal($orderId);
+
+        $this->writeAuditLog([
+            'target_type'  => 'order_item',
+            'target_id'    => $itemId,
+            'order_id'     => $orderId,
+            'table_id'     => isset($order['table_id']) ? (int) $order['table_id'] : null,
+            'action_key'   => 'pos.void_item',
+            'action_label' => lang('app.audit_log_void_item'),
+            'ref_code'     => $order['order_number'] ?? null,
+            'meta_json'    => [
+                'item_id'       => $itemId,
+                'product_name'  => (string) ($item['product_name'] ?? ''),
+                'qty'           => (int) ($item['qty'] ?? 0),
+                'reason'        => $reason !== '' ? $reason : (lang('app.canceled') ?: 'Cancelled'),
+                'from_status'   => 'pending',
+                'to_status'     => 'cancel',
+                'action_source' => 'pos.void_item',
+                'override_by'   => $overrideData['approved_by_name'] ?? null,
+            ],
+        ]);
+
+        if ($db->transStatus() === false) {
+            $db->transRollback();
+
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => lang('app.void_item_failed'),
+            ]);
+        }
+
+        $db->transCommit();
+
+        return $this->response->setJSON([
+            'status'  => 'success',
+            'message' => lang('app.void_item_success'),
+            'mode'    => 'voided',
+        ]);
+    } catch (\Throwable $e) {
+        $db->transRollback();
+        log_message('error', 'removeItem/voidItem error: ' . $e->getMessage());
+
+        return $this->response->setJSON([
+            'status'  => 'error',
+            'message' => lang('app.void_item_failed'),
+        ]);
+    }
+}
+
+public function sendKitchen()
     {
         if ($response = $this->jsonPosWriteDenied()) {
             return $response;
@@ -2458,6 +3057,29 @@ class POSController extends BaseController
             } catch (\Throwable $e) {
                 log_message('error', 'updateItemStatus kitchen log error: ' . $e->getMessage());
             }
+        }
+
+        if ($storedStatus === 'served') {
+            $order = $this->getScopedOrder((int) ($item['order_id'] ?? 0), ['open', 'billing', 'paid']);
+
+            $this->writeAuditLog([
+                'target_type'  => 'order_item',
+                'target_id'    => $itemId,
+                'order_id'     => (int) ($item['order_id'] ?? 0),
+                'table_id'     => isset($order['table_id']) ? (int) ($order['table_id'] ?? 0) : null,
+                'action_key'   => 'pos.item_served',
+                'action_label' => lang('app.audit_log_item_served'),
+                'ref_code'     => $order['order_number'] ?? null,
+                'meta_json'    => [
+                    'item_id'       => $itemId,
+                    'product_name'  => (string) ($item['product_name'] ?? ''),
+                    'qty'           => (int) ($item['qty'] ?? 0),
+                    'from_status'   => $currentStatus,
+                    'to_status'     => 'served',
+                    'served_at'     => $data['served_at'] ?? date('Y-m-d H:i:s'),
+                    'action_source' => 'pos.update_item_status',
+                ],
+            ], 'pos.item_served.' . $itemId . '.' . ($data['served_at'] ?? ''), 3);
         }
 
         $this->recalculateOrderTotal((int) ($item['order_id'] ?? 0));
@@ -3468,7 +4090,7 @@ class POSController extends BaseController
                         'meta_json'     => [
                             'from_table_id' => $fromTableId,
                             'to_table_id'   => $toTableId,
-                            'reason'        => $reason,
+                            'reason'        => $reason !== '' ? $reason : (lang('app.canceled') ?: 'Cancelled'),
                         ],
                     ]
                 );
